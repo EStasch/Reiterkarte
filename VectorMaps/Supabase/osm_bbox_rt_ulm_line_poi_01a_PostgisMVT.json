@@ -1,0 +1,607 @@
+{
+  "version": 8,
+  "name": "osm_bbox_rt_ulm_line_poi_01a_PostgisMVT",
+  "metadata": {"maputnik:renderer": "mlgljs"},
+  "center": [9.367313, 48.493868],
+  "zoom": 14,
+  "sources": {
+    "kosmos_osm": {
+      "type": "raster",
+      "attribution": "Kosmos",
+      "minzoom": 0,
+      "maxzoom": 22,
+      "tiles": ["https://map.tourinfra.com/tiles/kompass_osm/{z}/{x}/{y}.png"],
+      "tileSize": 256
+    },
+    "Maptiler Server": {
+      "type": "vector",
+      "tiles": ["supabase://bbox_rt_ulm_line/{z}/{x}/{y}"],
+      "attribution":"OpenStreetMap"
+    },
+    "Maptiler Server POI": {
+      "type": "vector",
+      "tiles": ["supabase://bbox_rt_ulm_point/{z}/{x}/{y}"],
+      "attribution":"OpenStreetMap"
+    }
+  },
+  "sprite": "http://testhost/Test/Maps/Maptiler/MapStyles/sprites/sprite_Reiterkarte",
+  "glyphs": "https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=Ir7xu6JSqRW6GV3kmVgp",
+  "layers": [
+    {
+      "id": "Base_Map",
+      "type": "raster",
+      "source": "kosmos_osm",
+      "minzoom": 10,
+      "maxzoom": 20,
+      "layout": {"visibility": "visible"},
+      "paint": {
+        "raster-brightness-min": 0,
+        "raster-hue-rotate": 8,
+        "raster-opacity": 1,
+        "raster-saturation": 0.2,
+        "raster-contrast": -0.1,
+        "raster-brightness-max": 0.95
+      }
+    },
+    {
+      "id": "highway_service",
+      "type": "line",
+      "source": "Maptiler Server",
+      "source-layer": "bbox_rt_ulm_line",
+      "minzoom": 12,
+      "maxzoom": 20,
+      "filter": ["all", ["==", "highway", "service"], ["has", "surface"]],
+      "paint": {
+        "line-color": [
+          "match",
+          ["get", "surface"],
+          "asphalt",
+          "#36373b",
+          "compacted",
+          "#8699a7",
+          "concrete",
+          "#91a1ad",
+          "dirt",
+          "#b0994d",
+          "fine_gravel",
+          "#ccd4d8",
+          "grass",
+          "#399869",
+          "gravel",
+          "#a7b8c3",
+          "ground",
+          "#4e7c0e",
+          "paved",
+          "#4c5a64",
+          "paving_stones",
+          "#616b73",
+          "pebblestone",
+          "#9dadb8",
+          "rock",
+          "#91a1ad",
+          "unpaved",
+          "#b09b54",
+          "wood",
+          "#8b6f3e",
+          "#918bad"
+        ],
+        "line-width": {"stops": [[11, 1], [15, 2.5], [19, 32]]}
+      }
+    },
+    {
+      "id": "highway_unclassified",
+      "type": "line",
+      "source": "Maptiler Server",
+      "source-layer": "bbox_rt_ulm_line",
+      "minzoom": 12,
+      "maxzoom": 20,
+      "filter": [
+        "all",
+        ["==", "highway", "unclassified"],
+        ["==", "surface", "NULL"]
+      ],
+      "paint": {
+        "line-color": [
+          "match",
+          ["get", "surface"],
+          "asphalt",
+          "#36373b",
+          "compacted",
+          "#8699a7",
+          "concrete",
+          "#91a1ad",
+          "dirt",
+          "#b0994d",
+          "fine_gravel",
+          "#ccd4d8",
+          "grass",
+          "#399869",
+          "gravel",
+          "#a7b8c3",
+          "ground",
+          "#4e7c0e",
+          "paved",
+          "#4c5a64",
+          "paving_stones",
+          "#616b73",
+          "pebblestone",
+          "#9dadb8",
+          "rock",
+          "#91a1ad",
+          "unpaved",
+          "#b09b54",
+          "wood",
+          "#8b6f3e",
+          "#918bad"
+        ],
+        "line-width": {"stops": [[11, 0.8], [15, 1.5], [19, 24]]}
+      }
+    },
+    {
+      "id": "highway_track",
+      "type": "line",
+      "source": "Maptiler Server",
+      "source-layer": "bbox_rt_ulm_line",
+      "minzoom": 12,
+      "maxzoom": 20,
+      "filter": ["all", ["==", "highway", "track"]],
+      "paint": {
+        "line-color": [
+          "match",
+          ["get", "surface"],
+          "asphalt",
+          "#36373b",
+          "compacted",
+          "#8699a7",
+          "concrete",
+          "#91a1ad",
+          "dirt",
+          "#b0994d",
+          "fine_gravel",
+          "#ccd4d8",
+          "grass",
+          "#399869",
+          "gravel",
+          "#a7b8c3",
+          "ground",
+          "#4e7c0e",
+          "paved",
+          "#4c5a64",
+          "paving_stones",
+          "#616b73",
+          "pebblestone",
+          "#9dadb8",
+          "rock",
+          "#91a1ad",
+          "unpaved",
+          "#b09b54",
+          "wood",
+          "#8b6f3e",
+          "#918bad"
+        ],
+        "line-width": [
+          "interpolate",
+          ["exponential", 2.5],
+          ["zoom"],
+          11,
+          ["case", ["has", "surface"], 0.6, 0.4],
+          15,
+          ["case", ["has", "surface"], 2.5, 1.25],
+          19,
+          ["case", ["has", "surface"], 38, 16]
+        ]
+      }
+    },
+    {
+      "id": "highway_Steps-Outline",
+      "type": "line",
+      "source": "Maptiler Server",
+      "source-layer": "bbox_rt_ulm_line",
+      "minzoom": 12,
+      "maxzoom": 20,
+      "filter": ["all", ["==", "highway", "steps"]],
+      "paint": {
+        "line-color": "rgba(248, 0, 0, 0.81)",
+        "line-opacity": 1,
+        "line-width": {"stops": [[14, 4.5], [20, 19]]}
+      }
+    },
+    {
+      "id": "highway_Steps",
+      "type": "line",
+      "source": "Maptiler Server",
+      "source-layer": "bbox_rt_ulm_line",
+      "minzoom": 12,
+      "maxzoom": 20,
+      "filter": ["all", ["==", "highway", "steps"]],
+      "paint": {
+        "line-color": [
+          "match",
+          ["get", "surface"],
+          "asphalt",
+          "#36373b",
+          "compacted",
+          "#8699a7",
+          "concrete",
+          "#91a1ad",
+          "dirt",
+          "#b0994d",
+          "fine_gravel",
+          "#ccd4d8",
+          "grass",
+          "#399869",
+          "gravel",
+          "#a7b8c3",
+          "ground",
+          "#4e7c0e",
+          "paved",
+          "#4c5a64",
+          "paving_stones",
+          "#616b73",
+          "pebblestone",
+          "#9dadb8",
+          "rock",
+          "#91a1ad",
+          "unpaved",
+          "#b09b54",
+          "wood",
+          "#8b6f3e",
+          "rgb(255,255,255)"
+        ],
+        "line-dasharray": {
+          "stops": [
+            [14, [0.3, 0.075, 0.075, 0.075]],
+            [17, [0.3, 0.075, 0.075, 0.075]],
+            [20, [0.75, 0.05, 0.05, 0.05]]
+          ]
+        },
+        "line-opacity": 1,
+        "line-width": {"stops": [[14, 3], [20, 13.5]]}
+      }
+    },
+    {
+      "id": "highway_Path",
+      "type": "line",
+      "source": "Maptiler Server",
+      "source-layer": "bbox_rt_ulm_line",
+      "minzoom": 12,
+      "maxzoom": 20,
+      "filter": ["all", ["==", "highway", "path"]],
+      "paint": {
+        "line-color": [
+          "match",
+          ["get", "surface"],
+          "asphalt",
+          "#36373b",
+          "compacted",
+          "#8699a7",
+          "concrete",
+          "#91a1ad",
+          "dirt",
+          "#b0994d",
+          "fine_gravel",
+          "#ccd4d8",
+          "grass",
+          "#399869",
+          "gravel",
+          "#a7b8c3",
+          "ground",
+          "#4e7c0e",
+          "paved",
+          "#4c5a64",
+          "paving_stones",
+          "#616b73",
+          "pebblestone",
+          "#9dadb8",
+          "rock",
+          "#91a1ad",
+          "unpaved",
+          "#b09b54",
+          "wood",
+          "#8b6f3e",
+          "#918bad"
+        ],
+        "line-dasharray": ["literal", [3, 3]],
+        "line-opacity": 1,
+        "line-width": {"stops": [[11, 0.7], [15, 2.5], [20, 32]], "base": 1.5},
+        "line-gap-width": 0
+      }
+    },
+    {
+      "id": "text_surface_path",
+      "type": "symbol",
+      "source": "Maptiler Server",
+      "source-layer": "bbox_rt_ulm_line",
+      "minzoom": 13,
+      "maxzoom": 20,
+      "filter": ["all", ["==", "highway", "path"]],
+      "layout": {
+        "visibility": "visible",
+        "symbol-placement": "line-center",
+        "symbol-spacing": 10,
+        "text-field": "{name}     {surface}",
+        "text-allow-overlap": false,
+        "text-anchor": "bottom",
+        "text-font": ["Roboto Regular", "Noto Sans Regular"],
+        "text-letter-spacing": 0.01,
+        "text-max-width": 200,
+        "text-offset": [0, 0],
+        "text-padding": 0,
+        "text-size": {"stops": [[10, 6], [15, 10], [20, 32]]},
+        "icon-offset": [0, 3]
+      }
+    },
+    {
+      "id": "text_surface_track",
+      "type": "symbol",
+      "source": "Maptiler Server",
+      "source-layer": "bbox_rt_ulm_line",
+      "minzoom": 13,
+      "maxzoom": 20,
+      "filter": ["all", ["==", "highway", "track"]],
+      "layout": {
+        "visibility": "visible",
+        "symbol-placement": "line-center",
+        "symbol-spacing": 10,
+        "text-field": "{name}     {surface}",
+        "text-allow-overlap": false,
+        "text-anchor": "bottom",
+        "text-font": ["Roboto Regular", "Noto Sans Regular"],
+        "text-letter-spacing": 0.01,
+        "text-max-width": 200,
+        "text-offset": [0, 0],
+        "text-padding": 0,
+        "text-size": {"stops": [[10, 6], [15, 10], [20, 32]]},
+        "icon-offset": [0, 3]
+      }
+    },
+    {
+      "id": "text_surface_unclassified",
+      "type": "symbol",
+      "source": "Maptiler Server",
+      "source-layer": "bbox_rt_ulm_line",
+      "minzoom": 13,
+      "maxzoom": 20,
+      "filter": ["all", ["==", "highway", "unclassified"]],
+      "layout": {
+        "visibility": "visible",
+        "symbol-placement": "line-center",
+        "symbol-spacing": 10,
+        "text-field": "{name}     {surface}  \"unclassified\"",
+        "text-allow-overlap": false,
+        "text-anchor": "bottom",
+        "text-font": ["Roboto Regular", "Noto Sans Regular"],
+        "text-letter-spacing": 0.01,
+        "text-max-width": 200,
+        "text-offset": [0, 0],
+        "text-padding": 0,
+        "text-size": {"stops": [[10, 6], [15, 10], [20, 32]]},
+        "icon-offset": [0, 3]
+      }
+    },
+    {
+      "id": "poi_facilities_drinking_water",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "bbox_rt_ulm_point",
+      "minzoom": 12.5,
+      "filter": ["all", ["==", "amenity", "drinking_water"]],
+      "layout": {
+        "icon-image": "drinking-water",
+        "icon-size": {"stops": [[11, 0.02], [16, 0.18], [20, 0.6]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": false,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]},
+        "text-allow-overlap": false,
+        "symbol-spacing": 2
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_facilities_watering_place",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "bbox_rt_ulm_point",
+      "minzoom": 12.5,
+      "filter": ["all", ["==", "amenity", "watering_place"]],
+      "layout": {
+        "icon-image": "watering_place",
+        "icon-size": {"stops": [[11, 0.02], [16, 0.18], [20, 0.6]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": false,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]},
+        "text-allow-overlap": false,
+        "symbol-spacing": 2
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_facilities_fire_pit",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "bbox_rt_ulm_point",
+      "minzoom": 12.5,
+      "filter": ["all", ["==", "leisure", "firepit"]],
+      "layout": {
+        "icon-image": "fire2",
+        "icon-size": {"stops": [[11, 0.02], [16, 0.18], [20, 0.6]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": false,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]},
+        "text-allow-overlap": false,
+        "symbol-spacing": 2
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_facilities_shelter",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "bbox_rt_ulm_point",
+      "minzoom": 12.5,
+      "filter": ["all", ["==", "amenity", "shelter"]],
+      "layout": {
+        "icon-image": "shelter",
+        "icon-size": {"stops": [[12, 0.025], [16, 0.36], [20, 1.1]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": false,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]},
+        "text-allow-overlap": false,
+        "symbol-spacing": 2
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_facilities_picnic",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "bbox_rt_ulm_point",
+      "minzoom": 12.5,
+      "filter": ["all", ["==", "tourism", "picnic_site"]],
+      "layout": {
+        "icon-image": "map-picnic",
+        "icon-size": {"stops": [[11, 0.025], [16, 0.18], [20, 1.1]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": false,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]},
+        "text-allow-overlap": false,
+        "symbol-spacing": 2
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_facilities_veterinary",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "bbox_rt_ulm_point",
+      "minzoom": 12,
+      "filter": ["all", ["==", "amenity", "veterinary"]],
+      "layout": {
+        "icon-image": "Vetlogo",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_facilities_biergarten",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "bbox_rt_ulm_point",
+      "minzoom": 12,
+      "filter": ["all", ["==", "amenity", "biergarten"]],
+      "layout": {
+        "icon-image": "Biergarten",
+        "icon-size": {"stops": [[12, 0.12], [16, 0.3], [20, 1]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 20]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 255, 255, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_facilities_horse_Restaurant",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "bbox_rt_ulm_point",
+      "minzoom": 11,
+      "filter": [
+        "all",
+        ["==", "amenity", "restaurant"],
+        ["==", "horse", "yes"]
+      ],
+      "layout": {
+        "icon-image": "horse_restaurant_marker",
+        "icon-size": {"stops": [[11, 0.13], [16, 0.4], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 14], [20, 26]]}
+      },
+      "paint": {"icon-translate": [0, -15]}
+    },
+    {
+      "id": "poi_stables",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "bbox_rt_ulm_point",
+      "minzoom": 9,
+      "filter": ["all", ["==", "amenity", "stables"]],
+      "layout": {
+        "icon-image": "horse3",
+        "icon-size": {"stops": [[8, 0.08],[11, 0.08], [16, 0.35], [20, 0.8]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[8, 4],[11, 14], [20, 26]]}
+      },
+      "paint": {"icon-translate": [0, -15]}
+    },
+    {
+      "id": "poi_stables_stations",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "bbox_rt_ulm_point",
+      "minzoom": 9,
+      "filter": ["all", ["==", "tourism", "trail_riding_station"]],
+      "layout": {
+        "icon-image": "trail_riding_station_marker2",
+        "icon-size": {"stops": [[8, 0.15][11, 0.15], [16, 0.625], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[8, 3][11, 14], [20, 26]]}
+      },
+      "paint": {"icon-translate": [0, -15]}
+    }
+  ],
+  "id": "euve088",
+  "owner": ""
+}

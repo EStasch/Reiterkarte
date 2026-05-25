@@ -1,0 +1,98 @@
+<html>
+  <head>
+    <title>Overture bbox_bad_urach_line</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.css"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://unpkg.com/protomaps-themes-base@2.0.0-alpha.5/dist/index.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+      body {
+        margin: 0;
+      }
+      #map {
+        height: 100%;
+        width: 100%;
+      }
+      span {
+        cursor: pointer;
+        color: blue;
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="zoom-container" style="background-color: rgba(250, 246, 246, 0.875);position: absolute;top: 50px;right: 50px;">
+      <span>Zoom: </span>
+      <span id="zoom-display">Zoom</span>
+    </div>
+    <script type="text/javascript">
+      const client = supabase.createClient(
+        'https://pasyzgzvjujqlwdotnkc.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhc3l6Z3p2anVqcWx3ZG90bmtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NzM2OTAsImV4cCI6MjA5NDU0OTY5MH0.ilieCMc_hwd1VTiWWrSBVr3rEVY7cExYvg_KDeaJ5qs'
+      )
+      
+      function base64ToArrayBuffer(base64) {
+        var binaryString = atob(base64)
+        var bytes = new Uint8Array(binaryString.length)
+        for (var i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i)
+        }
+        return bytes
+      }
+
+      maplibregl.addProtocol('supabase', async (params, abortController) => {
+        const re = new RegExp(/supabase:\/\/(.+)\/(\d+)\/(\d+)\/(\d+)/)
+        const result = params.url.match(re)
+        
+        /*** verschiedene Funktionen für SQL Abfragen ***/
+        var table_name = result[1]
+        var function_name = ''
+
+        if(table_name =='bbox_bad_urach_line' || table_name =='bbox_bad_urach_point' || table_name =='bbox_rt_ulm_line' || table_name =='bbox_rt_ulm_point' )
+          function_name = 'mvt_' + table_name
+        else
+          function_name = 'mvt'
+        /*** verschiedene Funktionen für SQL Abfragen ***/
+
+        const { data, error } = await client.rpc(function_name, {
+          relation: result[1],
+          z: result[2],
+          x: result[3],
+          y: result[4],
+        })
+        const encoded = base64ToArrayBuffer(data)
+        if (!error) {
+          return { data: encoded }
+        } else {
+          throw new Error(`Tile fetch error:`)
+        }
+      })
+
+      const map = new maplibregl.Map({
+        hash: true,
+        container: 'map',
+        center: [9.399662,48.472864], // starting position [lng, lat]
+        zoom: 13, // starting zoom
+        style: './osm_bbox_rt_ulm_line_poi_01a_PostgisMVT.json'
+      });
+
+      map.showTileBoundaries = true;
+      
+      // Beispiel: Aktualisieren eines HTML-Elements mit der ID 'zoom-display'
+      map.on('zoom', () => {
+          document.getElementById('zoom-display').textContent = map.getZoom().toFixed(2);
+      });
+      
+    </script>
+  </body>
+</html>
