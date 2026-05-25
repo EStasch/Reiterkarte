@@ -31,6 +31,24 @@
         L.control.attribution({ prefix: false }).addTo(map); 
         var tilesource_layer = L.tileLayer('./{z}/{x}/{y}.png', 
         { minZoom: 9, maxZoom: 17, tms: false, attribution: 'Created by QGIS' }).addTo(map);
+
+
+        const ZoomViewer = L.Control.extend({
+            onAdd() {
+                const container = L.DomUtil.create('div');
+                const gauge = L.DomUtil.create('div');
+                container.style.width = '200px';
+                container.style.background = 'rgba(255,255,255,0.5)';
+                container.style.textAlign = 'left';
+                map.on('zoomstart zoom zoomend', (ev) => {
+                    gauge.innerHTML = `Zoom level: ${map.getZoom()}`;
+                });
+                container.appendChild(gauge);
+                return container;
+            }
+        });
+
+	   const zoomViewerControl = (new ZoomViewer()).addTo(map);
         </script>
 </body>
 
