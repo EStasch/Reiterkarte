@@ -27,7 +27,7 @@
 <body>
     <div id="map"></div>
     <script>
-        var map = L.map('map', { attributionControl: false }).setView([48.4068, 9.58526], 14); 
+        var map = L.map('map', { attributionControl: false }).setView([48.498550,9.375844], 13); 
         L.control.attribution({ prefix: false }).addTo(map); 
         var tilesource_layer = L.tileLayer('./{z}/{x}/{y}.png', 
         { minZoom: 9, maxZoom: 17, tms: false, attribution: 'Created by QGIS' }).addTo(map);
