@@ -24,7 +24,7 @@
       "attribution":"OpenStreetMap"
     }
   },
-  "sprite": "http://testhost/Test/Maps/Maptiler/MapStyles/sprites/sprite_Reiterkarte",
+  "sprite": "https://estasch.github.io/Reiterkarte/VectorMaps/Assets/Sprites/sprite_Reiterkarte",
   "glyphs": "https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=Ir7xu6JSqRW6GV3kmVgp",
   "layers": [
     {
