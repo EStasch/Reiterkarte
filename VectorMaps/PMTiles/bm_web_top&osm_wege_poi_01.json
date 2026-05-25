@@ -42,6 +42,14 @@
       "type": "vector",
       "attribution": "&copy; 2026 basemap.de / BKG | Datenquellen: &copy; GeoBasis-DE",
       "url": "https://sgx.geodatenzentrum.de/gdz_basemapde_vektor/tiles/v2/bm_web_de_3857/bm_web_de_3857.json"
+    },
+    "Maptiler Server": {
+      "type": "vector",
+      "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT_ULM_Wege.pmtiles"
+    },
+    "Maptiler Server POI": {
+      "type": "vector",
+      "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT_ULM_POI.pmtiles"
     }
   },
   "layers": [
