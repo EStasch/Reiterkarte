@@ -570,7 +570,7 @@
       "type": "symbol",
       "source": "Maptiler Server POI",
       "source-layer": "bbox_rt_ulm_point",
-      "minzoom": 9,
+      "minzoom": 8,
       "filter": ["all", ["==", "amenity", "stables"]],
       "layout": {
         "icon-image": "horse3",
@@ -588,7 +588,7 @@
       "type": "symbol",
       "source": "Maptiler Server POI",
       "source-layer": "bbox_rt_ulm_point",
-      "minzoom": 9,
+      "minzoom": 8,
       "filter": ["all", ["==", "tourism", "trail_riding_station"]],
       "layout": {
         "icon-image": "trail_riding_station_marker2",
