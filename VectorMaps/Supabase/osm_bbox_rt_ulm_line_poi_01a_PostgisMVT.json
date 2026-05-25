@@ -31,7 +31,7 @@
       "id": "Base_Map",
       "type": "raster",
       "source": "kosmos_osm",
-      "minzoom": 10,
+      "minzoom": 8,
       "maxzoom": 20,
       "layout": {"visibility": "visible"},
       "paint": {
