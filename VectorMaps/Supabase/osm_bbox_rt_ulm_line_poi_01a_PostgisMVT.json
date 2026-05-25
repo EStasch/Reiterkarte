@@ -592,12 +592,12 @@
       "filter": ["all", ["==", "tourism", "trail_riding_station"]],
       "layout": {
         "icon-image": "trail_riding_station_marker2",
-        "icon-size": {"stops": [[8, 0.15][11, 0.15], [16, 0.625], [20, 1.2]]},
+        "icon-size": {"stops": [[8, 0.15],[11, 0.15], [16, 0.625], [20, 1.2]]},
         "text-field": "{name}",
         "icon-allow-overlap": true,
         "icon-anchor": "bottom",
         "text-anchor": "center",
-        "text-size": {"stops": [[8, 3][11, 14], [20, 26]]}
+        "text-size": {"stops": [[8, 3],[11, 14], [20, 26]]}
       },
       "paint": {"icon-translate": [0, -15]}
     }
