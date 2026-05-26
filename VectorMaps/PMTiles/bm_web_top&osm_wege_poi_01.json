@@ -9,7 +9,7 @@
     "maputnik:renderer": "mbgljs"
   },
   "center": [10,51],
-  "zoom": 7,
+  "zoom": 6,
   "glyphs": "https://sgx.geodatenzentrum.de/gdz_basemapde_vektor/fonts/v2/{fontstack}/{range}.pbf",
   "sprite": [
     "https://sgx.geodatenzentrum.de/gdz_basemapde_vektor/sprites/v2/bm_web_top_sprite",
