@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <title>basemap.de Web Vektor - MapLibre GL JS Demo</title>
+   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.css" crossorigin="anonymous">
+        <script src="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+   <script src="https://unpkg.com/pmtiles@4.4.1/dist/pmtiles.js"></script>
+   <style>
+      body {
+         margin: 0;
+         padding: 0;
+      }
+
+      #map {
+         position: absolute;
+         top: 0;
+         bottom: 0;
+         width: 100%;
+      }
+   </style>
+</head>
+
+<body>
+   <div id="map" class="map"></div>
+   <div id="zoom-container" style="background-color: rgba(250, 246, 246, 0.875);position: absolute;top: 50px;right: 50px;">
+            <span>Zoom: </span>
+            <span id="zoom-display">13</span>
+        </div>
+   <script>
+      // add the PMTiles plugin to the maplibregl global.
+      // setting metadata = true fills out the "attribution" field of the source, and is required for some inspector applications,
+      // but requires an additional blocking HTTP request before loading the map.
+      let protocol = new pmtiles.Protocol({metadata: true});
+      maplibregl.addProtocol("pmtiles", protocol.tile);
+
+      var map = new maplibregl.Map({
+         container: 'map',
+         style: 'http://testhost/Test/Maps/PMTiles/bm_web_top&osm_wege_poi_01_localhost.json',
+         center: [9.375844,48.498550],
+         zoom: 13,
+      });
+
+      map.showTileBoundaries = true;
+
+      // Beispiel: Aktualisieren eines HTML-Elements mit der ID 'zoom-display'
+      map.on('zoom', () => {
+            document.getElementById('zoom-display').textContent = map.getZoom().toFixed(2);
+      });
+   </script>
+</body>
+
+</html>
