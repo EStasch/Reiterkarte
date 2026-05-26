@@ -18609,7 +18609,7 @@
       "minzoom": 12.5,
       "filter": ["all", ["==", "amenity", "drinking_water"]],
       "layout": {
-        "icon-image": "drinking-water",
+        "icon-image": "reiterkarte_sprite:drinking-water",
         "icon-size": {"stops": [[11, 0.02], [16, 0.18], [20, 0.6]]},
         "text-field": "{name}",
         "icon-allow-overlap": false,
@@ -18633,7 +18633,7 @@
       "minzoom": 12.5,
       "filter": ["all", ["==", "amenity", "watering_place"]],
       "layout": {
-        "icon-image": "watering_place",
+        "icon-image": "reiterkarte_sprite:watering_place",
         "icon-size": {"stops": [[11, 0.02], [16, 0.18], [20, 0.6]]},
         "text-field": "{name}",
         "icon-allow-overlap": false,
@@ -18657,7 +18657,7 @@
       "minzoom": 12.5,
       "filter": ["all", ["==", "leisure", "firepit"]],
       "layout": {
-        "icon-image": "fire2",
+        "icon-image": "reiterkarte_sprite:fire2",
         "icon-size": {"stops": [[11, 0.02], [16, 0.18], [20, 0.6]]},
         "text-field": "{name}",
         "icon-allow-overlap": false,
@@ -18681,7 +18681,7 @@
       "minzoom": 12.5,
       "filter": ["all", ["==", "amenity", "shelter"]],
       "layout": {
-        "icon-image": "shelter",
+        "icon-image": "reiterkarte_sprite:shelter",
         "icon-size": {"stops": [[12, 0.025], [16, 0.36], [20, 1.1]]},
         "text-field": "{name}",
         "icon-allow-overlap": false,
@@ -18705,7 +18705,7 @@
       "minzoom": 12.5,
       "filter": ["all", ["==", "tourism", "picnic_site"]],
       "layout": {
-        "icon-image": "map-picnic",
+        "icon-image": "reiterkarte_sprite:map-picnic",
         "icon-size": {"stops": [[11, 0.025], [16, 0.18], [20, 1.1]]},
         "text-field": "{name}",
         "icon-allow-overlap": false,
@@ -18729,7 +18729,7 @@
       "minzoom": 12,
       "filter": ["all", ["==", "amenity", "veterinary"]],
       "layout": {
-        "icon-image": "Vetlogo",
+        "icon-image": "reiterkarte_sprite:Vetlogo",
         "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
         "text-field": "{name}",
         "icon-allow-overlap": true,
@@ -18777,7 +18777,7 @@
         ["==", "horse", "yes"]
       ],
       "layout": {
-        "icon-image": "horse_restaurant_marker",
+        "icon-image": "reiterkarte_sprite:horse_restaurant_marker",
         "icon-size": {"stops": [[11, 0.13], [16, 0.4], [20, 1.2]]},
         "text-field": "{name}",
         "icon-allow-overlap": true,
@@ -18795,7 +18795,7 @@
       "minzoom": 8,
       "filter": ["all", ["==", "amenity", "stables"]],
       "layout": {
-        "icon-image": "horse3",
+        "icon-image": "reiterkarte_sprite:horse3",
         "icon-size": {"stops": [[8, 0.08],[11, 0.08], [16, 0.35], [20, 0.8]]},
         "text-field": "{name}",
         "icon-allow-overlap": true,
@@ -18813,7 +18813,7 @@
       "minzoom": 8,
       "filter": ["all", ["==", "tourism", "trail_riding_station"]],
       "layout": {
-        "icon-image": "trail_riding_station_marker2",
+        "icon-image": "reiterkarte_sprite:trail_riding_station_marker2",
         "icon-size": {"stops": [[8, 0.15],[11, 0.15], [16, 0.625], [20, 1.2]]},
         "text-field": "{name}",
         "icon-allow-overlap": true,
