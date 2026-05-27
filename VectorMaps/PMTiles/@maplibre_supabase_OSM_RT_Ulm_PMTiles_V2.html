@@ -12,13 +12,17 @@
             #map {
                 height:100%; width:100%;
             }
+            #zoom-display{
+                font-size: 1em;
+            }
         </style>
     </head>
     <body>
         <div id="map"></div>
         <div id="zoom-container" style="background-color: rgba(250, 246, 246, 0.875);position: absolute;top: 50px;right: 50px;">
             <span>Zoom: </span>
-            <span id="zoom-display">13</span>
+            <span id="zoom-display">13</span><br>
+            <span>DPR: </span><span id="dpr"></span>
         </div>
         <script type="text/javascript">
             // add the PMTiles plugin to the maplibregl global.
@@ -26,6 +30,10 @@
             // but requires an additional blocking HTTP request before loading the map.
             let protocol = new pmtiles.Protocol({metadata: true});
             maplibregl.addProtocol("pmtiles", protocol.tile);
+            
+            // Example: Scaling text size based on device pixel ratio
+            const dpr = window.devicePixelRatio || 1;
+            document.getElementById('dpr').textContent = dpr;
 
             const map = new maplibregl.Map({
               container: "map",
@@ -39,6 +47,27 @@
             // Beispiel: Aktualisieren eines HTML-Elements mit der ID 'zoom-display'
             map.on('zoom', () => {
                 document.getElementById('zoom-display').textContent = map.getZoom().toFixed(2);
+            });
+
+            map.on('style.load', () => {
+                console.log("dpr: " + dpr);
+                
+                // Dynamically adjust text size based on device pixel ratio
+
+                if(dpr != 1){
+                    let txt_size = map.getLayoutProperty('text_surface_track','text-size');
+                    console.log(txt_size);
+                    // Alle Werte verdoppeln
+                    txt_size.stops.forEach(subArray => {
+                        subArray.forEach((wert, index) => {
+                            subArray[index] = wert * dpr;
+                        });
+                    }); 
+
+                    console.log(txt_size);
+                    map.setLayoutProperty('text_surface_track', 'text-size', txt_size);
+                }
+
             });
         </script>
     </body>
