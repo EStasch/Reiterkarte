@@ -1,0 +1,45 @@
+<html>
+    <head>
+        <title>PMTiles MapLibre Example</title>
+        <meta charset="utf-8"/>
+        <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.css" crossorigin="anonymous">
+        <script src="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/pmtiles@4.4.1/dist/pmtiles.js"></script>
+        <style>
+            body {
+                margin: 0;
+            }
+            #map {
+                height:100%; width:100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <div id="zoom-container" style="background-color: rgba(250, 246, 246, 0.875);position: absolute;top: 50px;right: 50px;">
+            <span>Zoom: </span>
+            <span id="zoom-display">13</span>
+        </div>
+        <script type="text/javascript">
+            // add the PMTiles plugin to the maplibregl global.
+            // setting metadata = true fills out the "attribution" field of the source, and is required for some inspector applications,
+            // but requires an additional blocking HTTP request before loading the map.
+            let protocol = new pmtiles.Protocol({metadata: true});
+            maplibregl.addProtocol("pmtiles", protocol.tile);
+
+            const map = new maplibregl.Map({
+              container: "map",
+              center: [9.399662,48.472864], // starting position [lng, lat]
+              zoom: 13, // starting zoom
+              style: 'https://estasch.github.io/Reiterkarte/VectorMaps/PMTiles/Kosmos_osm_wege_poi_01b(6).json'
+
+            });
+            map.showTileBoundaries = true;
+
+            // Beispiel: Aktualisieren eines HTML-Elements mit der ID 'zoom-display'
+            map.on('zoom', () => {
+                document.getElementById('zoom-display').textContent = map.getZoom().toFixed(2);
+            });
+        </script>
+    </body>
+</html>
