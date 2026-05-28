@@ -41,7 +41,9 @@
             maplibregl.addProtocol("pmtiles", protocol.tile);
 
             // Example: Scaling text size based on device pixel ratio
+            const textLayers = ["text_surface_track","text_surface_unclassified","text_surface_path"]
             const dpr = window.devicePixelRatio || 1;
+            //let dpr = 2;
             document.getElementById('dpr').textContent = dpr;
             getScreenDimentions();
 
@@ -65,17 +67,28 @@
                 // Dynamically adjust text size based on device pixel ratio
 
                 if(dpr != 1){
-                    let txt_size = map.getLayoutProperty('text_surface_track','text-size');
-                    console.log(txt_size);
-                    // Alle Werte verdoppeln
-                    txt_size.stops.forEach(subArray => {
-                        subArray.forEach((wert, index) => {
-                            subArray[index] = wert * dpr;
-                        });
-                    }); 
+                    
+                    textLayers.forEach((layer,index) =>{
+                        let txt_size = map.getLayoutProperty(layer,'text-size');
+                        console.log("txt_size in:")
+                        console.log(txt_size);
+                        /*
+                        // Alle Werte verdoppeln
+                        txt_size.stops.forEach(subArray => {
+                            subArray.forEach((wert, index) => {
+                                subArray[index] = wert * dpr;
+                            });                    
+                        }); 
+                        */
+                        // stop Array [zoomlevel,text-size] -> text-size Werte verdoppeln -> stop[1]
+                        txt_size.stops.forEach((stop, index) => {
+                                stop[1] = stop[1] * dpr;
+                            });
+                        console.log("txt_size out:")
+                        console.log(txt_size);
+                        map.setLayoutProperty(layer, 'text-size', txt_size);
+                    });
 
-                    console.log(txt_size);
-                    map.setLayoutProperty('text_surface_track', 'text-size', txt_size);
                 }
 
             });
