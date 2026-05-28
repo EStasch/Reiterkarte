@@ -604,7 +604,12 @@
         ["==", "horse", "yes"]
       ],
       "layout": {
-        "icon-image": "horse_restaurant_marker",
+        "icon-image": 
+        [
+                    "coalesce",
+                    ["image", "horse_restaurant_marker"],
+                    ["image", "https://estasch.github.io/Reiterkarte/VectorMaps/Assets/Sprites/Icons_Reiterkarte/Angepasste%20Icons/horse_restaurant_marker.svg"]
+                ],
         "icon-size": {"stops": [[11, 0.13], [16, 0.4], [20, 1.2]]},
         "text-field": "{name}",
         "icon-allow-overlap": true,
