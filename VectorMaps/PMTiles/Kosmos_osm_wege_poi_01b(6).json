@@ -40,7 +40,7 @@
       "url": "https://estasch.github.io/Reiterkarte/VectorMaps/Assets/Sprites/sprite_Reiterkarte"
     }
   ],
-  "glyphs": "https://sgx.geodatenzentrum.de/gdz_basemapde_vektor/fonts/v2/{fontstack}/{range}.pbf",
+  "glyphs": "https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=Ir7xu6JSqRW6GV3kmVgp",
   "transition": {"duration": 300, "delay": 0},
   "layers": [
     {
@@ -383,7 +383,7 @@
         "text-font": ["Roboto Regular", "Noto Sans Regular"],
         "text-letter-spacing": 0.01,
         "text-max-width": 200,
-        "text-offset": [0, 0],
+        "text-offset": [0, 0.15],
         "text-padding": 0,
         "text-size": {"stops": [[10, 6], [15, 10], [20, 32]]},
         "icon-offset": [0, 3]
@@ -407,7 +407,7 @@
         "text-font": ["Roboto Regular", "Noto Sans Regular"],
         "text-letter-spacing": 0.01,
         "text-max-width": 200,
-        "text-offset": [0, 0],
+        "text-offset": [0, 0.15],
         "text-padding": 0,
         "text-size": {"stops": [[10, 6], [15, 10], [20, 32]]},
         "icon-offset": [0, 3]
@@ -431,7 +431,7 @@
         "text-font": ["Roboto Regular", "Noto Sans Regular"],
         "text-letter-spacing": 0.01,
         "text-max-width": 200,
-        "text-offset": [0, 0],
+        "text-offset": [0, 0.15],
         "text-padding": 0,
         "text-size": {"stops": [[10, 6], [15, 10], [20, 32]]},
         "icon-offset": [0, 3]

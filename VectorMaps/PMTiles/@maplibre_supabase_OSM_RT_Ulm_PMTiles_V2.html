@@ -41,7 +41,6 @@
             maplibregl.addProtocol("pmtiles", protocol.tile);
 
             // Example: Scaling text size based on device pixel ratio
-            const textLayers = ["text_surface_track","text_surface_unclassified","text_surface_path"]
             const dpr = window.devicePixelRatio || 1;
             //let dpr = 2;
             document.getElementById('dpr').textContent = dpr;
@@ -65,6 +64,8 @@
                 console.log("dpr: " + dpr);
                 
                 // Dynamically adjust text size based on device pixel ratio
+                const textLayers = ["text_surface_track","text_surface_unclassified","text_surface_path"]
+                const textProperties = ["text-size","text-offset"]
 
                 if(dpr != 1){
                     
@@ -87,6 +88,15 @@
                         console.log("txt_size out:")
                         console.log(txt_size);
                         map.setLayoutProperty(layer, 'text-size', txt_size);
+
+                        let txt_offset = map.getLayoutProperty(layer,'text-offset');
+                            txt_offset.forEach((value,index)=> {
+                                txt_offset[index] = value * dpr
+                            });
+                        console.log("text-offset out:")
+                        console.log(txt_offset);
+                        map.setLayoutProperty(layer, 'text-offset', txt_offset);
+
                     });
 
                 }
