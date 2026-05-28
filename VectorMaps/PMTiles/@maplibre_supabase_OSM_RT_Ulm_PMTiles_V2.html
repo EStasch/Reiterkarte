@@ -64,47 +64,59 @@
                 console.log("dpr: " + dpr);
                 
                 // Dynamically adjust text size based on device pixel ratio
-                const textLayers = ["text_surface_track","text_surface_unclassified","text_surface_path"]
+                const textLayers = ["text_surface_track","text_surface_unclassified","text_surface_path","poi_facilities_biergarten"]
                 const textProperties = ["text-size","text-offset"]
 
                 if(dpr != 1){
                     
                     textLayers.forEach((layer,index) =>{
                         let txt_size = map.getLayoutProperty(layer,'text-size');
-                        console.log("txt_size in:")
-                        console.log(txt_size);
-                        /*
-                        // Alle Werte verdoppeln
-                        txt_size.stops.forEach(subArray => {
-                            subArray.forEach((wert, index) => {
-                                subArray[index] = wert * dpr;
-                            });                    
-                        }); 
-                        */
-                        // stop Array [zoomlevel,text-size] -> text-size Werte verdoppeln -> stop[1]
-                        txt_size.stops.forEach((stop, index) => {
-                                stop[1] = stop[1] * dpr;
-                            });
-                        console.log("txt_size out:")
-                        console.log(txt_size);
-                        map.setLayoutProperty(layer, 'text-size', txt_size);
+                        if(txt_size){
+                            console.log("txt_size in:")
+                            console.log(txt_size);
+                            /*
+                            // Alle Werte verdoppeln
+                            txt_size.stops.forEach(subArray => {
+                                subArray.forEach((wert, index) => {
+                                    subArray[index] = wert * dpr;
+                                });                    
+                            }); 
+                            */
+                            // stop Array [zoomlevel,text-size] -> text-size Werte verdoppeln -> stop[1]
+                            txt_size.stops.forEach((stop, index) => {
+                                    stop[1] = stop[1] * dpr;
+                                });
+                            console.log("txt_size out:")
+                            console.log(txt_size);
+                            map.setLayoutProperty(layer, 'text-size', txt_size);
 
-                        let txt_offset = map.getLayoutProperty(layer,'text-offset');
-                            txt_offset.forEach((value,index)=> {
-                                txt_offset[index] = value * dpr
-                            });
-                        console.log("text-offset out:")
-                        console.log(txt_offset);
-                        map.setLayoutProperty(layer, 'text-offset', txt_offset);
+                            let txt_offset = map.getLayoutProperty(layer,'text-offset');
+                            if(txt_offset){
+                                txt_offset.forEach((value,index)=> {
+                                    txt_offset[index] = value * dpr
+                                });
+                                console.log("text-offset out:")
+                                console.log(txt_offset);
+                                map.setLayoutProperty(layer, 'text-offset', txt_offset);
+                            }
+                        }
 
+                        let icn_size = map.getLayoutProperty(layer,'icon-size');
+                        if(icn_size){
+                            icn_size.stops.forEach((stop, index) => {
+                                    stop[1] = stop[1] * dpr;
+                                });
+                            console.log("icon-size out:")
+                            console.log(icn_size);
+                        }
                     });
-
+                
                 }
 
             });
 
             if (isMobileDevice()) {
-                console.log("Mobiles Gerät erkannt");
+                console.log("Mobiles Gerï¿½t erkannt");
             }
 
             function getScreenDimentions() {
@@ -113,13 +125,13 @@
                 "Display Width : " + screen.width +"<br/> Display Height : " + screen.height;
             }
             function isMobileDevice() {
-            // 1. Moderne Lösung: Client Hints API (Chromium-Browser)
+            // 1. Moderne Lï¿½sung: Client Hints API (Chromium-Browser)
             if (navigator.userAgentData) {
                 console.log(navigator.userAgentData)
                 return navigator.userAgentData.mobile;
             }
             
-            // 2. Fallback: User-Agent Regex (für Safari, Firefox und ältere Browser)
+            // 2. Fallback: User-Agent Regex (fï¿½r Safari, Firefox und ï¿½ltere Browser)
             console.log(navigator.userAgent)
             return /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             }
