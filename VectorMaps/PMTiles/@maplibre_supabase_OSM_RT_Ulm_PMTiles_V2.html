@@ -12,28 +12,38 @@
             #map {
                 height:100%; width:100%;
             }
-            #zoom-display{
-                font-size: 1em;
+            #zoom-container{
+                background-color: rgba(250, 246, 246, 0.875);
+                position: absolute;
+                top: 50px;
+                right: 50px;
+            }
+
+            #dimenstions{
+                background-color: white;
             }
         </style>
     </head>
     <body>
         <div id="map"></div>
-        <div id="zoom-container" style="background-color: rgba(250, 246, 246, 0.875);position: absolute;top: 50px;right: 50px;">
+        <div id="zoom-container">
             <span>Zoom: </span>
             <span id="zoom-display">13</span><br>
-            <span>DPR: </span><span id="dpr"></span>
+            <span>DPR: </span><span id="dpr"></span><br>
+            <div id="dimenstions"></div>
         </div>
+        
         <script type="text/javascript">
             // add the PMTiles plugin to the maplibregl global.
             // setting metadata = true fills out the "attribution" field of the source, and is required for some inspector applications,
             // but requires an additional blocking HTTP request before loading the map.
             let protocol = new pmtiles.Protocol({metadata: true});
             maplibregl.addProtocol("pmtiles", protocol.tile);
-            
+
             // Example: Scaling text size based on device pixel ratio
             const dpr = window.devicePixelRatio || 1;
             document.getElementById('dpr').textContent = dpr;
+            getScreenDimentions();
 
             const map = new maplibregl.Map({
               container: "map",
@@ -69,6 +79,27 @@
                 }
 
             });
+
+            if (isMobileDevice()) {
+                console.log("Mobiles Gerät erkannt");
+            }
+
+            function getScreenDimentions() {
+                document.getElementById("dimenstions").innerHTML = 
+                "Mobil Device: " + isMobileDevice() +"<br/>"+
+                "Display Width : " + screen.width +"<br/> Display Height : " + screen.height;
+            }
+            function isMobileDevice() {
+            // 1. Moderne Lösung: Client Hints API (Chromium-Browser)
+            if (navigator.userAgentData) {
+                console.log(navigator.userAgentData)
+                return navigator.userAgentData.mobile;
+            }
+            
+            // 2. Fallback: User-Agent Regex (für Safari, Firefox und ältere Browser)
+            console.log(navigator.userAgent)
+            return /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            }
         </script>
     </body>
 </html>
