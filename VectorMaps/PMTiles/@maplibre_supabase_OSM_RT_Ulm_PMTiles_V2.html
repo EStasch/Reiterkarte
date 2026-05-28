@@ -64,12 +64,13 @@
                 console.log("dpr: " + dpr);
                 
                 // Dynamically adjust text size based on device pixel ratio
-                const textLayers = ["text_surface_track","text_surface_unclassified","text_surface_path","poi_facilities_biergarten"]
+                const scaleLayers = ["text_surface_track","text_surface_unclassified","text_surface_path",
+                    "poi_facilities_biergarten","poi_facilities_horse_Restaurant"]
                 const textProperties = ["text-size","text-offset"]
 
                 if(dpr != 1){
                     
-                    textLayers.forEach((layer,index) =>{
+                    scaleLayers.forEach((layer,index) =>{
                         let txt_size = map.getLayoutProperty(layer,'text-size');
                         if(txt_size){
                             console.log("txt_size in:")
