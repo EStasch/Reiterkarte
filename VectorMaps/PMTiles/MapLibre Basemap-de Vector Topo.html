@@ -18,6 +18,9 @@
          bottom: 0;
          width: 100%;
       }
+      #zoom-display{
+                font-size: 1em;
+      }
    </style>
 </head>
 
@@ -26,6 +29,7 @@
    <div id="zoom-container" style="background-color: rgba(250, 246, 246, 0.875);position: absolute;top: 50px;right: 50px;">
             <span>Zoom: </span>
             <span id="zoom-display">13</span>
+            <span>DPR: </span><span id="dpr"></span>
         </div>
    <script>
       // add the PMTiles plugin to the maplibregl global.

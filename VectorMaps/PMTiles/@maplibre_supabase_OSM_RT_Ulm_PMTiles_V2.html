@@ -53,7 +53,8 @@
               style: 'https://estasch.github.io/Reiterkarte/VectorMaps/PMTiles/Kosmos_osm_wege_poi_01b(6).json'
 
             });
-            map.showTileBoundaries = true;
+            
+            //map.showTileBoundaries = true;
 
             // Beispiel: Aktualisieren eines HTML-Elements mit der ID 'zoom-display'
             map.on('zoom', () => {
@@ -65,7 +66,7 @@
                 
                 // Dynamically adjust text size based on device pixel ratio
                 const scaleLayers = ["text_surface_track","text_surface_unclassified","text_surface_path",
-                    "poi_facilities_biergarten","poi_facilities_horse_Restaurant"]
+                                     "poi_facilities_drinking_water","poi_facilities_watering_place","poi_facilities_fire_pit","poi_facilities_shelter","poi_facilities_picnic","poi_facilities_veterinary","poi_facilities_biergarten","poi_facilities_horse_Restaurant","poi_stables","poi_stables_stations"]
                 const textProperties = ["text-size","text-offset"]
 
                 if(dpr != 1){
@@ -104,9 +105,9 @@
 
                         let icn_size = map.getLayoutProperty(layer,'icon-size');
                         if(icn_size){
-                            const scaleFactor = 5; // Beispiel: Skalierungsfaktor
+                            const scaleFactor = 10; // Beispiel: Skalierungsfaktor
                             icn_size.stops.forEach((stop, index) => {
-                                    stop[1] = stop[1] * dpr * scaleFactor;
+                                    stop[1] = (stop[1] * dpr * scaleFactor);
                                 });
                             console.log("icon-size out:")
                             console.log(icn_size);
