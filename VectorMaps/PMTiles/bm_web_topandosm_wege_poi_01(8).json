@@ -42,11 +42,11 @@
     },
     "Maptiler Server": {
       "type": "vector",
-      "url": "pmtiles:https://estasch.github.io/Reiterkarte/OsmMaptiles/RT_ULM_Wege.pmtiles"
+      "url": "pmtiles://https://estasch.github.io/Reiterkarte/OsmMaptiles/RT_ULM_Wege.pmtiles"
     },
     "Maptiler Server POI": {
       "type": "vector",
-      "url": "pmtiles:https://estasch.github.io/Reiterkarte/OsmMaptiles/RT_ULM_POI.pmtiles"
+      "url": "pmtiles://https://estasch.github.io/Reiterkarte/OsmMaptiles/RT_ULM_POI.pmtiles"
     }
   },
   "sprite": [
