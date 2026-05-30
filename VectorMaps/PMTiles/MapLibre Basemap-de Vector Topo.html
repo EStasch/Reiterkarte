@@ -28,8 +28,9 @@
    <div id="map" class="map"></div>
    <div id="zoom-container" style="background-color: rgba(250, 246, 246, 0.875);position: absolute;top: 50px;right: 50px;">
             <span>Zoom: </span>
-            <span id="zoom-display">13</span>
-            <span>DPR: </span><span id="dpr"></span>
+            <span id="zoom-display">13</span><br>
+            <span>DPR: </span><span id="dpr"></span><br>
+            <div id="dimenstions"></div>
         </div>
    <script>
       // add the PMTiles plugin to the maplibregl global.
@@ -37,6 +38,10 @@
       // but requires an additional blocking HTTP request before loading the map.
       let protocol = new pmtiles.Protocol({metadata: true});
       maplibregl.addProtocol("pmtiles", protocol.tile);
+
+      // Example: Scaling text size based on device pixel ratio
+      const dpr = window.devicePixelRatio || 1;
+      document.getElementById('dpr').textContent = dpr;
 
       var map = new maplibregl.Map({
          container: 'map',
