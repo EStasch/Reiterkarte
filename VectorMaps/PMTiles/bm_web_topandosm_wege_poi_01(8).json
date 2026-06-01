@@ -16127,11 +16127,99 @@
       }
     },
     {
+      "id": "poi_barrier_kissing_gate",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_point",
+      "minzoom": 13,
+      "filter": ["all", ["==", "barrier", "kissing_gate"]],
+      "layout": {
+        "icon-image": "reiterkarte_sprite:kissing_gate",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_barrier_cycle_barrier",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_point",
+      "minzoom": 13,
+      "filter": ["all", ["==", "barrier", "cycle_barrier"]],
+      "layout": {
+        "icon-image": "reiterkarte_sprite:cycle_barrier",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_line_ford",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_line",
+      "minzoom": 13,
+      "filter": ["all", ["==", "tags", "\"ford\"=>\"yes\""]],
+      "layout": {
+        "icon-image": "reiterkarte_sprite:ford",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_ford_ford",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_point",
+      "minzoom": 13,
+      "filter": ["all", ["==", "tags", "\"ford\"=>\"yes\""]],
+      "layout": {
+        "icon-image": "reiterkarte_sprite:ford",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.2], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "center",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 6], [20, 18]]}
+      },
+      "paint": {
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1,
+        "icon-translate": [0, 0]
+      }
+    },
+    {
       "id": "poi_barrier_chicane",
       "type": "symbol",
       "source": "Maptiler Server POI",
       "source-layer": "planet_osm_point",
-      "minzoom": 12,
+      "minzoom": 13,
       "filter": ["all", ["==", "barrier", "chicane"]],
       "layout": {
         "icon-image": "reiterkarte_sprite:cycle_barrier",
@@ -16153,7 +16241,7 @@
       "type": "symbol",
       "source": "Maptiler Server POI",
       "source-layer": "planet_osm_point",
-      "minzoom": 12,
+      "minzoom": 13,
       "filter": ["all", ["==", "barrier", "cattle_grid"]],
       "layout": {
         "icon-image": "reiterkarte_sprite:cattle_grid",
@@ -16175,7 +16263,7 @@
       "type": "symbol",
       "source": "Maptiler Server POI",
       "source-layer": "planet_osm_point",
-      "minzoom": 12,
+      "minzoom": 13,
       "filter": ["all", ["==", "barrier", "stile"]],
       "layout": {
         "icon-image": "reiterkarte_sprite:stile",
@@ -16197,7 +16285,7 @@
       "type": "symbol",
       "source": "Maptiler Server POI",
       "source-layer": "planet_osm_point",
-      "minzoom": 12,
+      "minzoom": 13,
       "filter": ["all", ["==", "barrier", "fence"]],
       "layout": {
         "icon-image": "reiterkarte_sprite:fence",
@@ -16219,7 +16307,7 @@
       "type": "symbol",
       "source": "Maptiler Server POI",
       "source-layer": "planet_osm_point",
-      "minzoom": 12,
+      "minzoom": 13,
       "filter": [
         "any",
         ["==", "barrier", "gate"],
@@ -16229,7 +16317,7 @@
       ],
       "layout": {
         "icon-image": "reiterkarte_sprite:gate",
-        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "icon-size": {"stops": [[13, 0.05], [14, 0.1], [16, 0.3], [20, 1.2]]},
         "text-field": "{name}",
         "icon-allow-overlap": true,
         "icon-anchor": "bottom",
