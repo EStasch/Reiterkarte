@@ -16171,6 +16171,72 @@
       }
     },
     {
+      "id": "poi_line_bridge_horse_no",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_line",
+      "minzoom": 13,
+      "filter": ["all", ["==", "bridge", "yes"], ["==", "horse", "no"]],
+      "layout": {
+        "icon-image": "reiterkarte_sprite:horse_no",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{horse}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_line_horse_scale_dangerous",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_line",
+      "minzoom": 13,
+      "filter": ["all", ["==", "tags", "\"horse_scale\"=>\"dangerous\""]],
+      "layout": {
+        "icon-image": "reiterkarte_sprite:attension-sign",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_line_horse_scale_impossible",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_line",
+      "minzoom": 13,
+      "filter": ["all", ["==", "tags", "\"horse_scale\"=>\"impossible\""]],
+      "layout": {
+        "icon-image": "reiterkarte_sprite:caution-sign",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
       "id": "poi_line_ford",
       "type": "symbol",
       "source": "Maptiler Server POI",
@@ -16201,7 +16267,7 @@
       "filter": ["all", ["==", "tags", "\"ford\"=>\"yes\""]],
       "layout": {
         "icon-image": "reiterkarte_sprite:ford",
-        "icon-size": {"stops": [[11, 0.05], [16, 0.2], [20, 1.2]]},
+        "icon-size": {"stops": [[11, 0.05], [14, 0.1], [16, 0.2], [20, 1.1]]},
         "text-field": "{name}",
         "icon-allow-overlap": true,
         "icon-anchor": "center",
@@ -16245,6 +16311,124 @@
       "filter": ["all", ["==", "barrier", "cattle_grid"]],
       "layout": {
         "icon-image": "reiterkarte_sprite:cattle_grid",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_barrier_tree",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_point",
+      "minzoom": 13,
+      "filter": ["all", ["==", "barrier", "tree"]],
+      "layout": {
+        "icon-image": "reiterkarte_sprite:fallen_tree",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_cave",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_point",
+      "minzoom": 13,
+      "filter": ["any", ["==", "natural", "cave_entrance"]],
+      "layout": {
+        "icon-image": "Hoehleneingang",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_rock",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_point",
+      "minzoom": 13,
+      "filter": [
+        "any",
+        ["==", "natural", "rock"],
+        ["==", "natural", "bare_rock"]
+      ],
+      "layout": {
+        "icon-image": "Felsen",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_tower",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_point",
+      "minzoom": 13,
+      "filter": ["any", ["==", "tower:type", "observation"]],
+      "layout": {
+        "icon-image": "reiterkarte_sprite:Tower_observation",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_castle_ruins",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_point",
+      "minzoom": 13,
+      "filter": [
+        "any",
+        ["==", "historic", "castle"],
+        ["==", "historic", "ruins"]
+      ],
+      "layout": {
+        "icon-image": "reiterkarte_sprite:castle",
         "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
         "text-field": "{name}",
         "icon-allow-overlap": true,
