@@ -16127,13 +16127,101 @@
       }
     },
     {
+      "id": "poi_barrier_chicane",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_point",
+      "minzoom": 12,
+      "filter": ["all", ["==", "barrier", "chicane"]],
+      "layout": {
+        "icon-image": "reiterkarte_sprite:cycle_barrier",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_barrier_cattle_grid",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_point",
+      "minzoom": 12,
+      "filter": ["all", ["==", "barrier", "cattle_grid"]],
+      "layout": {
+        "icon-image": "reiterkarte_sprite:cattle_grid",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_barrier_stile",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_point",
+      "minzoom": 12,
+      "filter": ["all", ["==", "barrier", "stile"]],
+      "layout": {
+        "icon-image": "reiterkarte_sprite:stile",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_barrier_fence",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_point",
+      "minzoom": 12,
+      "filter": ["all", ["==", "barrier", "fence"]],
+      "layout": {
+        "icon-image": "reiterkarte_sprite:fence",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
       "id": "poi_barrier_gate",
       "type": "symbol",
       "source": "Maptiler Server POI",
       "source-layer": "planet_osm_point",
       "minzoom": 12,
       "filter": [
-        "all",
+        "any",
         ["==", "barrier", "gate"],
         ["==", "barrier", "swing_gate"],
         ["==", "barrier", "lift_gate"],

@@ -215,5 +215,12 @@
     "width": 256,
     "x": 1280,
     "y": 768
+  },
+  "kissing_gate": {
+    "height": 256,
+    "pixelRatio": 2,
+    "width": 256,
+    "x": 1792,
+    "y": 768
   }
 }
