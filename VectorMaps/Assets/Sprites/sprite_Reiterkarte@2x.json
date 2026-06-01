@@ -167,7 +167,7 @@
     "x": 1024,
     "y": 256
   },
-  "fence": {
+  "gate": {
     "height": 256,
     "pixelRatio": 2,
     "width": 256,
