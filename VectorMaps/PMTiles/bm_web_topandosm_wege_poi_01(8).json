@@ -16121,7 +16121,7 @@
         "symbol-spacing": 2
       },
       "paint": {
-        "icon-translate": [0, -15],
+        "icon-translate": [0, -8],
         "text-halo-color": "rgba(255, 254, 254, 1)",
         "text-halo-width": 1
       }
@@ -16157,7 +16157,7 @@
       "filter": ["all", ["==", "barrier", "cycle_barrier"]],
       "layout": {
         "icon-image": "reiterkarte_sprite:cycle_barrier",
-        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "icon-size": {"stops": [[11, 0.04], [16, 0.2], [20, 1.2]]},
         "text-field": "{name}",
         "icon-allow-overlap": true,
         "icon-anchor": "bottom",
@@ -16165,7 +16165,7 @@
         "text-size": {"stops": [[11, 8], [20, 18]]}
       },
       "paint": {
-        "icon-translate": [0, -15],
+        "icon-translate": [0, -10],
         "text-halo-color": "rgba(255, 254, 254, 1)",
         "text-halo-width": 1
       }
@@ -16187,7 +16187,7 @@
         "text-size": {"stops": [[11, 8], [20, 18]]}
       },
       "paint": {
-        "icon-translate": [0, -15],
+        "icon-translate": [0, -8],
         "text-halo-color": "rgba(255, 254, 254, 1)",
         "text-halo-width": 1
       }
@@ -16268,16 +16268,19 @@
       "layout": {
         "icon-image": "reiterkarte_sprite:ford",
         "icon-size": {"stops": [[11, 0.05], [14, 0.1], [16, 0.2], [20, 1.1]]},
-        "text-field": "{name}",
+        "text-field": "{name} Furt",
         "icon-allow-overlap": true,
         "icon-anchor": "center",
         "text-anchor": "center",
-        "text-size": {"stops": [[11, 6], [20, 18]]}
+        "text-size": {"stops": [[11, 6], [20, 18]]},
+        "text-justify": "center",
+        "text-offset": [-0.95, -0.8]
       },
       "paint": {
         "text-halo-color": "rgba(255, 254, 254, 1)",
-        "text-halo-width": 1,
-        "icon-translate": [0, 0]
+        "text-halo-width": 0,
+        "icon-translate": [0, 0],
+        "text-color": "rgba(35, 82, 135, 1)"
       }
     },
     {
@@ -16355,7 +16358,7 @@
       "filter": ["any", ["==", "natural", "cave_entrance"]],
       "layout": {
         "icon-image": "Hoehleneingang",
-        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "icon-size": {"stops": [[11, 0.5], [16, 1], [20, 1.2]]},
         "text-field": "{name}",
         "icon-allow-overlap": true,
         "icon-anchor": "bottom",
@@ -16363,9 +16366,9 @@
         "text-size": {"stops": [[11, 8], [20, 18]]}
       },
       "paint": {
-        "icon-translate": [0, -15],
         "text-halo-color": "rgba(255, 254, 254, 1)",
-        "text-halo-width": 1
+        "text-halo-width": 1,
+        "icon-translate": [0, 0]
       }
     },
     {
@@ -16437,7 +16440,7 @@
         "text-size": {"stops": [[11, 8], [20, 18]]}
       },
       "paint": {
-        "icon-translate": [0, -15],
+        "icon-translate": [0, -9],
         "text-halo-color": "rgba(255, 254, 254, 1)",
         "text-halo-width": 1
       }
