@@ -16173,14 +16173,14 @@
     {
       "id": "poi_line_bridge_horse_no",
       "type": "symbol",
-      "source": "Maptiler Server POI",
+      "source": "Maptiler Server",
       "source-layer": "planet_osm_line",
       "minzoom": 13,
       "filter": ["all", ["==", "bridge", "yes"], ["==", "horse", "no"]],
       "layout": {
         "icon-image": "reiterkarte_sprite:horse_no",
         "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
-        "text-field": "{horse}",
+        "text-field": "{name}",
         "icon-allow-overlap": true,
         "icon-anchor": "bottom",
         "text-anchor": "center",
@@ -16195,7 +16195,7 @@
     {
       "id": "poi_line_horse_scale_dangerous",
       "type": "symbol",
-      "source": "Maptiler Server POI",
+      "source": "Maptiler Server",
       "source-layer": "planet_osm_line",
       "minzoom": 13,
       "filter": ["all", ["==", "tags", "\"horse_scale\"=>\"dangerous\""]],
@@ -16217,7 +16217,7 @@
     {
       "id": "poi_line_horse_scale_impossible",
       "type": "symbol",
-      "source": "Maptiler Server POI",
+      "source": "Maptiler Server",
       "source-layer": "planet_osm_line",
       "minzoom": 13,
       "filter": ["all", ["==", "tags", "\"horse_scale\"=>\"impossible\""]],
@@ -16239,7 +16239,7 @@
     {
       "id": "poi_line_ford",
       "type": "symbol",
-      "source": "Maptiler Server POI",
+      "source": "Maptiler Server",
       "source-layer": "planet_osm_line",
       "minzoom": 13,
       "filter": ["all", ["==", "tags", "\"ford\"=>\"yes\""]],
