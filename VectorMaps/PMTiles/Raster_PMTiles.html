@@ -2,12 +2,12 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>MapLibre Raster PMTiles Beispiel</title>
+    <title>PMTiles Raster von GitHub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- MapLibre CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.css" />
-    <script src="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.js"></script>
+    <!-- MapLibre GL JS -->
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.css" crossorigin="anonymous">
+    <script src="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.js" crossorigin="anonymous"></script>
     
     <!-- PMTiles Bibliothek -->
     <script src="https://unpkg.com/pmtiles@4.4.1/dist/pmtiles.js"></script>
@@ -22,23 +22,25 @@
 <div id="map"></div>
 
 <script type="text/javascript">
-    // 1. PMTiles-Protokoll registrieren
+    // 1. Protokoll registrieren
     const protocol = new pmtiles.Protocol();
     maplibregl.addProtocol("pmtiles", protocol.tile);
 
     // 2. Karte initialisieren
     const map = new maplibregl.Map({
         container: "map",
-        zoom: 3,
-        center: [10.4515, 51.1657], // Zentrum von Deutschland
+        zoom: 2,
+        center: [10.4515, 51.1657],
         style: {
             version: 8,
             sources: {
                 "raster-source": {
                     type: "raster",
-                    // Ersetzen Sie dies mit Ihrer eigenen PMTiles-URL
-                    url: "pmtiles://https://pmtiles.io/protomaps(raster)natural_earth_2.pmtiles",
-                    tileSize: 256
+                    // WICHTIG: Nutzen Sie die raw.githubusercontent.com URL
+                    // Beispiel für eine öffentliche Test-Datei oder Ihre eigene im Repo
+                    url: "pmtiles://https://pmtiles.io/protomaps(raster)natural_earth_2.pmtiles", 
+                    tileSize: 256,
+                    attribution: "© Natural Earth"
                 }
             },
             layers: [
@@ -50,9 +52,6 @@
             ]
         }
     });
-
-    // Navigation hinzufügen
-    map.addControl(new maplibregl.NavigationControl());
 </script>
 
 </body>
