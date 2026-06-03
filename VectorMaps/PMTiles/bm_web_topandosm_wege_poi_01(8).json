@@ -714,7 +714,7 @@
       "filter": ["==", "klasse", "1000er"],
       "layout": {"visibility": "visible", "line-join": "round"},
       "paint": {
-        "line-color": "rgb(204,153,153)",
+        "line-color": "rgba(181, 129, 100,  0.9)",
         "line-opacity": {"stops": [[9, 0], [12, 1]]},
         "line-width": {"stops": [[8, 0.8], [22, 2]]}
       }
@@ -729,7 +729,7 @@
       "filter": ["==", "klasse", "500er"],
       "layout": {"visibility": "visible", "line-join": "round"},
       "paint": {
-        "line-color": "rgb(204,153,153)",
+        "line-color": "rgba(181, 129, 100,  0.9)",
         "line-opacity": {"stops": [[9, 0], [12, 1]]},
         "line-width": {"stops": [[8, 0.4], [22, 1.6]]}
       }
@@ -744,8 +744,8 @@
       "filter": ["==", "klasse", "200er"],
       "layout": {"visibility": "visible", "line-join": "round"},
       "paint": {
-        "line-color": "rgb(204,153,153)",
-        "line-opacity": {"stops": [[9, 0], [12, 0.9]]},
+        "line-color": "rgba(181, 129, 100, 0.9)",
+        "line-opacity": {"stops": [[9, 0], [12, 0.85]]},
         "line-width": {"stops": [[8, 0.5], [22, 1.5]]}
       }
     },
@@ -759,7 +759,7 @@
       "filter": ["==", "klasse", "100er"],
       "layout": {"visibility": "visible", "line-join": "round"},
       "paint": {
-        "line-color": "rgb(204,153,153)",
+        "line-color": "rgba(181, 129, 100,  0.9)",
         "line-opacity": {"stops": [[9, 0], [12, 0.9]]},
         "line-width": {"stops": [[9, 0.5], [22, 1.6]]}
       }
@@ -774,7 +774,7 @@
       "filter": ["==", "klasse", "50er"],
       "layout": {"visibility": "visible", "line-join": "round"},
       "paint": {
-        "line-color": "rgb(204,153,153)",
+        "line-color": "rgba(181, 129, 100,  0.85)",
         "line-opacity": 0.9,
         "line-width": {"stops": [[10, 0], [22, 1.4]]}
       }
@@ -789,7 +789,7 @@
       "filter": ["==", "klasse", "20er"],
       "layout": {"visibility": "visible", "line-join": "round"},
       "paint": {
-        "line-color": "rgb(204,153,153)",
+        "line-color": "rgba(181, 129, 100,  0.85)",
         "line-opacity": 0.8,
         "line-width": {"stops": [[11, 0], [22, 1.2]]}
       }
@@ -804,7 +804,7 @@
       "filter": ["==", "klasse", "10er"],
       "layout": {"visibility": "visible", "line-join": "round"},
       "paint": {
-        "line-color": "rgb(204,153,153)",
+        "line-color": "rgba(181, 129, 100, 0.85)",
         "line-opacity": 0.8,
         "line-width": {"stops": [[12, 0], [22, 1.2]]}
       }
@@ -8795,7 +8795,7 @@
       "source": "smarttiles_de",
       "source-layer": "Grenze_Linie",
       "minzoom": 5,
-      "maxzoom": 22,
+      "maxzoom": 12,
       "filter": ["==", "klasse", "Grenze des Bundeslandes"],
       "layout": {
         "visibility": "visible",
@@ -8804,7 +8804,7 @@
       },
       "paint": {
         "line-color": "rgb(203,159,230)",
-        "line-opacity": 1,
+        "line-opacity": 0.4,
         "line-width": {"stops": [[2, 0.6], [6, 1], [10, 4], [14, 7]]}
       }
     },
@@ -10328,7 +10328,7 @@
         "text-ignore-placement": false,
         "text-padding": 2,
         "text-radial-offset": {"stops": [[11, 1], [14, 1], [22, 1]]},
-        "text-size": {"base": 1, "stops": [[11, 10], [20, 14]]},
+        "text-size": {"base": 1, "stops": [[11, 10], [20, 16]]},
         "text-variable-anchor": [
           "top",
           "bottom-left",
@@ -12805,7 +12805,7 @@
         "icon-allow-overlap": false,
         "icon-ignore-placement": true,
         "icon-padding": 0,
-        "icon-size": {"stops": [[10, 0.65], [20, 1.2]]}
+        "icon-size": {"stops": [[12, 0.65], [16, 1.1], [20, 2]]}
       },
       "paint": {"icon-opacity": 0.7}
     },
@@ -13402,7 +13402,7 @@
       "type": "symbol",
       "source": "smarttiles_de",
       "source-layer": "Bauwerkspunkt",
-      "minzoom": 15,
+      "minzoom": 12,
       "maxzoom": 22,
       "filter": ["in", "klasse", "Brunnen", "Brunnen (Trinkwasserversorgung)"],
       "layout": {
@@ -13410,7 +13410,9 @@
         "icon-image": "Brunnen",
         "icon-allow-overlap": false,
         "icon-padding": 0,
-        "icon-size": {"stops": [[10, 0.65], [20, 1.2]]}
+        "icon-size": {"stops": [[12, 0.65], [16, 1.5], [20, 2]]},
+        "icon-overlap": "cooperative",
+        "text-field": "{name}"
       },
       "paint": {"icon-opacity": 1}
     },
@@ -13830,7 +13832,8 @@
         "icon-allow-overlap": false,
         "icon-ignore-placement": false,
         "icon-padding": 0,
-        "icon-size": {"stops": [[10, 0.65], [20, 1.2]]}
+        "icon-size": {"stops": [[10, 0.65], [20, 1.2]]},
+        "text-field": "{name}"
       },
       "paint": {"icon-opacity": 1}
     },
@@ -16175,11 +16178,11 @@
       "type": "symbol",
       "source": "Maptiler Server",
       "source-layer": "planet_osm_line",
-      "minzoom": 13,
+      "minzoom": 12,
       "filter": ["all", ["==", "bridge", "yes"], ["==", "horse", "no"]],
       "layout": {
         "icon-image": "reiterkarte_sprite:horse_no",
-        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "icon-size": {"stops": [[11, 0.05], [16, 0.25], [20, 1.2]]},
         "text-field": "{name}",
         "icon-allow-overlap": true,
         "icon-anchor": "bottom",
@@ -16259,7 +16262,7 @@
       }
     },
     {
-      "id": "poi_ford_ford",
+      "id": "poi_natural_ford",
       "type": "symbol",
       "source": "Maptiler Server POI",
       "source-layer": "planet_osm_point",
@@ -16350,7 +16353,7 @@
       }
     },
     {
-      "id": "poi_cave",
+      "id": "poi_natural_cave",
       "type": "symbol",
       "source": "Maptiler Server POI",
       "source-layer": "planet_osm_point",
@@ -16372,7 +16375,71 @@
       }
     },
     {
-      "id": "poi_rock",
+      "id": "poi_natural_tree",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_point",
+      "minzoom": 13,
+      "filter": ["any", ["==", "natural", "tree"]],
+      "layout": {
+        "icon-image": "reiterkarte_sprite:tree",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_natural_peak",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_point",
+      "minzoom": 13,
+      "filter": ["any", ["==", "natural", "peak"]],
+      "layout": {
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}  {height}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_natural_hill",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_point",
+      "minzoom": 13,
+      "filter": ["any", ["==", "natural", "hill"]],
+      "layout": {
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}  {height}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]}
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi_natural_rock",
       "type": "symbol",
       "source": "Maptiler Server POI",
       "source-layer": "planet_osm_point",
