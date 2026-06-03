@@ -9,6 +9,18 @@
   },
   "center": [10, 51],
   "zoom": 6,
+  "sprite": [
+    {
+      "id": "default",
+      "url": "https://sgx.geodatenzentrum.de/gdz_basemapde_vektor/sprites/v2/bm_web_top_sprite"
+    },
+    {
+      "id": "reiterkarte_sprite",
+      "url": "https://estasch.github.io/Reiterkarte/VectorMaps/Assets/Sprites/sprite_Reiterkarte_neu"
+    }
+  ],
+  "glyphs": "https://sgx.geodatenzentrum.de/gdz_basemapde_vektor/fonts/v2/{fontstack}/{range}.pbf",
+  "transition": {"duration": 300, "delay": 0},
   "sources": {
     "schummerung_col": {
       "type": "raster",
@@ -49,18 +61,7 @@
       "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT_ULM_POI.pmtiles"
     }
   },
-  "sprite": [
-    {
-      "id": "default",
-      "url": "https://sgx.geodatenzentrum.de/gdz_basemapde_vektor/sprites/v2/bm_web_top_sprite"
-    },
-    {
-      "id": "reiterkarte_sprite",
-      "url": "https://estasch.github.io/Reiterkarte/VectorMaps/Assets/Sprites/sprite_Reiterkarte_neu"
-    }
-  ],
-  "glyphs": "https://sgx.geodatenzentrum.de/gdz_basemapde_vektor/fonts/v2/{fontstack}/{range}.pbf",
-  "transition": {"duration": 300, "delay": 0},
+  
   "layers": [
     {
       "id": "Hintergrund",
