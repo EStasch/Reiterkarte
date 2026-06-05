@@ -1,0 +1,156 @@
+<html>
+    <head>
+        <title>PMTiles MapLibre Example</title>
+        <meta charset="utf-8"/>
+        <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.css" crossorigin="anonymous">
+        <script src="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/pmtiles@4.4.1/dist/pmtiles.js"></script>
+        <style>
+            body {
+                margin: 0;
+            }
+            #map {
+                height:100%; width:100%;
+            }
+            #zoom-container{
+                background-color: rgba(250, 246, 246, 0.875);
+                position: absolute;
+                top: 50px;
+                right: 50px;
+            }
+
+            #dimenstions{
+                background-color: white;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <div id="zoom-container">
+            <span>Zoom: </span>
+            <span id="zoom-display">13</span><br>
+            <span>DPR: </span><span id="dpr"></span><br>
+            <div id="dimenstions"></div>
+        </div>
+        
+        <script type="text/javascript">
+            // add the PMTiles plugin to the maplibregl global.
+            // setting metadata = true fills out the "attribution" field of the source, and is required for some inspector applications,
+            // but requires an additional blocking HTTP request before loading the map.
+            let protocol = new pmtiles.Protocol({metadata: true});
+            maplibregl.addProtocol("pmtiles", protocol.tile);
+
+            // Example: Scaling text size based on device pixel ratio
+            const dpr = window.devicePixelRatio || 1;
+            //const dpr = 2;
+            document.getElementById('dpr').textContent = dpr;
+            getScreenDimentions();
+
+            const map = new maplibregl.Map({
+              container: "map",
+              center: [9.399662,48.472864], // starting position [lng, lat]
+              zoom: 13, // starting zoom
+              style: 'https://estasch.github.io/Reiterkarte/VectorMaps/PMTiles/Basemap_Raster_wege_poi_01b(8).json'
+
+            });
+            map.showTileBoundaries = true;
+
+            // Beispiel: Aktualisieren eines HTML-Elements mit der ID 'zoom-display'
+            map.on('zoom', () => {
+                document.getElementById('zoom-display').textContent = map.getZoom().toFixed(2);
+            });
+
+            map.on('style.load', () => {
+                console.log("dpr: " + dpr);
+                
+                // Dynamically adjust text size based on device pixel ratio
+                //const scaleLayers = ["text_surface_track","text_surface_unclassified","text_surface_path",
+                //                     "poi_facilities_drinking_water","poi_facilities_watering_place","poi_facilities_fire_pit","poi_facilities_shelter","poi_facilities_picnic","poi_facilities_veterinary","poi_facilities_biergarten","poi_facilities_horse_Restaurant","poi_stables","poi_stables_stations"]
+                const textProperties = ["text-size","text-offset"]
+
+                const prefix = "text_";
+                // Get the array of all layer objects
+                //const layers = map.getStyle().layers;
+                //const scaleLayers = layers.filter(item => item.id.startsWith(prefix));
+
+                // Returns an array of strings (layer IDs)
+                const layerIds = map.getLayersOrder();
+                //const scaleLayers = layerIds.filter(item => item.startsWith(prefix));
+                
+                const searchString = "poi_|text_";
+                const regex = new RegExp(`^${searchString}`, 'i'); // 'i' flag for case-insensitivity
+                const scaleLayers = layerIds.filter(item => regex.test(item));   
+
+
+                if(dpr != 1){
+                    
+                    scaleLayers.forEach((layer,index) =>{
+                        let txt_size = map.getLayoutProperty(layer,'text-size');
+                        if(txt_size){
+                            console.log("txt_size in:")
+                            console.log(txt_size);
+                            /*
+                            // Alle Werte verdoppeln
+                            txt_size.stops.forEach(subArray => {
+                                subArray.forEach((wert, index) => {
+                                    subArray[index] = wert * dpr;
+                                });                    
+                            }); 
+                            */
+                            // stop Array [zoomlevel,text-size] -> text-size Werte verdoppeln -> stop[1]
+                            txt_size.stops.forEach((stop, index) => {
+                                    stop[1] = stop[1] * dpr;
+                                });
+                            console.log("txt_size out:")
+                            console.log(txt_size);
+                            map.setLayoutProperty(layer, 'text-size', txt_size);
+
+                            let txt_offset = map.getLayoutProperty(layer,'text-offset');
+                            if(txt_offset){
+                                txt_offset.forEach((value,index)=> {
+                                    txt_offset[index] = value * dpr
+                                });
+                                console.log("text-offset out:")
+                                console.log(txt_offset);
+                                map.setLayoutProperty(layer, 'text-offset', txt_offset);
+                            }
+                        }
+
+                        let icn_size = map.getLayoutProperty(layer,'icon-size');
+                        if(icn_size){
+                            const scaleFactor = 10; // Beispiel: Skalierungsfaktor
+                            icn_size.stops.forEach((stop, index) => {
+                                    stop[1] = (stop[1] * dpr * scaleFactor);
+                                });
+                            console.log("icon-size out:")
+                            console.log(icn_size);
+                        }
+                    });
+                
+                }
+
+            });
+
+            if (isMobileDevice()) {
+                console.log("Mobiles Gerät erkannt");
+            }
+
+            function getScreenDimentions() {
+                document.getElementById("dimenstions").innerHTML = 
+                "Mobil Device: " + isMobileDevice() +"<br/>"+
+                "Display Width : " + screen.width +"<br/> Display Height : " + screen.height;
+            }
+            function isMobileDevice() {
+            // 1. Moderne Lösung: Client Hints API (Chromium-Browser)
+            if (navigator.userAgentData) {
+                console.log(navigator.userAgentData)
+                return navigator.userAgentData.mobile;
+            }
+            
+            // 2. Fallback: User-Agent Regex (für Safari, Firefox und ältere Browser)
+            console.log(navigator.userAgent)
+            return /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            }
+        </script>
+    </body>
+</html>
