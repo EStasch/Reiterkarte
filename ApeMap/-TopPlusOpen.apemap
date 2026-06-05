@@ -1,0 +1,6 @@
+name=TopPlusOpen
+minzoom=7
+maxzoom=18
+virtualHd=scale
+url=https://sgx.geodatenzentrum.de/wmts_topplus_open/tile/1.0.0/web/default/WEBMERCATOR/@Z/@X/@Y.png
+logo=https://opentopomap.org/img/OpenTopoMap_rechts.png

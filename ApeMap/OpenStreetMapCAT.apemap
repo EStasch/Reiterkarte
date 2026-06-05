@@ -1,0 +1,6 @@
+name=OpenStreetMapCAT
+minzoom=6
+maxzoom=19
+virtualHd=scale
+url=https://tile.openstreetmap.bzh/ca/@Z/@X/@Y.png
+logo=https://www.openstreetmap.de/img/osm_logo.png

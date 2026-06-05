@@ -1,0 +1,7 @@
+name=LokaleMaptilerOSM
+minzoom=6
+maxzoom=18
+netfolder=true
+virtualHd=scale
+url=http://testhost/Test/Maps/MapTiler%20SDK%20JS/MapTiler/MapStyles/osm_planet_wege_poi_01a.json
+logo=https://www.openstreetmap.de/img/osm_logo.png

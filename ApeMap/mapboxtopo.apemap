@@ -1,0 +1,8 @@
+name=MapBoxTopo
+minzoom=7
+maxzoom=19
+virtualHd=true
+hd=true
+tilesize=512
+url=https://maps1.wien.gv.at/basemap/bmapgrau/normal/google3857/@Z/@Y/@X.png
+logo=https://www.basemap.at/images/logo_salzburg.gif

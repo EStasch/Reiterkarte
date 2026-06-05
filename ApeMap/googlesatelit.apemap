@@ -1,0 +1,6 @@
+name=GoogleSatelit
+minzoom=6
+maxzoom=17
+virtualHd=scale
+url=https://mt1.google.com/vt/lyrs=s&x=@X&y=@Y&z=@Z
+logo=https://www.openstreetmap.de/img/osm_logo.png

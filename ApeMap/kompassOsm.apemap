@@ -1,0 +1,7 @@
+name=Kompass OSM
+minzoom=6
+maxzoom=18
+netfolder=true
+virtualHd=scale
+url=https://map.tourinfra.com/tiles/kompass_osm/@Z/@X/@Y.png
+logo=https://www.openstreetmap.de/img/osm_logo.png

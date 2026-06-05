@@ -1,0 +1,7 @@
+name=EsriWorldImagery
+minzoom=6
+maxzoom=18
+virtualHd=scale
+url=https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/@Z/@X/@Y.png
+logo=https://www.openstreetmap.de/img/osm_logo.png
+

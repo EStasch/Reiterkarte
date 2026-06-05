@@ -1,0 +1,11 @@
+name=Wanderreitkarte
+nickname=Reit- und Wanderkarte HD
+description=Lizenz: CC BY-NC-SA 3.0 DE Quelle: Nop's Reit- und Wanderkarte
+minzoom=7
+maxzoom=15
+url=https://topo.wanderreitkarte.de/topo/@Z/@X/@Y.png
+virtualHd=true
+hd=true
+tilesize=512
+logo=http://apemap.com/cms/uploads/images/nop_logo.jpg
+keyTpl=https://abo.wanderreitkarte.de/@Z/@X/@Y.png/ticket/@K

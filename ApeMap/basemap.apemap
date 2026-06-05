@@ -1,0 +1,6 @@
+name=BasemapDe
+minzoom=6
+maxzoom=18
+virtualHd=scale
+url=https://sgx.geodatenzentrum.de/wmts_basemapde/tile/1.0.0/de_basemapde_web_raster_farbe/default/GLOBAL_WEBMERCATOR/@Z/@X/@Y.png
+logo=https://www.openstreetmap.de/img/osm_logo.png

@@ -1,0 +1,7 @@
+name=BaseMapTopo
+minzoom=7
+maxzoom=18
+CenterPoint=47.52203, 12.72213
+virtualHd=scale
+url=https://mapsneu.wien.gv.at/basemap/bmapgrau/normal/google3857/@Z/@Y/@X.png
+logo=https://basemap.at/wp-content/uploads/sites/53/2019/06/logo-basemap-trans-3-e1561616417483.png

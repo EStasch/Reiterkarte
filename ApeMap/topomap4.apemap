@@ -1,0 +1,6 @@
+name=OpenTopoMap
+minzoom=7
+maxzoom=17
+virtualHd=scale
+url=https://a.tile.opentopomap.org/@Z/@X/@Y.png
+logo=https://opentopomap.org/img/OpenTopoMap_rechts.png

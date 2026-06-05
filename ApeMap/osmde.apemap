@@ -1,0 +1,6 @@
+name=OSM_DE
+minzoom=6
+maxzoom=17
+virtualHd=scale
+url=https://a.tile.openstreetmap.de/tiles/osmde/@Z/@X/@Y.png
+logo=https://www.openstreetmap.de/img/osm_logo.png
