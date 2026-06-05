@@ -54,10 +54,12 @@
     },
     "Maptiler Server": {
       "type": "vector",
+      "attribution": "OSM Data &copy; OpenStreetMap contributors",
       "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT_ULM_Wege.pmtiles"
     },
     "Maptiler Server POI": {
       "type": "vector",
+      "attribution": "OSM Data &copy; OpenStreetMap contributors",
       "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT_ULM_POI.pmtiles"
     }
   },
