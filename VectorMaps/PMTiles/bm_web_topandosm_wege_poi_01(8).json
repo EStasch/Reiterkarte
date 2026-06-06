@@ -10020,7 +10020,7 @@
       "maxzoom": 22,
       "filter": ["==", "klasse", "Hauptwirtschaftsweg"],
       "layout": {
-        "visibility": "visible",
+        "visibility": "none",
         "symbol-placement": "line-center",
         "symbol-spacing": 1,
         "text-field": "{name}     {oberflaeche}",
@@ -10057,7 +10057,9 @@
         "text-font": ["Noto Sans ExtraCondensed Light"],
         "text-letter-spacing": 0.08,
         "text-offset": [0, -0.6],
-        "text-size": {"base": 1, "stops": [[13, 8], [15, 10.5], [17, 14]]}
+        "text-size": {"base": 1, "stops": [[13, 8], [15, 11], [17, 15]]},
+        "text-allow-overlap": true,
+        "text-overlap": "never"
       },
       "paint": {
         "text-color": "rgba(39, 39, 39, 1)",
@@ -10081,12 +10083,14 @@
         "visibility": "visible",
         "symbol-placement": "line-center",
         "symbol-spacing": 1,
-        "text-field": "{name} {oberflaeche}",
+        "text-field": "{name}  {oberflaeche}",
         "text-anchor": "center",
         "text-font": ["Noto Sans ExtraCondensed Light"],
         "text-letter-spacing": 0.08,
-        "text-offset": [0, -0.6],
-        "text-size": {"base": 1, "stops": [[13, 10], [18, 20]]}
+        "text-offset": [0, -0.7],
+        "text-size": {"base": 1, "stops": [[13, 10], [18, 21]]},
+        "text-allow-overlap": true,
+        "text-overlap": "cooperative"
       },
       "paint": {
         "text-color": "rgba(40, 40, 40, 1)",
@@ -10277,7 +10281,9 @@
         "text-font": ["Noto Sans Italic"],
         "text-offset": [0, 0],
         "text-padding": 10,
-        "text-size": {"base": 1, "stops": [[14, 12], [20, 16]]}
+        "text-size": {"base": 1, "stops": [[14, 12], [20, 16]]},
+        "text-allow-overlap": true,
+        "text-overlap": "cooperative"
       },
       "paint": {
         "text-color": "rgb(110,90,85)",
@@ -15962,9 +15968,9 @@
         "text-font": ["Roboto Regular", "Noto Sans Regular"],
         "text-letter-spacing": 0.01,
         "text-max-width": 200,
-        "text-offset": [0, 0.2],
+        "text-offset": [0, -0.2],
         "text-padding": 0,
-        "text-size": {"stops": [[10, 6], [15, 10], [20, 32]]},
+        "text-size": {"stops": [[10, 6], [15, 11], [20, 32]]},
         "icon-offset": [0, 3],
         "text-overlap": "always"
       }
@@ -15987,11 +15993,11 @@
         "text-font": ["Roboto Regular", "Noto Sans Regular"],
         "text-letter-spacing": 0.01,
         "text-max-width": 200,
-        "text-offset": [0, 0.25],
+        "text-offset": [0, -0.25],
         "text-padding": 0,
         "text-size": {"stops": [[10, 6], [15, 11], [20, 32]]},
         "icon-offset": [0, 3],
-        "text-overlap": "always"
+        "text-overlap": "cooperative"
       }
     },
     {
@@ -16546,7 +16552,9 @@
         "icon-allow-overlap": true,
         "icon-anchor": "bottom",
         "text-anchor": "center",
-        "text-size": {"stops": [[11, 8], [20, 18]]}
+        "text-size": {"stops": [[11, 8], [20, 18]]},
+        "text-allow-overlap": true,
+        "text-overlap": "cooperative"
       },
       "paint": {
         "icon-translate": [0, -9],
