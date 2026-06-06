@@ -10057,7 +10057,7 @@
         "text-font": ["Noto Sans ExtraCondensed Light"],
         "text-letter-spacing": 0.08,
         "text-offset": [0, -0.6],
-        "text-size": {"base": 1, "stops": [[13, 8], [15, 10], [17, 13]]}
+        "text-size": {"base": 1, "stops": [[13, 8], [15, 10.5], [17, 14]]}
       },
       "paint": {
         "text-color": "rgba(39, 39, 39, 1)",
@@ -13284,10 +13284,10 @@
       "layout": {
         "visibility": "visible",
         "icon-image": "Windrad",
-        "icon-allow-overlap": false,
+        "icon-allow-overlap": true,
         "icon-ignore-placement": true,
         "icon-padding": 0,
-        "icon-size": {"stops": [[10, 0.5], [14, 1], [20, 3.2]]}
+        "icon-size": {"stops": [[10, 0.5], [14, 1.2], [20, 4.6]]}
       },
       "paint": {"icon-opacity": 1}
     },
@@ -13404,7 +13404,7 @@
       "type": "symbol",
       "source": "smarttiles_de",
       "source-layer": "Bauwerkspunkt",
-      "minzoom": 12,
+      "minzoom": 11,
       "maxzoom": 22,
       "filter": ["in", "klasse", "Brunnen", "Brunnen (Trinkwasserversorgung)"],
       "layout": {
@@ -13412,9 +13412,14 @@
         "icon-image": "Brunnen",
         "icon-allow-overlap": false,
         "icon-padding": 0,
-        "icon-size": {"stops": [[12, 0.65], [16, 1.5], [20, 2]]},
+        "icon-size": {"stops": [[12, 0.7], [16, 1.8], [20, 2.4]]},
         "icon-overlap": "cooperative",
-        "text-field": "{name}"
+        "text-field": "{name}",
+        "text-allow-overlap": true,
+        "text-overlap": "always",
+        "text-size": {"stops": [[12, 8], [20, 18]]},
+        "text-anchor": "bottom",
+        "text-offset": [0, -1]
       },
       "paint": {"icon-opacity": 1}
     },
@@ -16121,7 +16126,7 @@
         "icon-image": "reiterkarte_sprite:map-picnic",
         "icon-size": {"stops": [[11, 0.025], [16, 0.18], [20, 1.1]]},
         "text-field": "{name}",
-        "icon-allow-overlap": false,
+        "icon-allow-overlap": true,
         "icon-anchor": "bottom",
         "text-anchor": "center",
         "text-size": {"stops": [[11, 8], [20, 18]]},
@@ -16475,6 +16480,33 @@
       }
     },
     {
+      "id": "poi_tower-wind",
+      "type": "symbol",
+      "source": "Maptiler Server POI",
+      "source-layer": "planet_osm_point",
+      "minzoom": 13,
+      "filter": [
+        "all",
+        ["==", "power", "generator"],
+        ["==", "generator:source", "wind"]
+      ],
+      "layout": {
+        "icon-image": "reiterkarte_sprite:windmill_03",
+        "icon-size": {"stops": [[11, 0.05], [16, 0.3], [20, 1.2]]},
+        "text-field": "{name}",
+        "icon-allow-overlap": true,
+        "icon-anchor": "bottom",
+        "text-anchor": "center",
+        "text-size": {"stops": [[11, 8], [20, 18]]},
+        "visibility": "none"
+      },
+      "paint": {
+        "icon-translate": [0, -15],
+        "text-halo-color": "rgba(255, 254, 254, 1)",
+        "text-halo-width": 1
+      }
+    },
+    {
       "id": "poi_tower",
       "type": "symbol",
       "source": "Maptiler Server POI",
@@ -16586,7 +16618,8 @@
         "icon-allow-overlap": true,
         "icon-anchor": "bottom",
         "text-anchor": "center",
-        "text-size": {"stops": [[11, 8], [20, 18]]}
+        "text-size": {"stops": [[11, 8], [20, 18]]},
+        "text-allow-overlap": true
       },
       "paint": {
         "icon-translate": [0, -15],
