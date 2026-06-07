@@ -10057,7 +10057,7 @@
         "text-font": ["Noto Sans ExtraCondensed Light"],
         "text-letter-spacing": 0.08,
         "text-offset": [0, -0.6],
-        "text-size": {"base": 1, "stops": [[13, 8], [15, 11], [17, 15]]},
+        "text-size": {"base": 1, "stops": [[13, 8], [15, 11], [17, 18]]},
         "text-allow-overlap": true,
         "text-overlap": "never"
       },
@@ -10076,7 +10076,7 @@
       "type": "symbol",
       "source": "smarttiles_de",
       "source-layer": "Verkehrslinie",
-      "minzoom": 14,
+      "minzoom": 13,
       "maxzoom": 22,
       "filter": ["==", "klasse", "Hauptwirtschaftsweg"],
       "layout": {
@@ -10090,7 +10090,7 @@
         "text-offset": [0, -0.7],
         "text-size": {"base": 1, "stops": [[13, 10], [18, 21]]},
         "text-allow-overlap": true,
-        "text-overlap": "cooperative"
+        "text-overlap": "always"
       },
       "paint": {
         "text-color": "rgba(40, 40, 40, 1)",
@@ -15968,11 +15968,40 @@
         "text-font": ["Roboto Regular", "Noto Sans Regular"],
         "text-letter-spacing": 0.01,
         "text-max-width": 200,
-        "text-offset": [0, -0.2],
+        "text-offset": [0, 0.3],
         "text-padding": 0,
         "text-size": {"stops": [[10, 6], [15, 11], [20, 32]]},
         "icon-offset": [0, 3],
         "text-overlap": "always"
+      },
+      "paint": {
+        "text-color": [
+          "match",
+          ["get", "surface"],
+          "asphalt",
+          "#36373bd9",
+          "compacted",
+          "#5d707f",
+          "concrete",
+          "#91a1ad",
+          "dirt",
+          "#6b5d2f",
+          "grass",
+          "#1f673f",
+          "ground",
+          "#41680c",
+          "paved",
+          "#4c5a64",
+          "paving_stones",
+          "#616b73",
+          "pebblestone",
+          "#6a8192",
+          "rock",
+          "#6c8191",
+          "wood",
+          "#8b6f3e",
+          "#36373bd9"
+        ]
       }
     },
     {
@@ -15993,11 +16022,42 @@
         "text-font": ["Roboto Regular", "Noto Sans Regular"],
         "text-letter-spacing": 0.01,
         "text-max-width": 200,
-        "text-offset": [0, -0.25],
+        "text-offset": [0, -0.2],
         "text-padding": 0,
         "text-size": {"stops": [[10, 6], [15, 11], [20, 32]]},
-        "icon-offset": [0, 3],
-        "text-overlap": "cooperative"
+        "text-overlap": "cooperative",
+        "icon-anchor": "center",
+        "icon-offset": [0, 3]
+      },
+      "paint": {
+        "icon-color": "#000000",
+        "text-color": [
+          "match",
+          ["get", "surface"],
+          "asphalt",
+          "#36373bd9",
+          "compacted",
+          "#5d707f",
+          "concrete",
+          "#91a1ad",
+          "dirt",
+          "#6b5d2f",
+          "grass",
+          "#1f673f",
+          "ground",
+          "#41680c",
+          "paved",
+          "#4c5a64",
+          "paving_stones",
+          "#616b73",
+          "pebblestone",
+          "#6a8192",
+          "rock",
+          "#6c8191",
+          "wood",
+          "#8b6f3e",
+          "#36373bd9"
+        ]
       }
     },
     {
