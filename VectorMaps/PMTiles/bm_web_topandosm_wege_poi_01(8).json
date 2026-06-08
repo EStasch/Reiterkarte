@@ -10056,7 +10056,7 @@
         "text-anchor": "center",
         "text-font": ["Noto Sans ExtraCondensed Light"],
         "text-letter-spacing": 0.08,
-        "text-offset": [0, -0.6],
+        "text-offset": [0, -0.5],
         "text-size": {"base": 1, "stops": [[13, 8], [15, 11], [17, 18]]},
         "text-allow-overlap": true,
         "text-overlap": "never"
