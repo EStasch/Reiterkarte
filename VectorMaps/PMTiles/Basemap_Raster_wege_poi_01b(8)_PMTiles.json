@@ -22,11 +22,13 @@
     },
     "Maptiler Server": {
       "type": "vector",
-      "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT_ULM_Wege.pmtiles"
+      "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT_ULM_Wege.pmtiles",
+      "attribution": "© OpenStreetMap contributors, CC-BY-SA"
     },
     "Maptiler Server POI": {
       "type": "vector",
-      "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT_ULM_POI.pmtiles"
+      "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT_ULM_POI.pmtiles",
+      "attribution": "© OpenStreetMap contributors, CC-BY-SA"
     }
   },
   "sprite": [

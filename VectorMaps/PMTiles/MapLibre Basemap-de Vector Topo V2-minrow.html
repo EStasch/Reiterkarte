@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <title>basemap.de Web Vektor - MapLibre GL JS Demo</title>
+   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.css" crossorigin="anonymous">
+        <script src="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+   <script src="https://unpkg.com/pmtiles@4.4.1/dist/pmtiles.js"></script>
+   <script src="../Javascript/scaleTextOnLayersforHD.js"></script>
+   <style>
+      body {
+         margin: 0;
+         padding: 0;
+      }
+
+      #map {
+         position: absolute;
+         top: 0;
+         bottom: 0;
+         width: 100%;
+      }
+      #zoom-display{
+                font-size: 1em;
+      }
+   </style>
+</head>
+
+<body>
+   <div id="map" class="map"></div>
+   <div id="zoom-container" style="background-color: rgba(250, 246, 246, 0.875);position: absolute;top: 50px;right: 50px;">
+            <span>Zoom: </span>
+            <span id="zoom-display">13</span><br>
+            <span>DPR: </span><span id="dpr"></span><br>
+            <div id="dimenstions"></div>
+        </div>
+   <script>
+      // add the PMTiles plugin to the maplibregl global.
+      // setting metadata = true fills out the "attribution" field of the source, and is required for some inspector applications,
+      // but requires an additional blocking HTTP request before loading the map.
+      let protocol = new pmtiles.Protocol({metadata: true});
+      maplibregl.addProtocol("pmtiles", protocol.tile);
+
+      // Example: Scaling text size based on device pixel ratio
+      const dpr = window.devicePixelRatio || 1;
+      //const dpr = 2; // for testing purposes, set a fixed DPR value
+      document.getElementById('dpr').textContent = dpr;
+
+      var map = new maplibregl.Map({
+         container: 'map',
+         style: 'https://estasch.github.io/Reiterkarte/VectorMaps/PMTiles/bm_web_topandosm_wege_poi_01(8)_PMTiles_minrow.json',
+         center: [9.375844,48.498550],
+         zoom: 13,
+      });
+
+      //map.showTileBoundaries = true;
+
+      // Beispiel: Aktualisieren eines HTML-Elements mit der ID 'zoom-display'
+      map.on('zoom', () => {
+            document.getElementById('zoom-display').textContent = map.getZoom().toFixed(2);
+      });
+
+      map.on('style.load', () => {
+        const layerSearchString = "poi_|text_|Name_";
+        scaleTextOnLayersforHD(map,layerSearchString,dpr);      
+
+      });
+
+      if (isMobileDevice()) {
+         console.log("Mobiles Ger�t erkannt");
+      }
+
+      function getScreenDimentions() {
+         document.getElementById("dimenstions").innerHTML = 
+         "Mobil Device: " + isMobileDevice() +"<br/>"+
+         "Display Width : " + screen.width +"<br/> Display Height : " + screen.height;
+      }
+      function isMobileDevice() {
+      // 1. Moderne L�sung: Client Hints API (Chromium-Browser)
+      if (navigator.userAgentData) {
+         console.log(navigator.userAgentData)
+         return navigator.userAgentData.mobile;
+      }
+      
+      // 2. Fallback: User-Agent Regex (f�r Safari, Firefox und �ltere Browser)
+      console.log(navigator.userAgent)
+      return /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      }
+
+   </script>
+</body>
+
+</html>
