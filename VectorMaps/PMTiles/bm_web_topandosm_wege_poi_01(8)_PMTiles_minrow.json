@@ -13418,7 +13418,7 @@
         "icon-image": "Brunnen",
         "icon-allow-overlap": false,
         "icon-padding": 0,
-        "icon-size": {"stops": [[12, 0.7], [16, 1.8], [20, 2.4]]},
+        "icon-size": {"stops": [[12, 0.7], [16, 1.8], [17, 2.6], [20, 5]]},
         "icon-overlap": "cooperative",
         "text-field": "{name}",
         "text-allow-overlap": true,
