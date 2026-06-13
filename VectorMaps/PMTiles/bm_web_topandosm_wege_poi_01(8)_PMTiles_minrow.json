@@ -15662,7 +15662,7 @@
       "id": "highway_service",
       "type": "line",
       "source": "Maptiler Server",
-      "source-layer": "planet_osm_line",
+      "source-layer": "temp_bbox_rt_ulm_line_minrow",
       "minzoom": 12,
       "maxzoom": 20,
       "filter": ["all", ["==", "highway", "service"], ["has", "surface"]],
@@ -15707,7 +15707,7 @@
       "id": "highway_unclassified",
       "type": "line",
       "source": "Maptiler Server",
-      "source-layer": "planet_osm_line",
+      "source-layer": "temp_bbox_rt_ulm_line_minrow",
       "minzoom": 12,
       "maxzoom": 20,
       "filter": [
@@ -15756,7 +15756,7 @@
       "id": "highway_track-randlinie",
       "type": "line",
       "source": "Maptiler Server",
-      "source-layer": "planet_osm_line",
+      "source-layer": "temp_bbox_rt_ulm_line_minrow",
       "minzoom": 13.9,
       "maxzoom": 20,
       "filter": [
@@ -15784,7 +15784,7 @@
       "id": "highway_track",
       "type": "line",
       "source": "Maptiler Server",
-      "source-layer": "planet_osm_line",
+      "source-layer": "temp_bbox_rt_ulm_line_minrow",
       "minzoom": 12,
       "maxzoom": 20,
       "filter": ["all", ["==", "highway", "track"]],
@@ -15839,7 +15839,7 @@
       "id": "highway_Steps-Outline",
       "type": "line",
       "source": "Maptiler Server",
-      "source-layer": "planet_osm_line",
+      "source-layer": "temp_bbox_rt_ulm_line_minrow",
       "minzoom": 12,
       "maxzoom": 20,
       "filter": ["all", ["==", "highway", "steps"]],
@@ -15853,7 +15853,7 @@
       "id": "highway_Steps",
       "type": "line",
       "source": "Maptiler Server",
-      "source-layer": "planet_osm_line",
+      "source-layer": "temp_bbox_rt_ulm_line_minrow",
       "minzoom": 12,
       "maxzoom": 20,
       "filter": ["all", ["==", "highway", "steps"]],
@@ -15906,7 +15906,7 @@
       "id": "highway_Path",
       "type": "line",
       "source": "Maptiler Server",
-      "source-layer": "planet_osm_line",
+      "source-layer": "temp_bbox_rt_ulm_line_minrow",
       "minzoom": 12,
       "maxzoom": 20,
       "filter": ["all", ["==", "highway", "path"]],
@@ -15954,7 +15954,7 @@
       "id": "text_surface_path",
       "type": "symbol",
       "source": "Maptiler Server",
-      "source-layer": "planet_osm_line",
+      "source-layer": "temp_bbox_rt_ulm_line_minrow",
       "minzoom": 13,
       "maxzoom": 20,
       "filter": ["all", ["==", "highway", "path"]],
@@ -16008,7 +16008,7 @@
       "id": "text_surface_track",
       "type": "symbol",
       "source": "Maptiler Server",
-      "source-layer": "planet_osm_line",
+      "source-layer": "temp_bbox_rt_ulm_line_minrow",
       "minzoom": 13,
       "maxzoom": 20,
       "filter": ["all", ["==", "highway", "track"]],
@@ -16064,7 +16064,7 @@
       "id": "text_surface_unclassified",
       "type": "symbol",
       "source": "Maptiler Server",
-      "source-layer": "planet_osm_line",
+      "source-layer": "temp_bbox_rt_ulm_line_minrow",
       "minzoom": 13,
       "maxzoom": 20,
       "filter": ["all", ["==", "highway", "unclassified"]],
@@ -16089,7 +16089,7 @@
       "id": "poi_facilities_drinking_water",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 12.5,
       "filter": ["all", ["==", "amenity", "drinking_water"]],
       "layout": {
@@ -16113,7 +16113,7 @@
       "id": "poi_facilities_watering_place",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 12.5,
       "filter": ["all", ["==", "amenity", "watering_place"]],
       "layout": {
@@ -16137,7 +16137,7 @@
       "id": "poi_facilities_fire_pit",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 12.5,
       "filter": ["all", ["==", "leisure", "firepit"]],
       "layout": {
@@ -16161,7 +16161,7 @@
       "id": "poi_facilities_shelter",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 12.5,
       "filter": ["all", ["==", "amenity", "shelter"]],
       "layout": {
@@ -16185,7 +16185,7 @@
       "id": "poi_facilities_picnic",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 12.5,
       "filter": ["all", ["==", "tourism", "picnic_site"]],
       "layout": {
@@ -16209,7 +16209,7 @@
       "id": "poi_barrier_kissing_gate",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": ["all", ["==", "barrier", "kissing_gate"]],
       "layout": {
@@ -16231,7 +16231,7 @@
       "id": "poi_barrier_cycle_barrier",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": ["all", ["==", "barrier", "cycle_barrier"]],
       "layout": {
@@ -16253,7 +16253,7 @@
       "id": "poi_line_bridge_horse_no",
       "type": "symbol",
       "source": "Maptiler Server",
-      "source-layer": "planet_osm_line",
+      "source-layer": "temp_bbox_rt_ulm_line_minrow",
       "minzoom": 12,
       "filter": ["all", ["==", "bridge", "yes"], ["==", "horse", "no"]],
       "layout": {
@@ -16275,7 +16275,7 @@
       "id": "poi_line_horse_scale_dangerous",
       "type": "symbol",
       "source": "Maptiler Server",
-      "source-layer": "planet_osm_line",
+      "source-layer": "temp_bbox_rt_ulm_line_minrow",
       "minzoom": 13,
       "filter": ["all", ["==", "tags", "\"horse_scale\"=>\"dangerous\""]],
       "layout": {
@@ -16297,7 +16297,7 @@
       "id": "poi_line_horse_scale_impossible",
       "type": "symbol",
       "source": "Maptiler Server",
-      "source-layer": "planet_osm_line",
+      "source-layer": "temp_bbox_rt_ulm_line_minrow",
       "minzoom": 13,
       "filter": ["all", ["==", "tags", "\"horse_scale\"=>\"impossible\""]],
       "layout": {
@@ -16319,7 +16319,7 @@
       "id": "poi_line_ford",
       "type": "symbol",
       "source": "Maptiler Server",
-      "source-layer": "planet_osm_line",
+      "source-layer": "temp_bbox_rt_ulm_line_minrow",
       "minzoom": 13,
       "filter": ["all", ["==", "tags", "\"ford\"=>\"yes\""]],
       "layout": {
@@ -16345,7 +16345,7 @@
       "id": "poi_natural_ford",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": ["all", ["==", "tags", "\"ford\"=>\"yes\""]],
       "layout": {
@@ -16370,7 +16370,7 @@
       "id": "poi_barrier_chicane",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": ["all", ["==", "barrier", "chicane"]],
       "layout": {
@@ -16392,7 +16392,7 @@
       "id": "poi_barrier_cattle_grid",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": ["all", ["==", "barrier", "cattle_grid"]],
       "layout": {
@@ -16414,7 +16414,7 @@
       "id": "poi_barrier_tree",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": ["all", ["==", "barrier", "tree"]],
       "layout": {
@@ -16436,7 +16436,7 @@
       "id": "poi_natural_cave",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": ["any", ["==", "natural", "cave_entrance"]],
       "layout": {
@@ -16458,7 +16458,7 @@
       "id": "poi_natural_tree",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": ["any", ["==", "natural", "tree"]],
       "layout": {
@@ -16480,7 +16480,7 @@
       "id": "poi_natural_peak",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": ["any", ["==", "natural", "peak"]],
       "layout": {
@@ -16502,7 +16502,7 @@
       "id": "poi_natural_hill",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": ["any", ["==", "natural", "hill"]],
       "layout": {
@@ -16523,7 +16523,7 @@
       "id": "poi_natural_rock",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": [
         "any",
@@ -16549,7 +16549,7 @@
       "id": "poi_tower-wind",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": [
         "all",
@@ -16576,7 +16576,7 @@
       "id": "poi_tower",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": ["any", ["==", "tower:type", "observation"]],
       "layout": {
@@ -16598,7 +16598,7 @@
       "id": "poi_castle_ruins",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": [
         "any",
@@ -16626,7 +16626,7 @@
       "id": "poi_barrier_stile",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": ["all", ["==", "barrier", "stile"]],
       "layout": {
@@ -16648,7 +16648,7 @@
       "id": "poi_barrier_fence",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": ["all", ["==", "barrier", "fence"]],
       "layout": {
@@ -16670,7 +16670,7 @@
       "id": "poi_barrier_gate",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 13,
       "filter": [
         "any",
@@ -16699,7 +16699,7 @@
       "id": "poi_facilities_veterinary",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 12,
       "filter": ["all", ["==", "amenity", "veterinary"]],
       "layout": {
@@ -16721,7 +16721,7 @@
       "id": "poi_facilities_biergarten",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 12,
       "filter": ["all", ["==", "amenity", "biergarten"]],
       "layout": {
@@ -16743,7 +16743,7 @@
       "id": "poi_facilities_horse_Restaurant",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 11,
       "filter": [
         "all",
@@ -16767,7 +16767,7 @@
       "id": "poi_stables",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 8,
       "filter": ["all", ["==", "amenity", "stables"]],
       "layout": {
@@ -16787,7 +16787,7 @@
       "id": "poi_stables_stations",
       "type": "symbol",
       "source": "Maptiler Server POI",
-      "source-layer": "planet_osm_point",
+      "source-layer": "temp_bbox_rt_ulm_point_minrow",
       "minzoom": 8,
       "filter": ["all", ["==", "tourism", "trail_riding_station"]],
       "layout": {
