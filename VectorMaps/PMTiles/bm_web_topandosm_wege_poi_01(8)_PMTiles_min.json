@@ -43,12 +43,12 @@
     "Maptiler Server": {
       "type": "vector",
       "attribution": "OSM Data &copy; OpenStreetMap contributors",
-      "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/ALB_Wege_min.pmtiles"
+      "url": "pmtiles://https://github.com/EStasch/Reiterkarte/OsmMaptiles/ALB_Wege_min.pmtiles"
     },
     "Maptiler Server POI": {
       "type": "vector",
       "attribution": "OSM Data &copy; OpenStreetMap contributors",
-      "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/ALB_POI_min.pmtiles"
+      "url": "pmtiles://https://github.com/EStasch/Reiterkarte/OsmMaptiles/ALB_POI_min.pmtiles"
     }
   },
   "sprite": [
