@@ -12627,10 +12627,10 @@
       "layout": {
         "visibility": "visible",
         "icon-image": "Parkplatz",
-        "icon-allow-overlap": false,
+        "icon-allow-overlap": true,
         "icon-ignore-placement": false,
-        "icon-padding": 0,
-        "icon-size": {"stops": [[10, 0.65], [20, 1.2]]}
+        "icon-size": {"stops": [[13, 0.34], [16, 1.2], [20, 4.8]]},
+        "icon-padding": [0, 0, 0, 0]
       },
       "paint": {"icon-opacity": {"stops": [[13, 0.5], [16, 1]]}}
     },
