@@ -43,12 +43,12 @@
     "Maptiler Server": {
       "type": "vector",
       "attribution": "OSM Data &copy; OpenStreetMap contributors",
-      "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT-ULM_ALB-OST_Wege_min.mbtiles"
+      "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT-ULM_ALB-OST_Wege_min.pmtiles"
     },
     "Maptiler Server POI": {
       "type": "vector",
       "attribution": "OSM Data &copy; OpenStreetMap contributors",
-      "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT-ULM_ALB-OST_POI_min.mbtiles"
+      "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT-ULM_ALB-OST_POI_min.pmtiles"
     }
   },
   "sprite": [
