@@ -50,12 +50,12 @@
 
       var map = new maplibregl.Map({
          container: 'map',
-         style: 'https://estasch.github.io/Reiterkarte/VectorMaps/PMTiles/bm_web_topandosm_wege_poi_01(8)_PMTiles_min.sav.json',
+         style: 'https://estasch.github.io/Reiterkarte/VectorMaps/PMTiles/bm_web_topandosm_wege_poi_01(8)_PMTiles_min.json',
          center: [9.375844,48.498550],
          zoom: 13,
       });
 
-      map.showTileBoundaries = true;
+      //map.showTileBoundaries = true;
 
       // Beispiel: Aktualisieren eines HTML-Elements mit der ID 'zoom-display'
       map.on('zoom', () => {
@@ -77,6 +77,7 @@
          "Mobil Device: " + isMobileDevice() +"<br/>"+
          "Display Width : " + screen.width +"<br/> Display Height : " + screen.height;
       }
+      
       function isMobileDevice() {
       // 1. Moderne L�sung: Client Hints API (Chromium-Browser)
       if (navigator.userAgentData) {
