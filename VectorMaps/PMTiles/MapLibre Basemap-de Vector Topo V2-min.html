@@ -40,6 +40,14 @@
       let protocol = new pmtiles.Protocol({metadata: true});
       maplibregl.addProtocol("pmtiles", protocol.tile);
 
+      // URL zur PMTiles-Datei (hier ein öffentliches Beispiel von Protomaps)
+      const PMTILES_URL = "https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT-ULM_ALB-OST_Wege_min.pmtiles";
+
+      // 2. Optional: Header auslesen, um Zentrum und Zoom automatisch zu setzen
+      const p = new pmtiles.PMTiles(PMTILES_URL);
+      const metadata = await p.getMetadata();
+      console.log("PMTiles Metadata:", metadata);
+
       // Example: Scaling text size based on device pixel ratio
       const dpr = window.devicePixelRatio || 1;
       //const dpr = 2; // for testing purposes, set a fixed DPR value
@@ -65,27 +73,7 @@
 
       });
 
-      if (isMobileDevice()) {
-         console.log("Mobiles Ger�t erkannt");
-      }
-
-      function getScreenDimentions() {
-         document.getElementById("dimenstions").innerHTML = 
-         "Mobil Device: " + isMobileDevice() +"<br/>"+
-         "Display Width : " + screen.width +"<br/> Display Height : " + screen.height;
-      }
-      function isMobileDevice() {
-      // 1. Moderne L�sung: Client Hints API (Chromium-Browser)
-      if (navigator.userAgentData) {
-         console.log(navigator.userAgentData)
-         return navigator.userAgentData.mobile;
-      }
       
-      // 2. Fallback: User-Agent Regex (f�r Safari, Firefox und �ltere Browser)
-      console.log(navigator.userAgent)
-      return /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      }
-
    </script>
 </body>
 
