@@ -43,12 +43,12 @@
     "Maptiler Server": {
       "type": "vector",
       "attribution": "OSM Data &copy; OpenStreetMap contributors",
-      "url": "pmtiles://https://github.com/EStasch/Reiterkarte/OsmMaptiles/ALB_Wege_min.pmtiles"
+      "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT-ULM_ALB-OST_Wege_min.pmtiles"
     },
     "Maptiler Server POI": {
       "type": "vector",
       "attribution": "OSM Data &copy; OpenStreetMap contributors",
-      "url": "pmtiles://https://github.com/EStasch/Reiterkarte/raw/refs/heads/main/OsmMaptiles/ALB_POI_min.pmtiles"
+      "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/ALB_POI_min.pmtiles"
     }
   },
   "sprite": [
@@ -15662,7 +15662,7 @@
       "id": "highway_service",
       "type": "line",
       "source": "Maptiler Server",
-      "source-layer": "alb_line_comb",
+      "source-layer": "combined_rt_ulm_alb_ost_line",
       "minzoom": 12,
       "maxzoom": 20,
       "filter": ["all", ["==", "highway", "service"], ["has", "surface"]],
@@ -15707,7 +15707,7 @@
       "id": "highway_unclassified",
       "type": "line",
       "source": "Maptiler Server",
-      "source-layer": "alb_line_comb",
+      "source-layer": "combined_rt_ulm_alb_ost_line",
       "minzoom": 12,
       "maxzoom": 20,
       "filter": [
@@ -15756,7 +15756,7 @@
       "id": "highway_track-randlinie",
       "type": "line",
       "source": "Maptiler Server",
-      "source-layer": "alb_line_comb",
+      "source-layer": "combined_rt_ulm_alb_ost_line",
       "minzoom": 13.9,
       "maxzoom": 20,
       "filter": [
@@ -15784,7 +15784,7 @@
       "id": "highway_track",
       "type": "line",
       "source": "Maptiler Server",
-      "source-layer": "alb_line_comb",
+      "source-layer": "combined_rt_ulm_alb_ost_line",
       "minzoom": 12,
       "maxzoom": 20,
       "filter": ["all", ["==", "highway", "track"]],
@@ -15839,7 +15839,7 @@
       "id": "highway_Steps-Outline",
       "type": "line",
       "source": "Maptiler Server",
-      "source-layer": "alb_line_comb",
+      "source-layer": "combined_rt_ulm_alb_ost_line",
       "minzoom": 12,
       "maxzoom": 20,
       "filter": ["all", ["==", "highway", "steps"]],
@@ -15853,7 +15853,7 @@
       "id": "highway_Steps",
       "type": "line",
       "source": "Maptiler Server",
-      "source-layer": "alb_line_comb",
+      "source-layer": "combined_rt_ulm_alb_ost_line",
       "minzoom": 12,
       "maxzoom": 20,
       "filter": ["all", ["==", "highway", "steps"]],
@@ -15906,7 +15906,7 @@
       "id": "highway_Path",
       "type": "line",
       "source": "Maptiler Server",
-      "source-layer": "alb_line_comb",
+      "source-layer": "combined_rt_ulm_alb_ost_line",
       "minzoom": 12,
       "maxzoom": 20,
       "filter": ["all", ["==", "highway", "path"]],
@@ -15954,7 +15954,7 @@
       "id": "text_surface_path",
       "type": "symbol",
       "source": "Maptiler Server",
-      "source-layer": "alb_line_comb",
+      "source-layer": "combined_rt_ulm_alb_ost_line",
       "minzoom": 13,
       "maxzoom": 20,
       "filter": ["all", ["==", "highway", "path"]],
@@ -16008,7 +16008,7 @@
       "id": "text_surface_track",
       "type": "symbol",
       "source": "Maptiler Server",
-      "source-layer": "alb_line_comb",
+      "source-layer": "combined_rt_ulm_alb_ost_line",
       "minzoom": 13,
       "maxzoom": 20,
       "filter": ["all", ["==", "highway", "track"]],
@@ -16064,7 +16064,7 @@
       "id": "text_surface_unclassified",
       "type": "symbol",
       "source": "Maptiler Server",
-      "source-layer": "alb_line_comb",
+      "source-layer": "combined_rt_ulm_alb_ost_line",
       "minzoom": 13,
       "maxzoom": 20,
       "filter": ["all", ["==", "highway", "unclassified"]],
@@ -16253,7 +16253,7 @@
       "id": "poi_line_bridge_horse_no",
       "type": "symbol",
       "source": "Maptiler Server",
-      "source-layer": "alb_line_comb",
+      "source-layer": "combined_rt_ulm_alb_ost_line",
       "minzoom": 12,
       "filter": ["all", ["==", "bridge", "yes"], ["==", "horse", "no"]],
       "layout": {
@@ -16275,7 +16275,7 @@
       "id": "poi_line_horse_scale_dangerous",
       "type": "symbol",
       "source": "Maptiler Server",
-      "source-layer": "alb_line_comb",
+      "source-layer": "combined_rt_ulm_alb_ost_line",
       "minzoom": 13,
       "filter": ["all", ["==", "tags", "\"horse_scale\"=>\"dangerous\""]],
       "layout": {
@@ -16297,7 +16297,7 @@
       "id": "poi_line_horse_scale_impossible",
       "type": "symbol",
       "source": "Maptiler Server",
-      "source-layer": "alb_line_comb",
+      "source-layer": "combined_rt_ulm_alb_ost_line",
       "minzoom": 13,
       "filter": ["all", ["==", "tags", "\"horse_scale\"=>\"impossible\""]],
       "layout": {
@@ -16319,7 +16319,7 @@
       "id": "poi_line_ford",
       "type": "symbol",
       "source": "Maptiler Server",
-      "source-layer": "alb_line_comb",
+      "source-layer": "combined_rt_ulm_alb_ost_line",
       "minzoom": 13,
       "filter": ["all", ["==", "tags", "\"ford\"=>\"yes\""]],
       "layout": {
