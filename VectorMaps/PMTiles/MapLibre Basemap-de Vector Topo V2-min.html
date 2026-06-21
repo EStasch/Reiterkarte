@@ -40,6 +40,7 @@
       let protocol = new pmtiles.Protocol({metadata: true});
       maplibregl.addProtocol("pmtiles", protocol.tile);
 
+      /*
       // URL zur PMTiles-Datei (hier ein öffentliches Beispiel von Protomaps)
       const PMTILES_URL = "https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT-ULM_ALB-OST_Wege_min.pmtiles";
 
@@ -48,15 +49,17 @@
       p.getHeader().then(header => {
          console.log("PMTiles Header:", header);         
       }).catch(err => console.error("Error fetching PMTiles header:", err));
-      
+      */
+     
       // Example: Scaling text size based on device pixel ratio
       const dpr = window.devicePixelRatio || 1;
       //const dpr = 2; // for testing purposes, set a fixed DPR value
       document.getElementById('dpr').textContent = dpr;
+      
 
       var map = new maplibregl.Map({
          container: 'map',
-         style: 'https://estasch.github.io/Reiterkarte/VectorMaps/PMTiles/bm_web_topandosm_wege_poi_01(8)_PMTiles_min.json',
+         style: 'https://estasch.github.io/Reiterkarte/VectorMaps/PMTiles/bm_web_topandosm_wege_poi_01(8)_PMTiles_min.sav.json',
          center: [9.375844,48.498550],
          zoom: 13,
       });
