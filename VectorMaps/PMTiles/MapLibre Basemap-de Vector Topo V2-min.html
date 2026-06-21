@@ -45,9 +45,10 @@
 
       // 2. Optional: Header auslesen, um Zentrum und Zoom automatisch zu setzen
       const p = new pmtiles.PMTiles(PMTILES_URL);
-      const metadata = await p.getMetadata();
-      console.log("PMTiles Metadata:", metadata);
-
+      p.getHeader().then(header => {
+         console.log("PMTiles Header:", header);         
+      }).catch(err => console.error("Error fetching PMTiles header:", err));
+      
       // Example: Scaling text size based on device pixel ratio
       const dpr = window.devicePixelRatio || 1;
       //const dpr = 2; // for testing purposes, set a fixed DPR value
