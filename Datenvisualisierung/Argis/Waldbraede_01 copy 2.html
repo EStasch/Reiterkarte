@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aktuelle Waldbrände in Europa</title>
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.css" crossorigin="anonymous">
+    <script src="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@arcgis/core@4.31.0/dist/umd/arcgis-core.min.js"></script>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background: #111;
+        }
+
+        #map {
+            position: absolute;
+            inset: 0;
+        }
+
+        #info {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 2;
+            background: rgba(15, 23, 42, 0.9);
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 8px;
+            max-width: 320px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        }
+
+        #info h1 {
+            margin: 0 0 6px 0;
+            font-size: 16px;
+        }
+
+        #info p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        #layer-controls {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 2;
+            background: rgba(15, 23, 42, 0.9);
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            font-size: 13px;
+        }
+
+        #layer-controls label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            margin: 4px 0;
+        }
+
+        .maplibregl-popup-content {
+            font-size: 13px;
+            min-width: 220px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="info">
+        <h1>Aktuelle Waldbrände in Europa</h1>
+        <p>Daten aus dem ArcGIS-Feuerdienst von NWCC. Klicken Sie auf einen Marker, um Details zum Brand zu sehen.</p>
+        <p id="status">Lade Daten…</p>
+        <p id="note" style="margin-top:6px; color:#ffd166;">Die aktuell geladenen Feuerpunkte liegen außerhalb Europas; die Karte zeigt daher derzeit keine europäischen Brände an.</p>
+    </div>
+    <div id="layer-controls">
+        <strong>Layer</strong>
+        <label><input type="checkbox" id="toggle-base-map" checked> Hintergrundlayer</label>
+        <label><input type="checkbox" id="toggle-fire-points" checked> Feuerpunkte</label>
+        <label><input type="checkbox" id="toggle-fire-labels" checked> Beschriftung</label>
+    </div>
+
+    <script>
+        const webmapId = 'd2408259cd05480f876acc7a51840ff4';
+        const arcgisUrl = 'https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/NWCC_Large_Fire_Information_Public_View/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
+
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://demotiles.maplibre.org/style.json',
+            center: [10, 50],
+            zoom: 3,
+            attributionControl: false
+        });
+
+        map.addControl(new maplibregl.NavigationControl(), 'top-right');
+        map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }));
+
+        map.on('load', async () => {
+            try {
+                const response = await fetch(arcgisUrl);
+                if (!response.ok) {
+                    throw new Error('Daten konnten nicht geladen werden.');
+                }
+
+                const data = await response.json();
+                const features = (data.features || []).filter((feature) => {
+                    const coordinates = feature?.geometry?.coordinates;
+                    if (!coordinates || coordinates.length < 2) return false;
+                    const [lng, lat] = coordinates;
+                    return lng >= -25 && lng <= 45 && lat >= 35 && lat <= 72;
+                });
+
+                const geojson = {
+                    type: 'FeatureCollection',
+                    features: features
+                };
+
+                map.addSource('wildfires', { type: 'geojson', data: geojson });
+
+                map.addLayer({
+                    id: 'wildfires-layer',
+                    type: 'circle',
+                    source: 'wildfires',
+                    paint: {
+                        'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 3, 5, 6, 8, 9],
+                        'circle-color': ['step', ['zoom'], '#ff7a00', 4, '#ff4d4f', 7, '#d7263d'],
+                        'circle-stroke-color': '#fff3e0',
+                        'circle-stroke-width': 1.8,
+                        'circle-opacity': 0.98
+                    }
+                }, 'waterway-label');
+
+                map.addLayer({
+                    id: 'wildfires-labels',
+                    type: 'symbol',
+                    source: 'wildfires',
+                    layout: {
+                        'text-field': ['coalesce', ['get', 'Name'], ['get', 'IncidentName'], ['get', 'incident_name'], 'Brand'],
+                        'text-size': 11,
+                        'text-offset': [0, 1.2],
+                        'text-anchor': 'top'
+                    },
+                    paint: {
+                        'text-color': '#fff8f0',
+                        'text-halo-color': '#111827',
+                        'text-halo-width': 1
+                    }
+                });
+
+                document.getElementById('status').textContent = `${geojson.features.length} Brandstellen in Europa geladen.`;
+
+                if (geojson.features.length === 0) {
+                    document.getElementById('note').textContent = 'Der aktuelle ArcGIS-Feuerdienst liefert keine Punkte im europäischen Bereich. Die Webmap ist als Referenz eingebunden.';
+                }
+
+                const baseMapToggle = document.getElementById('toggle-base-map');
+                const firePointsToggle = document.getElementById('toggle-fire-points');
+                const fireLabelsToggle = document.getElementById('toggle-fire-labels');
+
+                baseMapToggle.addEventListener('change', () => {
+                    const visibility = baseMapToggle.checked ? 'visible' : 'none';
+                    const style = map.getStyle();
+                    style.layers.forEach((layer) => {
+                        if (layer.type === 'background') {
+                            map.setPaintProperty(layer.id, 'background-color', visibility === 'visible' ? '#dfe7f2' : 'rgba(0,0,0,0)');
+                        }
+                    });
+                });
+
+                firePointsToggle.addEventListener('change', () => {
+                    map.setLayoutProperty('wildfires-layer', 'visibility', firePointsToggle.checked ? 'visible' : 'none');
+                });
+
+                fireLabelsToggle.addEventListener('change', () => {
+                    map.setLayoutProperty('wildfires-labels', 'visibility', fireLabelsToggle.checked ? 'visible' : 'none');
+                });
+
+                map.on('click', 'wildfires-layer', (event) => {
+                    const feature = event.features[0];
+                    const props = feature.properties || {};
+                    const rows = Object.entries(props)
+                        .filter(([_, value]) => value !== null && value !== undefined && value !== '')
+                        .slice(0, 8)
+                        .map(([key, value]) => `<div><strong>${key}:</strong> ${value}</div>`)
+                        .join('');
+
+                    new maplibregl.Popup()
+                        .setLngLat(feature.geometry.coordinates)
+                        .setHTML(`<strong>Brand</strong><br>${rows || 'Keine Details verfügbar.'}`)
+                        .addTo(map);
+                });
+
+                map.on('mouseenter', 'wildfires-layer', () => {
+                    map.getCanvas().style.cursor = 'pointer';
+                });
+
+                map.on('mouseleave', 'wildfires-layer', () => {
+                    map.getCanvas().style.cursor = '';
+                });
+            } catch (error) {
+                document.getElementById('status').textContent = 'Fehler beim Laden der Daten.';
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
