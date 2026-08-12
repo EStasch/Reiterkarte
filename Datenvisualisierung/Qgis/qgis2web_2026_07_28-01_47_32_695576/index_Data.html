@@ -646,13 +646,9 @@
             }
         }
 
-        //let url = 'data/data-fire-Europa_26_07_28.geojson';
-        //bbox='-2.62956e+06,4.10586e+06,4.91886e+06,8.21089e+06' url='https://rhvpkkiftonktxq3.svcs9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0' sql="frp" >= 110
-        const webmapId = 'd2408259cd05480f876acc7a51840ff4';
-        const arcgisUrl = 'https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/NWCC_Large_Fire_Information_Public_View/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
-        
+        let url = 'data/data-fire-Europa_26_07_28.geojson';
         const json_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2 = 
-            fetch(arcgisUrl).then(response => response.json()).then(response => {
+            fetch(url).then(response => response.json()).then(response => {
                 //L.geoJson(response).addTo(map);
 
                 map.createPane('pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2');
