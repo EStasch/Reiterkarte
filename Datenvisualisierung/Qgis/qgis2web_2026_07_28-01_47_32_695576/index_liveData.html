@@ -650,15 +650,14 @@
         const json_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2 = 
             fetch(url).then(response => response.json()).then(response => {
                 //L.geoJson(response).addTo(map);
-                //json_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2 = response;
 
                 map.createPane('pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2');
                 map.getPane('pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2').style.zIndex = 402;
                 map.getPane('pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2').style['mix-blend-mode'] = 'normal';
-                var layer_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2 = new L.geoJson(json_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2, {
+                var layer_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2 = new L.geoJson(response, {
                     attribution: '',
                     interactive: true,
-                    dataVar: 'json_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
+                    dataVar: 'response',
                     layerName: 'layer_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                     pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                     onEachFeature: pop_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2,
