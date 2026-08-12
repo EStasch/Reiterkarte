@@ -18,10 +18,6 @@
             padding: 0;
             margin: 0;
         }
-        path.leaflet-interactive {
-            /*filter: drop-shadow(2px 1px 1px rgba(0, 0, 0, 0.7));*/
-            filter: drop-shadow(2px 1px 1px rgba(235,211,31,0.7));    
-        }
         </style>
         <title></title>
     </head>
@@ -177,7 +173,7 @@
                     </tr>\
                     <tr>\
                         <th scope="row">Fire Radiative Power (MW)</th>\
-                        <td class="visible-with-data" id="frp">' + (feature.properties['frp']  !== null ? autolinker.link(String(feature.properties['frp'] ).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td class="visible-with-data" id="frp">' + (feature.properties['frp'] !== null ? autolinker.link(String(feature.properties['frp']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
                         <th scope="row">Daytime or Nighttime</th>\
@@ -200,24 +196,7 @@
         }
 
         function style_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2_0(feature) {
-            if (feature.properties['frp'] * 100 * 100 < 110.030000 ) {
-                return {
-                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
-                radius: 2.0,
-                opacity: 0.5,
-                color: 'rgba(235,211,31,0.9529411764705882)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 2.0,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(219,30,42,1.0)',
-                interactive: true,
-            }
-            }
-
-            if (feature.properties['frp'] * 100 * 100 >= 110.030000 && feature.properties['frp'] * 100 <= 160.030000 ) {
+            if (feature.properties['frp'] >= 110.030000 && feature.properties['frp'] <= 160.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 4.0,
@@ -233,7 +212,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 160.030000 && feature.properties['frp'] * 100 <= 210.030000 ) {
+            if (feature.properties['frp'] >= 160.030000 && feature.properties['frp'] <= 210.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 4.88888,
@@ -249,7 +228,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 210.030000 && feature.properties['frp'] * 100 <= 260.030000 ) {
+            if (feature.properties['frp'] >= 210.030000 && feature.properties['frp'] <= 260.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 5.77778,
@@ -265,7 +244,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 260.030000 && feature.properties['frp'] * 100 <= 310.030000 ) {
+            if (feature.properties['frp'] >= 260.030000 && feature.properties['frp'] <= 310.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 6.66666,
@@ -281,7 +260,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 310.030000 && feature.properties['frp'] * 100 <= 360.030000 ) {
+            if (feature.properties['frp'] >= 310.030000 && feature.properties['frp'] <= 360.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 7.55556,
@@ -297,7 +276,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 360.030000 && feature.properties['frp'] * 100 <= 410.030000 ) {
+            if (feature.properties['frp'] >= 360.030000 && feature.properties['frp'] <= 410.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 8.44444,
@@ -313,7 +292,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 410.030000 && feature.properties['frp'] * 100 <= 460.030000 ) {
+            if (feature.properties['frp'] >= 410.030000 && feature.properties['frp'] <= 460.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 9.33334,
@@ -329,7 +308,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 460.030000 && feature.properties['frp'] * 100 <= 510.030000 ) {
+            if (feature.properties['frp'] >= 460.030000 && feature.properties['frp'] <= 510.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 10.22222,
@@ -345,7 +324,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 510.030000 && feature.properties['frp'] * 100 <= 560.030000 ) {
+            if (feature.properties['frp'] >= 510.030000 && feature.properties['frp'] <= 560.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 11.11112,
@@ -361,7 +340,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 560.030000 && feature.properties['frp'] * 100 <= 610.030000 ) {
+            if (feature.properties['frp'] >= 560.030000 && feature.properties['frp'] <= 610.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 12.0,
@@ -377,7 +356,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 610.030000 && feature.properties['frp'] * 100 <= 660.030000 ) {
+            if (feature.properties['frp'] >= 610.030000 && feature.properties['frp'] <= 660.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 12.88888,
@@ -393,7 +372,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 660.030000 && feature.properties['frp'] * 100 <= 710.030000 ) {
+            if (feature.properties['frp'] >= 660.030000 && feature.properties['frp'] <= 710.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 13.77778,
@@ -409,7 +388,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 710.030000 && feature.properties['frp'] * 100 <= 760.030000 ) {
+            if (feature.properties['frp'] >= 710.030000 && feature.properties['frp'] <= 760.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 14.66666,
@@ -425,7 +404,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 760.030000 && feature.properties['frp'] * 100 <= 810.030000 ) {
+            if (feature.properties['frp'] >= 760.030000 && feature.properties['frp'] <= 810.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 15.55556,
@@ -441,7 +420,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 810.030000 && feature.properties['frp'] * 100 <= 860.030000 ) {
+            if (feature.properties['frp'] >= 810.030000 && feature.properties['frp'] <= 860.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 16.44444,
@@ -457,7 +436,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 860.030000 && feature.properties['frp'] * 100 <= 910.030000 ) {
+            if (feature.properties['frp'] >= 860.030000 && feature.properties['frp'] <= 910.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 17.33334,
@@ -473,7 +452,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 910.030000 && feature.properties['frp'] * 100 <= 960.030000 ) {
+            if (feature.properties['frp'] >= 910.030000 && feature.properties['frp'] <= 960.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 18.22222,
@@ -489,7 +468,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 960.030000 && feature.properties['frp'] * 100 <= 1010.030000 ) {
+            if (feature.properties['frp'] >= 960.030000 && feature.properties['frp'] <= 1010.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 19.11112,
@@ -505,7 +484,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 1010.030000 && feature.properties['frp'] * 100 <= 1060.030000 ) {
+            if (feature.properties['frp'] >= 1010.030000 && feature.properties['frp'] <= 1060.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 20.0,
@@ -521,7 +500,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 1060.030000 && feature.properties['frp'] * 100 <= 1110.030000 ) {
+            if (feature.properties['frp'] >= 1060.030000 && feature.properties['frp'] <= 1110.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 20.8888,
@@ -537,7 +516,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 1110.030000 && feature.properties['frp'] * 100 <= 1160.030000 ) {
+            if (feature.properties['frp'] >= 1110.030000 && feature.properties['frp'] <= 1160.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 21.7778,
@@ -553,7 +532,7 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 1160.030000 && feature.properties['frp'] * 100 <= 1210.030000 ) {
+            if (feature.properties['frp'] >= 1160.030000 && feature.properties['frp'] <= 1210.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                 radius: 22.6666,
@@ -569,10 +548,10 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 1210.030000 && feature.properties['frp'] * 100 <= 1260.030000 ) {
+            if (feature.properties['frp'] >= 1210.030000 && feature.properties['frp'] <= 1260.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
-                radius: 23.4556,
+                radius: 23.5556,
                 opacity: 1,
                 color: 'rgba(235,211,31,0.9529411764705882)',
                 dashArray: '',
@@ -585,10 +564,10 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 1260.030000 && feature.properties['frp'] * 100 <= 1310.030000 ) {
+            if (feature.properties['frp'] >= 1260.030000 && feature.properties['frp'] <= 1310.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
-                radius: 23.6444,
+                radius: 24.4444,
                 opacity: 1,
                 color: 'rgba(235,211,31,0.9529411764705882)',
                 dashArray: '',
@@ -601,10 +580,10 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 1310.030000 && feature.properties['frp'] * 100 <= 1360.030000 ) {
+            if (feature.properties['frp'] >= 1310.030000 && feature.properties['frp'] <= 1360.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
-                radius: 24.3334,
+                radius: 25.3334,
                 opacity: 1,
                 color: 'rgba(235,211,31,0.9529411764705882)',
                 dashArray: '',
@@ -617,10 +596,10 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 1360.030000 && feature.properties['frp'] * 100 <= 1410.030000 ) {
+            if (feature.properties['frp'] >= 1360.030000 && feature.properties['frp'] <= 1410.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
-                radius: 24.8222,
+                radius: 26.2222,
                 opacity: 1,
                 color: 'rgba(235,211,31,0.9529411764705882)',
                 dashArray: '',
@@ -633,10 +612,10 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 1410.030000 && feature.properties['frp'] * 100 <= 1460.030000 ) {
+            if (feature.properties['frp'] >= 1410.030000 && feature.properties['frp'] <= 1460.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
-                radius: 25.1112,
+                radius: 27.1112,
                 opacity: 1,
                 color: 'rgba(235,211,31,0.9529411764705882)',
                 dashArray: '',
@@ -649,10 +628,10 @@
                 interactive: true,
             }
             }
-            if (feature.properties['frp'] * 100 >= 1460.030000 ) {
+            if (feature.properties['frp'] >= 1460.030000 && feature.properties['frp'] <= 1510.030000 ) {
                 return {
                 pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
-                radius: 26.0,
+                radius: 28.0,
                 opacity: 1,
                 color: 'rgba(235,211,31,0.9529411764705882)',
                 dashArray: '',
@@ -675,16 +654,63 @@
         const fireDataUrl = 'https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
 
         const json_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2 = 
-            fetch(fireDataUrl).then(response => response.json()).then(response => {
+            fetch(fireDataUrl).then(response => response.json()).then(response => {               
                 //L.geoJson(response).addTo(map);
+                const geojson = response;
+
+                const flattenCoordinates = (coords) => {
+                    const flat = [];
+                    for (const item of coords) {
+                        if (Array.isArray(item) && item.length > 0 && Array.isArray(item[0])) {
+                            flat.push(...flattenCoordinates(item));
+                        } else if (Array.isArray(item) && item.length >= 2) {
+                            flat.push(item);
+                        }
+                    }
+                    return flat;
+                };
+
+                const createPointFeature = (feature) => {
+                    if (!feature || !feature.geometry) return null;
+
+                    const geometry = feature.geometry;
+                    let coordinates = null;
+
+                    if (geometry.type === 'Point') {
+                        coordinates = geometry.coordinates;
+                    } else if (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') {
+                        const points = flattenCoordinates(geometry.coordinates);
+                        if (points.length === 0) return null;
+                        const sum = points.reduce((acc, [lng, lat]) => [acc[0] + lng, acc[1] + lat], [0, 0]);
+                        coordinates = [sum[0] / points.length, sum[1] / points.length];
+                    }
+
+                    if (!coordinates || coordinates.length < 2) return null;
+
+                    return {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates
+                        },
+                        properties: {
+                            ...feature.properties,
+                            source: 'EFFIS'
+                        }
+                    };
+                };
+
+                const validFeatures = (geojson.features || [])
+                    .map(createPointFeature)
+                    .filter(Boolean);
 
                 map.createPane('pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2');
                 map.getPane('pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2').style.zIndex = 402;
                 map.getPane('pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2').style['mix-blend-mode'] = 'normal';
-                var layer_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2 = new L.geoJson(response, {
+                var layer_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2 = new L.geoJson(validFeatures, {
                     attribution: '',
                     interactive: true,
-                    dataVar: 'response',
+                    dataVar: 'validFeatures',
                     layerName: 'layer_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                     pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                     onEachFeature: pop_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2,
