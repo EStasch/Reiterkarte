@@ -96,8 +96,8 @@
         <label><input type="checkbox" id="toggle-fire-labels" checked> Beschriftung</label>
         <div style="margin-top:8px;"><strong>Region</strong></div>
         <select id="region-filter">
-            <option value="global">Global</option>
             <option value="europe">Europa</option>
+            <option value="global">Global</option>
             <option value="north-america">Nordamerika</option>
             <option value="south-america">Südamerika</option>
             <option value="africa">Afrika</option>
@@ -179,7 +179,7 @@
 
                 const regionBounds = {
                     global: null,
-                    europe: { minLng: -20, maxLng: 23, minLat: 46, maxLat: 51 },
+                    europe: { minLng: -32, maxLng: 37, minLat: 39, maxLat: 65 },
                     'north-america': { minLng: -170, maxLng: -50, minLat: 10, maxLat: 83 },
                     'south-america': { minLng: -82, maxLng: -34, minLat: -56, maxLat: 13 },
                     africa: { minLng: -20, maxLng: 55, minLat: -35, maxLat: 38 },
@@ -203,7 +203,7 @@
                         features: filteredFeatures
                     };
                     map.getSource('wildfires').setData(featureCollection);
-                    document.getElementById('status').textContent = `${filteredFeatures.length} Brandpunkte ${regionKey === 'global' ? 'weltweit' : 'in der ausgewählten Region'} geladen.`;
+                    document.getElementById('status').textContent = `${filteredFeatures.length} Brandpunkte ${regionKey === 'europe' ? 'weltweit' : 'in der ausgewählten Region'} geladen.`;
                 };
 
                 map.addSource('wildfires', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
@@ -238,7 +238,8 @@
                     }
                 });
 
-                updateRegionFilter('global');
+                //updateRegionFilter('global');
+                updateRegionFilter('europe');
 
                 if (validFeatures.length === 0) {
                     document.getElementById('note').textContent = 'Der aktuelle ArcGIS-Feuerdienst liefert derzeit keine sichtbaren Brandpunkte. Die Webmap ist als Referenz eingebunden.';
