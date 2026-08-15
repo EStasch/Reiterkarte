@@ -43,7 +43,7 @@
     "Maptiler Server": {
       "type": "vector",
       "attribution": "OSM Data &copy; OpenStreetMap contributors",
-      "url": "pmtiles://https://reiterkarte.vercel.app/OsmMaptiles/PMTiles/RT-ULM_ALB-OST_Wege_min.pmtiles"
+      "url": "pmtiles://https://reiterkarte.vercel.app/OsmMaptiles/PMTiles/ALB_Wege_min.pmtiles"
     },
     "Maptiler Server POI": {
       "type": "vector",
