@@ -43,12 +43,12 @@
     "Maptiler Server": {
       "type": "vector",
       "attribution": "OSM Data &copy; OpenStreetMap contributors",
-      "url": "pmtiles://https://reiterkarte.vercel.app/OSM%20Maptiles/PMTiles/RT_ULM_Wege.pmtiles"
+      "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT_ULM_Wege.pmtiles"
     },
     "Maptiler Server POI": {
       "type": "vector",
       "attribution": "OSM Data &copy; OpenStreetMap contributors",
-      "url": "pmtiles://https://reiterkarte.vercel.app/OSM%20Maptiles/PMTiles/RT_ULM_POI.pmtiles"
+      "url": "pmtiles://https://pasyzgzvjujqlwdotnkc.supabase.co/storage/v1/object/public/OSM%20Maptiles/PMTiles/RT_ULM_POI.pmtiles"
     }
   },
   "sprite": [
@@ -58,7 +58,7 @@
     },
     {
       "id": "reiterkarte_sprite",
-      "url": "https://reiterkarte.vercel.app/VectorMaps/Assets/Sprites/sprite_Reiterkarte_neu"
+      "url": "https://estasch.github.io/Reiterkarte/VectorMaps/Assets/Sprites/sprite_Reiterkarte_neu"
     }
   ],
   "glyphs": "https://sgx.geodatenzentrum.de/gdz_basemapde_vektor/fonts/v2/{fontstack}/{range}.pbf",
