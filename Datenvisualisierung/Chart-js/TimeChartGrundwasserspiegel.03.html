@@ -25,6 +25,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <!-- 4. Chart.js Trendline Plugin (Optional, falls Trendlinien benötigt werden) -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-trendline/dist/chartjs-plugin-trendline.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.0/dist/chartjs-plugin-zoom.min.js"></script>
     <!-- 5. Eigene Skripte -->
     <script src="js/plugins-types.js"></script>
     <script src="js/fetchData.js"></script>
@@ -224,8 +227,23 @@
                                         }
                                     }
                                 },
-        
-                                
+                                zoom: {
+                                    pan: {
+                                        enabled: true,
+                                        mode: 'xy',
+                                        modifierKey: 'ctrl', // Nur mit gedrückter Strg-Taste verschieben
+                                    },
+                                    zoom: {
+                                        wheel: {
+                                            enabled: true,
+                                        },
+                                        pinch: {
+                                            enabled: true
+                                        },
+                                        mode: 'xy',
+                                    }                                        
+                                },
+                                        
                             },
                             elements: {
                                 point: {
