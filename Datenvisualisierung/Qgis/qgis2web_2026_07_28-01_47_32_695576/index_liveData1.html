@@ -728,18 +728,20 @@
         const fireDataUrl = 'https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
         const originalResponse = null; // Variable to store the original response
         const filteredResponse = { type: 'FeatureCollection', features: [] }; // Variable to
+        const filteredFrpResponse = { type: 'FeatureCollection', features: [] }; // Variable to store the filtered response based on FRP
 
         const json_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2 = 
             fetch(fireDataUrl).then(response => response.json()).then(response => {
                 //L.geoJson(response).addTo(map);
+                filteredFrpResponse.features = response.features.filter(feature => feature.properties.frp >= 1.10);
 
                 map.createPane('pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2');
                 map.getPane('pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2').style.zIndex = 402;
                 map.getPane('pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2').style['mix-blend-mode'] = 'normal';
-                var layer_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2 = new L.geoJson(response, {
+                var layer_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2 = new L.geoJson(filteredFrpResponse, {
                     attribution: '',
                     interactive: true,
-                    dataVar: 'response',
+                    dataVar: 'filteredFrpResponse',
                     layerName: 'layer_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                     pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2',
                     onEachFeature: pop_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2,
@@ -779,7 +781,7 @@
                 const updateRegionFilter = (regionKey) => {
                     let originalResponse = response; // Store the original response for future filtering
                     
-                    let filteredFeatures = filterFeaturesByRegion(response.features, regionKey);
+                    let filteredFeatures = filterFeaturesByRegion(filteredFrpResponse.features, regionKey);
                     
                     filteredResponse.features = filteredFeatures;
                     layer_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_2.clearLayers();
