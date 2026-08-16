@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<!-- 1. Chart.js Core -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- 2. Die Zeit-Bibliothek (z.B. date-fns) -->
+<script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3"></script>
+
+<!-- 3. Der Chart.js Adapter für diese Bibliothek -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0"></script>
+
+<script src="js/plugins-types.js"></script>
+<script src="js/fetchData.js"></script>
+<script>
+  
+</script> 
+<style>
+    body {
+        background-color: #f1f1f1;
+        margin: 0;
+        padding: 2em;
+        font-family: Arial, sans-serif;
+    }
+    #myChart1,#myChart2{
+      width:100%;
+      max-width:600px;
+    }
+    .chart-container {
+        position: relative;
+    margin: 2em auto;
+    margin-left: 2em;
+    width: 80vw;
+    }
+</style>
+<body>
+</body>
+  <h1>Grundwasserspiegel Bad Urach</h1>
+  <div class="chart-container">
+    <canvas id="myChart"></canvas>
+    <canvas id="myChart1"></canvas>
+  </div>
+
+  
+<script>
+/* 
+const data = {
+    datasets: [{
+        label: 'Besucherzahlen',
+        data: [
+            { x: '2023-01-01', y: 10 },
+            { x: '2023-01-02', y: 15 },
+            { x: '2023-01-03', y: 20 }
+        ],
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+    }]
+};
+
+const config = {
+    type: 'line',
+    data: data,
+    options: {
+        scales: {
+            x: {
+                type: 'time', // Wichtig: Typ auf 'time' setzen
+                time: {
+                    unit: 'day', // Automatische Gruppierung nach Tagen
+                    displayFormats: {
+                        day: 'dd.MM.yyyy' // Deutsches Datumsformat
+                    },
+                    tooltipFormat: 'dd.MM.yyyy HH:mm'
+                },
+                title: {
+                    display: true,
+                    text: 'Datum'
+                }
+            },
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+};
+
+new Chart("myChart", config); 
+*/
+
+const MesswerteUrl = './data/Bad Urach_Messwerte-Grundwassermenge_Messwert _Einzelwerte_ 2026-08-11.json';
+const MittelwerteUrl = './data/Bad Urach_Messwerte-Grundwassermenge_Messwert _Mittelwerte_ 2026-08-11.json';
+
+
+//const json_Messwerte = await fetchData(MesswerteUrl);
+//const json_Mittelwerte = await fetchData(MittelwerteUrl); 
+Chart.defaults.backgroundColor = "rgba(0,0,255,0.1)";
+Chart.defaults.borderColor = "rgba(0,0,255,1.0)";
+
+// Calling the async function
+fetchData(MesswerteUrl).then(json_Messwerte => {
+  console.log(json_Messwerte);
+  
+  const data_Messwerte = json_Messwerte.map(item => ({
+    x: new Date(item.Messzeitpunkt), // Assuming Messzeitpunkt is in a format that can be parsed by Date
+    y: item.Messwert
+  }));
+
+  fetchData(MittelwerteUrl).then(json_Mittelwerte => {
+    console.log(json_Mittelwerte);
+    // Now you can use both json_Messwerte and json_Mittelwerte here
+
+    new Chart("myChart1", {
+        plugins: [simplePlugin],
+        type: "line",
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Messwerte Grundwasserspiegel Bad Urach',
+            fill: false,
+            lineTension: 0,
+            data: data_Messwerte
+          }]
+        },
+        options: {
+          responsive: true,
+          legend: {
+              display: true,
+              position: 'top'
+            },
+          title: {
+              display: true,
+              text: 'Chart.js Line Chart'
+            },
+          /*
+            scales: {
+            yAxes: [{ticks: {min: 6, max:16}}],
+          },*/
+          scales: {
+              x: {
+                  type: 'time', // Wichtig: Typ auf 'time' setzen
+                  time: {
+                      unit: 'year', // Automatische Gruppierung nach Tagen
+                      displayFormats: {
+                          day: 'dd.MM.yyyy' // Deutsches Datumsformat
+                      },
+                      tooltipFormat: 'dd.MM.yyyy HH:mm'
+                  },
+                  title: {
+                      display: true,
+                      text: 'Datum'
+                  }
+              },
+              y: {
+                  beginAtZero: true
+              }
+          },
+          elements: {
+            point: {
+              radius: 5,
+              backgroundColor: "rgba(211, 211, 237, 1.0)",
+              borderColor: "rgba(0,0,255,1.0)",
+              borderWidth: 2,
+              pointHoverRadius: 15
+            },
+            line: {
+              backgroundColor: "rgba(0,0,255,1.0)",
+              borderColor: "rgba(211, 211, 237, 1.0)",
+              borderWidth: 4
+            }
+          }
+        }
+      });
+
+  });
+
+});
+
+</script>
+
+</body>
+</html>

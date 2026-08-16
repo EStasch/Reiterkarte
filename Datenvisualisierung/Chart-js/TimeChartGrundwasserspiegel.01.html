@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart.js Zeitachse Beispiel</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .chart-container { position: relative; height: auto; width: 90vw; margin: 0 auto; }
+        #timeChart { width: 90%; height: auto; }
+    </style>
+</head>
+<body>
+
+    <h2>Zeitdaten auf der X-Achse (Chart.js 4.x)</h2>
+    <div class="chart-container">
+        <canvas id="timeChart"></canvas>
+    </div>
+
+    <!-- 1. Chart.js Core Bibliothek -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <!-- 2. Date-fns (Die Zeit-Bibliothek) -->
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@3.6.0/dist/date-fns.min.js"></script>
+    <!-- 3. Chart.js Adapter für date-fns (Zwingend erforderlich!) -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- 4. Eigene Skripte -->
+    <script src="js/plugins-types.js"></script>
+    <script src="js/fetchData.js"></script>
+    <script src="js/analyse.js"></script>
+
+    <script>
+        // Daten vorbereiten: Array von Objekten mit 'x' (Zeit) und 'y' (Wert)
+        // Die Zeit kann als ISO-String oder Date-Objekt übergeben werden.
+        //parse('01/01/2023', 'dd/MM/yyyy', new Date())
+
+       
+        /* Testdaten für die Darstellung */
+        /*
+        const chartData = [
+            { x: new Date('01.01.2023'), y: 12 },
+            { x: new Date('02.01.2023'), y: 19 },
+            { x: new Date('03.01.2023'), y: 15 },
+            { x: new Date('04.01.2023'), y: 25 },
+            { x: new Date('05.01.2023'), y: 22 },
+            { x: new Date('06.01.2023'), y: 30 },
+            { x: new Date('07.01.2023'), y: 28 }
+        ];
+
+        const chartData1 = [
+            { x: parseDateString('01.01.2023'), y: 120 },
+            { x: parseDateString('02.01.2023'), y: 190 },
+            { x: parseDateString('03.01.2023'), y: 150 },
+            { x: parseDateString('04.01.2023'), y: 250 },
+            { x: parseDateString('05.01.2023'), y: 220 },
+            { x: parseDateString('06.01.2023'), y: 300 },
+            { x: parseDateString('07.01.2023'), y: 280 }
+        ];
+        */
+
+
+        const MesswerteUrl = './data/Bad Urach_Messwerte-Grundwassermenge_Messwert _Einzelwerte_ 2026-08-11.json';
+        const MittelwerteUrl = './data/Bad Urach_Messwerte-Grundwassermenge_Messwert _Mittelwerte_ 2026-08-11.json';
+
+        const ctx = document.getElementById('timeChart').getContext('2d');
+
+        // Calling the async function
+        fetchData(MesswerteUrl).then(json_Messwerte => {
+            //Aufbereitung der Messwerte für die Darstellung
+            //console.log("Messwerte:", json_Messwerte);
+
+            const data_Messwerte = json_Messwerte.map(item => ({
+                x: parseDateString(item.Messzeitpunkt), // Assuming the date format is 'dd.MM.yyyy' (de)
+                y: parseInt(item.Messwert)
+            }));
+            //console.log("data_Messwerte:", data_Messwerte);
+
+            fetchData(MittelwerteUrl).then(json_Mittelwerte => {
+                // Now you can use both json_Messwerte and json_Mittelwerte here
+                //Aufbereitung der Mittelwerte für die Darstellung
+                
+                //console.log("Mittelwerte:", json_Mittelwerte);
+                
+                json_Mittelwerte = json_Mittelwerte.filter(item => item.Jahr !== "Gesamtergebnis");
+                json_Gesamtergebnis = json_Mittelwerte.find(item => item.Jahr === "Gesamtergebnis");
+
+                const data_Mittelwerte = json_Mittelwerte.map(item => ({
+                    x: makeDateString(item.Jahr), // Assuming the year is in 'yyyy' format
+                    y: parseInt(item.MittelwertvonMesswert)
+                }));
+
+                //console.log("data_Mittelwerte:", data_Mittelwerte);
+
+                //Trendlinie berechnen (z.B. gleitender Durchschnitt)
+                //Trendlinie für die Messwerte berechnen (z.B. gleitender Durchschnitt EMA)
+                const trendlineData_EMA_3 = calculateEMA(data_Messwerte.map(d => d.y), 3); // 3-Perioden EMA
+                const trendlineDataFormatted_EMA_3 = data_Messwerte.map((d, i) => ({
+                    x: d.x,
+                    y: trendlineData_EMA_3[i] !== undefined ? trendlineData_EMA_3[i] : null
+                }));
+                
+                const trendlineData_EMA_500 = calculateEMA(data_Messwerte.map(d => d.y), 500); // 500-Perioden EMA
+                const trendlineDataFormatted_EMA_500 = data_Messwerte.map((d, i) => ({
+                    x: d.x,
+                    y: trendlineData_EMA_500[i] !== undefined ? trendlineData_EMA_500[i] : null
+                })); 
+
+                //Trendlinie für die Mittelwerte berechnen (z.B. gleitender Durchschnitt EMA)
+                const trendlineData_EMA_Mittelwerte = calculateEMA(data_Mittelwerte.map(d => d.y), 5); // 3-Perioden EMA
+                const trendlineDataFormatted_EMA_Mittelwerte = data_Mittelwerte.map((d, i) => ({
+                    x: d.x,
+                    y: trendlineData_EMA_Mittelwerte[i] !== undefined ? trendlineData_EMA_Mittelwerte[i] : null
+                }));
+
+
+                // Chart.js Konfiguration und Darstellung
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            // Bei Zeitachsen oft leer lassen, da die Labels aus den Dataset 'x' Werten kommen
+                            labels: [], 
+                            datasets: [{
+                                label: 'Messwerte',
+                                data: data_Messwerte,
+                                borderColor: 'rgb(75, 192, 192)',
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                tension: 0.1, // Macht die Linie leicht geschwungen
+                                fill: false
+                            },
+                            {
+                                label: 'Jahresdurchschnitt',
+                                data: data_Mittelwerte,
+                                borderColor: 'rgb(255, 99, 132)', //rgba(242,189,70,1)
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                tension: 0.2,
+                                fill: false
+                            },
+                            {
+                                label: 'gleitender Durchschnitt EMA 3',
+                                data: trendlineDataFormatted_EMA_3,
+                                borderColor: 'rgb(255, 159, 64)',
+                                backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                                tension: 0.1,
+                                fill: false
+                            },                            
+                            {
+                                label: 'gleitender Durchschnitt EMA 500',
+                                data: trendlineDataFormatted_EMA_500,
+                                borderColor: 'rgb(153, 102, 255)',
+                                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                                tension: 0.1,
+                                fill: false
+                            },
+                            {
+                                label: 'gleitender Durchschnitt EMA Mittelwerte',
+                                data: trendlineDataFormatted_EMA_Mittelwerte,
+                                borderColor: 'rgb(54, 162, 235)',
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                tension: 0.1,
+                                fill: false
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            scales: {
+                                x: {
+                                    type: 'time', // WICHTIG: Achsentyp auf 'time' setzen
+                                    time: {
+                                        unit: 'month', // Unterteilung der Achse (auto, second, minute, hour, day, week, month)
+                                        displayFormats: {
+                                            day: 'dd.MM.yyyy', // Format für die Achsenbeschriftung
+                                            hour: 'dd.MMM HH:mm'
+                                        },
+                                        tooltipFormat: 'dd. MMMM yyyy, HH:mm' // Format im Tooltip beim Hover
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Datum'
+                                    }
+                                },
+                                y: {
+                                    beginAtZero: false,
+                                    title: {
+                                        display: true,
+                                        text: 'Messwert'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                tooltip: {
+                                    mode: 'index',
+                                    intersect: false,
+                                }
+                            }
+                        }
+                    });
+            });
+        });
+    </script>
+</body>
+</html>   

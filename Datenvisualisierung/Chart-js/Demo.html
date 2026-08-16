@@ -1,32 +1,131 @@
 <!DOCTYPE html>
 <html>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<!--script src="https://cdn.jsdelivr.net/npm/chart.js"></script-->
+<style>
+    body {
+        background-color: #f1f1f1;
+        margin: 0;
+        padding: 2em;
+        font-family: Arial, sans-serif;
+    }
+    #myChart1,#myChart2{
+      width:100%;
+      max-width:600px;
+    }
+    .chart-container {
+        position: relative;
+    margin: 2em auto;
+    margin-left: 2em;
+    width: 80vw;
+    }
+</style>
 <body>
-<canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+</body>
+  <h1>Grundwasserspiegel Bad Urach</h1>
+  <div class="chart-container">
+    <canvas id="myChart1"></canvas>
+    <canvas id="myChart2"></canvas>
+  </div>
 
+  <script src="js/plugins-types.js"></script>
 <script>
 const xValues = [50,60,70,80,90,100,110,120,130,140,150];
 const yValues = [7,8,8,9,9,9,10,11,14,14,15];
 
-new Chart("myChart", {
+Chart.defaults.backgroundColor = "rgba(0,0,255,0.1)";
+Chart.defaults.borderColor = "rgba(0,0,255,1.0)";
+
+new Chart("myChart1", {
+  plugins: [simplePlugin],
   type: "line",
   data: {
     labels: xValues,
     datasets: [{
+      label: 'Dataset 1',
       fill: false,
       lineTension: 0,
-      backgroundColor: "rgba(0,0,255,1.0)",
-      borderColor: "rgba(0,0,255,0.1)",
       data: yValues
     }]
   },
   options: {
-    legend: {display: false},
+    responsive: true,
+    legend: {
+        display: true,
+        position: 'top'
+      },
+    title: {
+        display: true,
+        text: 'Chart.js Line Chart'
+      },
     scales: {
       yAxes: [{ticks: {min: 6, max:16}}],
+    },
+    elements: {
+      point: {
+        radius: 5,
+        backgroundColor: "rgba(211, 211, 237, 1.0)",
+        borderColor: "rgba(0,0,255,1.0)",
+        borderWidth: 2,
+        pointHoverRadius: 15
+      },
+      line: {
+        backgroundColor: "rgba(0,0,255,1.0)",
+        borderColor: "rgba(211, 211, 237, 1.0)",
+        borderWidth: 4
+      }
     }
   }
 });
+
+/*
+myChart2 =new Chart("myChart2", myChart1.config);
+//myChart2.config.plugins = [null];
+//delete myChart2.config.plugins;
+myChart2.config.type = 'ShadowLine';
+myChart2.update();
+*/
+
+new Chart("myChart2", {
+  type: "ShadowLine",
+  data: {
+    labels: xValues,
+    datasets: [{
+      label: 'Dataset 2',
+      fill: false,
+      lineTension: 0,
+      data: yValues
+    }]
+  },
+  options: {
+    responsive: true,
+    legend: {
+        display: true,
+        position: 'top'
+      },
+    title: {
+        display: true,
+        text: 'Chart.js Line Chart 2'
+      },
+    scales: {
+      yAxes: [{ticks: {min: 6, max:16}}],
+    },
+    elements: {
+      point: {
+        radius: 5,
+        backgroundColor: "rgba(211, 211, 237, 1.0)",
+        borderColor: "rgba(0,0,255,1.0)",
+        borderWidth: 2
+      },
+      line: {
+        backgroundColor: "rgba(0,0,255,1.0)",
+        borderColor: "rgba(211, 211, 237, 1.0)",
+        borderWidth: 4
+      }
+    }
+  }
+});
+
 </script>
 
 </body>

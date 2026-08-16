@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart.js Zeitachse Beispiel</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .chart-container { position: relative; height: 400px; width: 80%; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+    <h2>Zeitdaten auf der X-Achse (Chart.js 4.x)</h2>
+    <div class="chart-container">
+        <canvas id="timeChart"></canvas>
+    </div>
+
+    <!-- 1. Chart.js Core Bibliothek -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    
+    <!-- 2. Date-fns (Die Zeit-Bibliothek) -->
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@3.6.0/dist/date-fns.min.js"></script>
+    
+    <!-- 3. Chart.js Adapter für date-fns (Zwingend erforderlich!) -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+    <script>
+        // Daten vorbereiten: Array von Objekten mit 'x' (Zeit) und 'y' (Wert)
+        // Die Zeit kann als ISO-String oder Date-Objekt übergeben werden.
+        //parse('01/01/2023', 'dd/MM/yyyy', new Date())
+
+        const chartData = [
+            { x: new Date('01.01.2023'), y: 12 },
+            { x: new Date('02.01.2023'), y: 19 },
+            { x: new Date('03.01.2023'), y: 15 },
+            { x: new Date('04.01.2023'), y: 25 },
+            { x: new Date('05.01.2023'), y: 22 },
+            { x: new Date('06.01.2023'), y: 30 },
+            { x: new Date('07.01.2023'), y: 28 }
+        ];
+
+        const ctx = document.getElementById('timeChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                // Bei Zeitachsen oft leer lassen, da die Labels aus den Dataset 'x' Werten kommen
+                labels: [], 
+                datasets: [{
+                    label: 'Verkäufe pro Stunde',
+                    data: chartData,
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.3, // Macht die Linie leicht geschwungen
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'time', // WICHTIG: Achsentyp auf 'time' setzen
+                        time: {
+                            unit: 'day', // Unterteilung der Achse (auto, second, minute, hour, day, week, month)
+                            displayFormats: {
+                                day: 'dd. MMM yyyy', // Format für die Achsenbeschriftung
+                                hour: 'dd. MMM HH:mm'
+                            },
+                            tooltipFormat: 'dd. MMMM yyyy, HH:mm' // Format im Tooltip beim Hover
+                        },
+                        title: {
+                            display: true,
+                            text: 'Datum'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Anzahl'
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>   
