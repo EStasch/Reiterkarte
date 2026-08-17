@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel-3 Burnt Area Map</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { height: 100vh; width: 100%; }
+        .info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="info">
+        <h3>🔥 Burnt Area (Sentinel-3)</h3>
+        <p>Daily NRT Incremental Product - Europe</p>
+        <small>Data source: <a href="https://geoservice.dlr.de" target="_blank">EOC Geoservice (DLR)</a></small>
+    </div>
+
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // 1. Initialize the map centered on Europe
+        const map = L.map('map').setView([46.0, 10.0], 5); // Centered roughly on Europe
+
+        // 2. Add a Base Map (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // 3. Add the Burnt Area Daily NRT Layer (Sentinel-3)
+        // URL: https://geoservice.dlr.de/eoc/land/wms?
+        // Layer Name: eoc:burntarea:efr:daily
+        const burntAreaLayer = L.tileLayer.wms('https://geoservice.dlr.de/eoc/land/wms?', {
+            layers: 'eoc:burntarea:efr:daily',
+            format: 'image/png',
+            transparent: true,
+            version: '1.3.0',
+            attribution: '© <a href="https://geoservice.dlr.de">EOC Geoservice</a>'
+        }).addTo(map);
+
+        // Optional: Add a layer control to toggle the burnt area overlay
+        const baseMaps = {
+            "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+        };
+
+        const overlayMaps = {
+            "Burnt Area (Daily NRT)": burntAreaLayer
+        };
+
+        L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+    </script>
+</body>
+</html>   

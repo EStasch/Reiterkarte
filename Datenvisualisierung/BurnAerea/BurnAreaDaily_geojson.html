@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Sentinel-3 Burnt Area GeoJSON</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { height: 100vh; width: 100%; }
+        .info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            max-width: 300px;
+        }
+        .marker-shadow {
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+        }
+        .marker-blur {
+            filter: blur(4px, rgba(231, 212, 10, 0.8));
+            filter: drop-shadow(1px 1px 3px rgba(231, 212, 10,0.8));
+        }
+    </style>
+</head>
+<body>
+
+    <div class="info">
+        <h3>🔥 Burnt Area (Vektor)</h3>
+        <p>Sentinel-3 Daily NRT (GeoJSON)</p>
+        <small>Quelle: <a href="https://geoservice.dlr.de" target="_blank">EOC Geoservice</a></small>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // 1. Karte initialisieren
+        const map = L.map('map').setView([46.0, 10.0], 5);
+
+        // 2. Basemap hinzufügen
+        OSMUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        ArgisUrl = 'https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+        BasemapUrl = ArgisUrl; // Hier kann zwischen OSMUrl und ArgisUrl gewechselt werden
+        
+        L.tileLayer(BasemapUrl, {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // 3. GeoJSON Layer laden
+        // URL zum OGC API Features Endpunkt
+        const bboxDeutschland = '5.86,47.27,15.04,55.06';
+        const geoJsonUrl = `https://geoservice.dlr.de/eoc/ogc/features/collections/burntarea:BURNTAREA_S3_EFR_P1D/items?bbox=${bboxDeutschland}`;
+        //const geoJsonUrl = 'https://geoservice.dlr.de/eoc/ogc/features/collections/burntarea:BURNTAREA_S3_EFR_P1D/items';
+
+        fetch(geoJsonUrl)
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    // Styling der Brandflächen (Rechtecke oder Polygone )
+                    style: function(feature) {
+                        // Beispiel: Farbe basierend auf Eigenschaften (hier statisch rot mit Transparenz)
+                        return {
+                            className: 'marker-blur',
+                            color: "#ff0000",
+                            weight: 2,
+                            fillOpacity: 0.6,
+                            fillColor: 'rgba(219,30,42,1.0)',
+                            
+                            /*
+                            opacity: 1,
+                            color: 'rgba(235,211,31,0.9529411764705882)',
+                            dashArray: '',
+                            lineCap: 'butt',
+                            lineJoin: 'miter',
+                            weight: 2.0,
+                            fill: true,
+                            fillOpacity: 1,
+                            fillColor: 'rgba(219,30,42,1.0)',
+                            interactive: true,
+                            */
+                        };
+                    },
+                    // Popup Inhalt beim Klick
+                    onEachFeature: function(feature, layer) {
+                        if (feature.properties) {
+                            let popupContent = "<strong>Brandfläche</strong><br>";
+                            // Iteriere über verfügbare Eigenschaften (z.B. severity, detection time)
+                            for (const [key, value] of Object.entries(feature.properties)) {
+                                popupContent += `${key}: ${value}<br>`;
+                            }
+                            layer.bindPopup(popupContent);
+                        }
+                    }
+                }).addTo(map);
+            })
+            .catch(err => console.error("Fehler beim Laden der GeoJSON Daten:", err));
+
+    </script>
+</body>
+</html>   

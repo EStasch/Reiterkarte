@@ -1,0 +1,7 @@
+Das tägliche Produkt (BURNTAREA_S3_EFR_P1D) ist jedoch ein inkrementelles Produkt, das automatisch einen Zeitraum von 7 bis 10 Tagen abdeckt.  Das bedeutet:
+
+Automatische Historie: Jedes Feature im täglichen Dataset enthält Brandflächen, die in den letzten 7–10 Tagen erkannt und seither aktualisiert wurden. Sie erhalten also bereits eine "Rolling Window"-Ansicht der letzten Woche, wenn Sie das tägliche Produkt abfragen. 
+Verfügbare Aggregationen: Der EOC Geoservice bietet offiziell nur folgende zeitliche Aggregationen als eigene Collections an:
+Täglich (...P1D): Inkrementell, aktualisiert Ereignisse der letzten 7–10 Tage.
+Monatlich (...P1M): burntarea:BURNTAREA_S3_EFR_P1M (akkumulierte Monatsdaten).
+Jährlich (...P1Y): burntarea:BURNTAREA_S3_EFR_P1Y (akkumulierte Jahresdaten). 
