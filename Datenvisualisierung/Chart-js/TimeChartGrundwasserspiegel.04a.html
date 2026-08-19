@@ -146,7 +146,7 @@
                             },
                             {
                                 label: 'gleitender Messwert EMA 3',
-                                type: 'dynamicShadowLine',
+                                type: 'dualShadowLine',
                                 data: trendlineDataFormatted_EMA_3,
                                 borderColor: 'rgba(93,117,173,0.6)',  //org: rgba(53,83,153,0.5) /rgba(169,182,211,0.8)
                                 backgroundColor: 'rgba(193,215,234,1)',
@@ -154,6 +154,10 @@
                                 shadowBlur: 3,
                                 shadowOffsetX: 1,
                                 shadowOffsetY: 2,
+                                pointShadowBlur: 0,
+                                pointshadowColor: 'rgba(200, 200, 200, 0.10)',
+                                pointshadowOffsetX: 0,
+                                pointshadowOffsetY: 1,
                                 tension: 0.1,
                                 fill: false,
                                 order: 2,
@@ -163,12 +167,15 @@
                                     backgroundColor: "rgba(211, 211, 237, 1.0)",
                                     borderColor: "rgba(0,0,255,1.0)",
                                     borderWidth: 1,
-                                    pointHoverRadius: 10
+                                    pointHoverRadius: 10,
+                                    pointShadowBlur: 0,
+                                    pointshadowColor: 'rgba(255, 255, 255, 0.10)',
                                 },
                                 line: {
                                     backgroundColor: "rgba(0,0,255,1.0)",
                                     borderColor: "rgba(211, 211, 237, 1.0)",
-                                    borderWidth: 2
+                                    borderWidth: 2,
+                                    lineShadowBlur: 3,
                                 }
                             }
                             },

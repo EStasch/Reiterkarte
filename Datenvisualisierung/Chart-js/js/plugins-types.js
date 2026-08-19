@@ -110,7 +110,85 @@ Chart.register(DynamicShadowLineController);
 // type: 'dynamicShadowLine'
 // datasets: [{ shadowColor: 'red', shadowBlur: 20, ... }]   
 
+class DualShadowLineController extends Chart.controllers.line {
+  draw() {
+    const ctx = this.chart.ctx;
+    const dataset = this.getDataset();
+    
+    // --- 1. Schatten für die LINIE konfigurieren ---
+    const lineShadow = {
+      //color: dataset.lineShadowColor || 'rgba(0, 0, 0, 0.2)',
+      color: dataset.lineShadowColor !== undefined ? dataset.lineShadowColor : dataset.shadowColor || 'rgba(0, 0, 0, 0.2)',
+      //blur: dataset.lineShadowBlur !== undefined ? dataset.lineShadowBlur : 10,
+      blur: dataset.lineShadowBlur !== undefined ? dataset.lineShadowBlur : dataset.shadowBlur || 10,
+      //offsetX: dataset.lineShadowOffsetX || 0,
+      offsetX: dataset.lineShadowOffsetX !== undefined ? dataset.lineShadowOffsetX : dataset.shadowOffsetX || 0,
+      //offsetY: dataset.lineShadowOffsetY || 4
+      offsetY: dataset.lineShadowOffsetY !== undefined ? dataset.lineShadowOffsetY : dataset.shadowOffsetY || 4
+    };
 
+    // --- 2. Schatten für die PUNKTE konfigurieren ---
+    const pointShadow = {
+      //color: dataset.pointShadowColor || 'rgba(0, 0, 0, 0.5)', // Oft dunkler für Punkte
+      color: dataset.pointShadowColor !== undefined ? dataset.pointShadowColor : dataset.shadowColor || 'rgba(0, 0, 0, 0.5)', // Oft dunkler für Punkte
+      //blur: dataset.pointShadowBlur !== undefined ? dataset.pointShadowBlur : 5,
+      blur: dataset.pointShadowBlur !== undefined ? dataset.pointShadowBlur : dataset.shadowBlur || 5,
+      //offsetX: dataset.pointShadowOffsetX || 0,
+      offsetX: dataset.pointShadowOffsetX !== undefined ? dataset.pointShadowOffsetX : dataset.shadowOffsetX || 0,
+      //offsetY: dataset.pointShadowOffsetY || 2
+      offsetY: dataset.pointShadowOffsetY !== undefined ? dataset.pointShadowOffsetY : dataset.shadowOffsetY || 2
+    };
+
+    // --- Zeichnung durchführen ---
+    ctx.save();
+
+    // A) Linie zeichnen mit Linie-Schatten
+    ctx.shadowColor = lineShadow.color;
+    ctx.shadowBlur = lineShadow.blur;
+    ctx.shadowOffsetX = lineShadow.offsetX;
+    ctx.shadowOffsetY = lineShadow.offsetY;
+    
+    // Nur die Linie zeichnen (super.draw() macht beides, also müssen wir trickreich vorgehen)
+    // Besser: Wir rufen die spezifischen Draw-Methoden des Elements auf oder nutzen den Super-Call geschickt.
+    // Da super.draw() beides macht, müssen wir den Kontext zwischen den Schritten ändern.
+    
+    // Workaround: Super.draw() nutzt den aktuellen Kontext für beides. 
+    // Um es zu trennen, überschreiben wir temporär die draw-Methode des Elements oder zeichnen manuell.
+    // Der einfachste Weg im Controller ist das manuelle Zeichnen der Elemente:
+    
+    const meta = this._cachedMeta;
+    const lineElement = meta.dataset; // Das LineElement
+    const points = meta.data; // Array der PointElements
+
+    // 1. Linie zeichnen
+    if (lineElement && !lineElement.skip) {
+      ctx.shadowColor = lineShadow.color;
+      ctx.shadowBlur = lineShadow.blur;
+      ctx.shadowOffsetX = lineShadow.offsetX;
+      ctx.shadowOffsetY = lineShadow.offsetY;
+      lineElement.draw(ctx, this.chart.area);
+    }
+
+    // 2. Punkte zeichnen
+    ctx.shadowColor = pointShadow.color;
+    ctx.shadowBlur = pointShadow.blur;
+    ctx.shadowOffsetX = pointShadow.offsetX;
+    ctx.shadowOffsetY = pointShadow.offsetY;
+    
+    for (let i = 0; i < points.length; i++) {
+      const point = points[i];
+      if (!point.skip) {
+        point.draw(ctx, this.chart.area);
+      }
+    }
+
+    ctx.restore();
+  }
+}
+
+DualShadowLineController.id = 'dualShadowLine';
+DualShadowLineController.defaults = Chart.controllers.line.defaults;
+Chart.register(DualShadowLineController);   
 
 
 const image = new Image();
