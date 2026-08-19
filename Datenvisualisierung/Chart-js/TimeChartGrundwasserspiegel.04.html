@@ -5,17 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chart.js Zeitachse Beispiel</title>
     <style>
-        body { font-family: sans-serif; padding: 0px; margin: 0px; }
-        .chart-container { position: relative; height: auto; width: 90vw; margin: 0 auto; }
-        #timeChart { width: 90%; height: auto; }
+        body { 
+            font-family: sans-serif; 
+            color: white;
+            padding: 0px;
+            margin: 0px;
+            background-color: rgb(4, 57, 83,1);
+            background-image: url("images/Grundwasser_Hg.jpg");
+            background-size: cover;
+        }
+
+        .headline{
+            margin-left: 2em;
+        }
+
+        .Logo{
+            position: absolute;
+            top: 2em;
+            right: 3.5em;
+            width: 3.5vw;
+            height: 3.5vw;
+            background-image: url("images/Drop_10.svg");
+            background-size: cover; /* or contain, or specific px */
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .chart-container { 
+            position: relative; 
+            height: auto; 
+            width: 90vw; 
+            margin: 0 auto;             
+
+        }
+        #timeChart { 
+            width: 90%; 
+            height: auto; 
+        }
         #Chart{
-            padding: 20px;
+            padding: 18px;
         }
     </style>
 </head>
 <body>
     <section id="Chart">
-        <h2>Grundwasser Messwerte Bad Urach</h2>
+        <h2 class="headline">Grundwasser Messwerte Bad Urach</h2><div class="Logo"></div>
         <div class="chart-container">
             <canvas id="timeChart"></canvas>
         </div>
@@ -41,30 +75,6 @@
         // Daten vorbereiten: Array von Objekten mit 'x' (Zeit) und 'y' (Wert)
         // Die Zeit kann als ISO-String oder Date-Objekt übergeben werden.
         //parse('01/01/2023', 'dd/MM/yyyy', new Date())
-
-       
-        /* Testdaten für die Darstellung */
-        /*
-        const chartData = [
-            { x: new Date('01.01.2023'), y: 12 },
-            { x: new Date('02.01.2023'), y: 19 },
-            { x: new Date('03.01.2023'), y: 15 },
-            { x: new Date('04.01.2023'), y: 25 },
-            { x: new Date('05.01.2023'), y: 22 },
-            { x: new Date('06.01.2023'), y: 30 },
-            { x: new Date('07.01.2023'), y: 28 }
-        ];
-
-        const chartData1 = [
-            { x: parseDateString('01.01.2023'), y: 120 },
-            { x: parseDateString('02.01.2023'), y: 190 },
-            { x: parseDateString('03.01.2023'), y: 150 },
-            { x: parseDateString('04.01.2023'), y: 250 },
-            { x: parseDateString('05.01.2023'), y: 220 },
-            { x: parseDateString('06.01.2023'), y: 300 },
-            { x: parseDateString('07.01.2023'), y: 280 }
-        ];
-        */
 
 
         const MesswerteUrl = './data/Bad Urach_Messwerte-Grundwassermenge_Messwert _Einzelwerte_ 2026-08-11.json';
@@ -107,11 +117,12 @@
                     y: trendlineData_EMA_3[i] !== undefined ? trendlineData_EMA_3[i] : null
                 }));
                 
-                
+                Chart.defaults.color = "rgb(250, 250, 250)"
 
                 // Chart.js Konfiguration und Darstellung
                     new Chart(ctx, {
-                        plugins: [simplePlugin],
+                        //plugins: [simplePlugin],
+                        plugins: [whiteShadowPlugin],
                         type: 'line',
                         data: {
                             // Bei Zeitachsen oft leer lassen, da die Labels aus den Dataset 'x' Werten kommen
@@ -120,27 +131,54 @@
                             {
                                 label: 'Messwerte',
                                 data: data_Messwerte,
-                                borderColor: 'rgba(75, 192, 192, 1)', //rgba(75, 192, 192, 1)
+                                borderColor: 'rgba(75, 192, 192, 0.8)', //rgba(75, 192, 192, 1)
                                 backgroundColor: 'rgba(75, 192, 192, 0.2)', //rgba(75, 192, 192, 0.2)
                                 tension: 0.1, // Macht die Linie leicht geschwungen
                                 fill: false,
                                 hidden: true,  // Initial ausgeblendet
-                                order: 1 // Höherer Wert -> wird später gezeichnet (vorne)
+                                order: 1, // Höherer Wert -> wird später gezeichnet (vorne)
+                                elements: {
+                                    line: {
+                                        borderWidth: 1
+                                    }
+                                }
                             },
                             {
                                 label: 'gleitender Durchschnitt EMA 3',
+                                plugins: [whiteShadowPlugin],
+                                //type: 'dynamicShadowLine',
                                 data: trendlineDataFormatted_EMA_3,
-                                borderColor: 'rgba(53,83,153,0.5)',
-                                backgroundColor: 'rgba(191,216,235,1)', //rgba(95,158,205,0.5)
+                                borderColor: 'rgba(93,117,173,0.6)',  //org: rgba(53,83,153,0.5) /rgba(169,182,211,0.8)
+                                backgroundColor: 'rgba(193,215,234,1)',
+                                shadowColor: 'white',
+                                shadowBlur: 3,
+                                shadowOffsetX: 2,
+                                shadowOffsetY: 2,
                                 tension: 0.1,
                                 fill: false,
-                                order: 2
+                                order: 2,
+                                elements: {
+                                point: {
+                                    radius: 3,
+                                    backgroundColor: "rgba(211, 211, 237, 1.0)",
+                                    borderColor: "rgba(0,0,255,1.0)",
+                                    borderWidth: 1,
+                                    pointHoverRadius: 10
+                                },
+                                line: {
+                                    backgroundColor: "rgba(0,0,255,1.0)",
+                                    borderColor: "rgba(211, 211, 237, 1.0)",
+                                    borderWidth: 2
+                                }
+                            }
                             },
                             {
                                 label: 'Jahresdurchschnitt',
+                                plugins: [simplePlugin],
+                                //type: 'dynamicShadowLine',                                
                                 data: data_Mittelwerte,
-                                borderColor: 'rgb(255, 99, 132,0.7)', //rgba(242,189,70,1)
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: 'rgb(198, 11, 37,0.9)', //rgba(198, 11, 37, 0.5)
+                                backgroundColor: 'rgba(198, 11, 37, 0.5)',
                                 tension: 0.2,
                                 fill: false,
                                 order: 3,
@@ -155,13 +193,15 @@
                             },                            
                             {
                                 data: data_Messwerte,
-                                label: 'Messwerte',
-                                borderColor: 'rgba(53,83,153,0)',
+                                label: 'Trend',
+                                borderColor: 'rgba(53,83,153,0.1)',
                                 backgroundColor: 'rgba(95,158,205,0)',
                                 pointRadius: 0, // Punkte auf der Trendlinie ausblenden                             
                                 fill: false,
                                 order: 4,
+                                legend:{display:false},
                                 trendlineLinear: {
+                                    order: 4,
                                     colorMin: 'rgba(242,187,67,1)',
                                     colorMax: 'rgba(242,187,67,0.5)',
                                     lineStyle: 'dashed',
@@ -176,8 +216,8 @@
                                         offset: 10,
                                     },
                                     legend: {
-                                        color: 'rgba(242,187,67,1)',
-                                        text: 'Grundwasserspiegel trendline',
+                                        color: 'rgba(242,187,67,1)', //rgba(256,256,256,1)
+                                        text: 'Grundwasserspiegel',
                                         display: true,
                                         lineDash: [8, 3],
                                     },
@@ -188,6 +228,14 @@
                         options: {
                             responsive: true,
                             maintainAspectRatio: true,
+                            layout:{ 
+                                padding: {
+                                    top: 10,  // Abstand nach oben (unter der Legende)
+                                    bottom: 15,
+                                    left: 10,
+                                    right: 10
+                                }
+                            },
                             scales: {
                                 x: {
                                     type: 'time', // WICHTIG: Achsentyp auf 'time' setzen
@@ -210,8 +258,14 @@
                                     title: {
                                         display: true,
                                         text: 'Messwert'
-                                    }
-                                }
+                                    },
+                                    /*
+                                    grid:{
+                                        color: 'rgba(82, 82, 82,1)'
+                                    },*/
+                                },
+                                
+
                             },
                             plugins: {
                                 /*
@@ -220,6 +274,8 @@
                                     intersect: false,
                                 },
                                 */
+                                //whiteShadowPlugin:{},
+                                
                                 tooltip: {
                                     mode: 'index',
                                     intersect: false,
@@ -230,6 +286,17 @@
                                             return dateLabel + ' Uhr';
                                         }
                                     }
+                                },
+                                legend:{
+                                    labels:{
+                                        font: {
+                                            size: 16,
+                                        },
+                                        padding: 20,
+                                    },
+                                    position: 'top', // Funktioniert primär für 'top' und 'bottom'
+                                    // Optional: Abstand nur für dieses Chart überschreiben
+                                    //spacing: 50
                                 },
                                 zoom: {
                                     pan: {

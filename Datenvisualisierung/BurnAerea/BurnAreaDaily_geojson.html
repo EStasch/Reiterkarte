@@ -54,12 +54,50 @@
         // 3. GeoJSON Layer laden
         // URL zum OGC API Features Endpunkt
         const bboxDeutschland = '5.86,47.27,15.04,55.06';
-        const geoJsonUrl = `https://geoservice.dlr.de/eoc/ogc/features/collections/burntarea:BURNTAREA_S3_EFR_P1D/items?bbox=${bboxDeutschland}`;
+        const bboxFrankreich = '-5.0,41.0,10.0,51.0';
+        const bboxBenelux = '2.5,49.0,7.5,53.5';
+        const bboxSpanien = '-10.0,36.0,5.0,44.0';
+        const bboxEuropa = '-25.0,34.0,40.0,72.0';
+        
+        //burntarea:BURNTAREA_S3_EFR_P1D
+        const geoJsonUrl = `https://geoservice.dlr.de/eoc/ogc/features/collections/burntarea:BURNTAREA_S3_EFR_P1D/items?bbox=${bboxDeutschland}&limit=10000&f=application%2Fgeo%2Bjson`; // Limit auf 50 Features setzen
         //const geoJsonUrl = 'https://geoservice.dlr.de/eoc/ogc/features/collections/burntarea:BURNTAREA_S3_EFR_P1D/items';
+        
+        //burntarea:BURNTAREA_V2_P1D
+        // Refferenz: https://geoservice.dlr.de/eoc/basemap/wfs?SERVICE=WFS&REQUEST=GetCapabilities
+        //https://geoservice.dlr.de/eoc/ogc/features/v1/collections/burntarea:BURNTAREA_V2_P1D/items?f=text%2Fhtml&limit=50
+        //https://geoservice.dlr.de/eoc/ogc/features/v1/collections/burntarea:BURNTAREA_V2_P1D/items?limit=20&bbox=5.86,47.27,15.04,55.06&f=json
+        
+        
+        //Polygone burntarea:BURNTAREA_V2_FS
+        //const geoJsonUrl = `https://geoservice.dlr.de/eoc/ogc/features/v1/collections/burntarea:BURNTAREA_V2_P1D/items?limit=10000&bbox=${bboxEuropa}&f=application%2Fgeo%2Bjson`;
+        //const geoJsonUrl = `https://geoservice.dlr.de/eoc/ogc/features/v1/collections/burntarea:BURNTAREA_V2_FS/items?limit=1000&bbox=${bboxEuropa}&f=application%2Fgeo%2Bjson`;
+        
+        // burntarea:HOTSPOTS_FIRMS
+        //const geoJsonUrl = `https://geoservice.dlr.de/eoc/ogc/features/v1/collections/burntarea:HOTSPOTS_FIRMS/items?limit=10000&bbox=${bboxDeutschland}&f=application%2Fgeo%2Bjson`;
 
         fetch(geoJsonUrl)
             .then(response => response.json())
             .then(data => {
+
+                // Verarbeite die GeoJSON-Daten
+                console.log("Geladene GeoJSON-Daten:", data);
+                
+                //Filtere die Features auf alle während der letzten 7 Tage basierend auf dem t_stamp-Feld
+
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                console.log("Datum vor 7 Tagen:", sevenDaysAgo);
+                
+                const filteredFeatures = data.features.filter(feature => {
+                    const fire_startdate = new Date(feature.properties.fire_startdate); // Annahme: fire_startdate ist das relevante Zeitstempelfeld
+                    //console.log("Feature fire_startdate:", fire_startdate, "Vergleich mit:", sevenDaysAgo);
+                    return fire_startdate >= sevenDaysAgo;
+                });
+                console.log("Gefilterte Features (letzte 7 Tage):", filteredFeatures);
+                filtered_data = { ...data, features: filteredFeatures };
+
+
                 L.geoJSON(data, {
                     // Styling der Brandflächen (Rechtecke oder Polygone )
                     style: function(feature) {

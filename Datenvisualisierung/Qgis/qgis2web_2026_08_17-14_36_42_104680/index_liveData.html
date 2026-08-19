@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
+        <link rel="stylesheet" href="css/leaflet.photon.css">
+        <style>
+            html, body, #map {
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                margin: 0;
+            }
+            path.marker-shadow {
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+            }
+            path.marker-blur {
+                filter: blur(4px, rgba(231, 212, 10, 0.8));
+                filter: drop-shadow(2px 1px 1px rgba(235,211,31,0.7));
+            }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet.photon.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <!-- <script src="data/burntareaBURNTAREA_S3_EFR_P1D_3.js"></script> -->
+        <script src="data/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString' || e.target.feature.geometry.type === 'MultiLineString') {
+              highlightLayer.setStyle({
+                color: 'rgba(255, 255, 0, 1.00)',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: 'rgba(255, 255, 0, 1.00)',
+                fillOpacity: 1
+              });
+            }
+            highlightLayer.openPopup();
+        }
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[45.853314887039076,0.8673870422955857],[54.66052873476258,24.21319397469857]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/qgis2web/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // modify popup if contains media
+        function addClassToPopupIfMedia(content, popup) {
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+            var imgTd = tempDiv.querySelector('td img');
+            if (imgTd) {
+                var src = imgTd.getAttribute('src');
+                if (/\.(jpg|jpeg|png|gif|bmp|webp|avif)$/i.test(src)) {
+                    popup._contentNode.classList.add('media');
+                    setTimeout(function() {
+                        popup.update();
+                    }, 10);
+                } else if (/\.(mp3|wav|ogg|aac)$/i.test(src)) {
+                    var audio = document.createElement('audio');
+                    audio.controls = true;
+                    audio.src = src;
+                    imgTd.parentNode.replaceChild(audio, imgTd);
+                    popup._contentNode.classList.add('media');
+                    setTimeout(function() {
+                        popup.setContent(tempDiv.innerHTML);
+                        popup.update();
+                    }, 10);
+                } else if (/\.(mp4|webm|ogg|mov)$/i.test(src)) {
+                    var video = document.createElement('video');
+                    video.controls = true;
+                    video.src = src;
+                    video.style.width = "400px";
+                    video.style.height = "300px";
+                    video.style.maxHeight = "60vh";
+                    video.style.maxWidth = "60vw";
+                    imgTd.parentNode.replaceChild(video, imgTd);
+                    popup._contentNode.classList.add('media');
+                    // Aggiorna il popup quando il video carica i metadati
+                    video.addEventListener('loadedmetadata', function() {
+                        popup.update();
+                    });
+                    setTimeout(function() {
+                        popup.setContent(tempDiv.innerHTML);
+                        popup.update();
+                    }, 10);
+                } else {
+                    popup._contentNode.classList.remove('media');
+                }
+            } else {
+                popup._contentNode.classList.remove('media');
+            }
+        }
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_EsriImagery_0');
+        map.getPane('pane_EsriImagery_0').style.zIndex = 400;
+        var layer_EsriImagery_0 = L.tileLayer('https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            pane: 'pane_EsriImagery_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+        });
+        layer_EsriImagery_0;
+        map.createPane('pane_ESRIWorldCanvasLight_2');
+        map.getPane('pane_ESRIWorldCanvasLight_2').style.zIndex = 402;
+        var layer_ESRIWorldCanvasLight_2 = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+            pane: 'pane_ESRIWorldCanvasLight_2',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 18
+        });
+        layer_ESRIWorldCanvasLight_2;
+        map.addLayer(layer_ESRIWorldCanvasLight_2);
+
+        // Start burntareaBURNTAREA_S3_EFR_P1D_3
+        var layer_burntareaBURNTAREA_S3_EFR_P1D_3;
+        // URL zum OGC API Features Endpunkt
+        const bboxDeutschland = '5.86,47.27,15.04,55.06';
+        //startDate - 7 Tage
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 3);
+        const endDate = new Date();
+        //const geoJsonUrl = `https://geoservice.dlr.de/eoc/ogc/features/collections/burntarea:BURNTAREA_S3_EFR_P1D/items?bbox=${bboxDeutschland}&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`;
+        //timerange=2026-08-10T00:00:00.000Z/2026-08-17T00:00:00.000Z
+        //time=2026-08-10%2F2026-08-17
+        const geoJsonUrl = `https://geoservice.dlr.de/eoc/ogc/features/collections/burntarea:BURNTAREA_S3_EFR_P1D/items?bbox=${bboxDeutschland}&limit=13000&time=${startDate.toISOString().split('T')[0]}%2F${endDate.toISOString().split('T')[0]}`;
+        //const geoJsonUrl = `https://geoservice.dlr.de/eoc/ogc/features/collections/burntarea:BURNTAREA_S3_EFR_P1D/items?bbox=${bboxDeutschland}&timerange=${startDate.toISOString()}Z/${endDate.toISOString()}Z`;
+        //const geoJsonUrl = `https://geoservice.dlr.de/eoc/ogc/features/collections/burntarea:BURNTAREA_S3_EFR_P1D/items?bbox=${bboxDeutschland}`;
+        //const geoJsonUrl = 'https://geoservice.dlr.de/eoc/ogc/features/collections/burntarea:BURNTAREA_S3_EFR_P1D/items';
+        
+
+        fetch(geoJsonUrl)
+            .then(response => response.json())
+            .then(data => {
+                // Verarbeite die GeoJSON-Daten
+                console.log("Geladene GeoJSON-Daten:", data);
+                
+                //Filtere die Features auf alle während der letzten 7 Tage basierend auf dem t_stamp-Feld
+
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                console.log("Datum vor 7 Tagen:", sevenDaysAgo);
+                
+                const filteredFeatures = data.features.filter(feature => {
+                    const t_stamp = new Date(feature.properties.t_stamp);
+                    //console.log("Feature t_stamp:", t_stamp, "Vergleich mit:", sevenDaysAgo);
+                    return t_stamp >= sevenDaysAgo;
+                });
+                console.log("Gefilterte Features (letzte 7 Tage):", filteredFeatures);
+                
+                //json_burntareaBURNTAREA_S3_EFR_P1D_3 = { ...data, features: filteredFeatures };
+                json_burntareaBURNTAREA_S3_EFR_P1D_3 = data;
+                console.log("Gefilterte GeoJSON-Daten:", json_burntareaBURNTAREA_S3_EFR_P1D_3);
+                
+                function pop_burntareaBURNTAREA_S3_EFR_P1D_3(feature, layer) {
+                    layer.on({
+                        mouseout: function(e) {
+                            for (var i in e.target._eventParents) {
+                                if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                                    e.target._eventParents[i].resetStyle(e.target);
+                                }
+                            }
+                            if (typeof layer.closePopup == 'function') {
+                                layer.closePopup();
+                            } else {
+                                layer.eachLayer(function(feature){
+                                    feature.closePopup()
+                                });
+                            }
+                        },
+                        mouseover: highlightFeature,
+                    });
+                    var popupContent = '<table>\
+                            <tr>\
+                                <td colspan="2">' + (feature.properties['id'] !== null ? autolinker.link(String(feature.properties['id']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                            </tr>\
+                            <tr>\
+                                <td colspan="2">' + (feature.properties['ogc_fid'] !== null ? autolinker.link(String(feature.properties['ogc_fid']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                            </tr>\
+                            <tr>\
+                                <td colspan="2">' + (feature.properties['size'] !== null ? autolinker.link(String(feature.properties['size']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                            </tr>\
+                            <tr>\
+                                <td colspan="2">' + (feature.properties['confidence'] !== null ? autolinker.link(String(feature.properties['confidence']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                            </tr>\
+                            <tr>\
+                                <td colspan="2">' + (feature.properties['name'] !== null ? autolinker.link(String(feature.properties['name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                            </tr>\
+                            <tr>\
+                                <td colspan="2">' + (feature.properties['t_stamp'] !== null ? autolinker.link(String(feature.properties['t_stamp']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                            </tr>\
+                            <tr>\
+                                <td colspan="2">' + (feature.properties['region'] !== null ? autolinker.link(String(feature.properties['region']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                            </tr>\
+                            <tr>\
+                                <td colspan="2">' + (feature.properties['avg_dndvi'] !== null ? autolinker.link(String(feature.properties['avg_dndvi']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                            </tr>\
+                            <tr>\
+                                <td colspan="2">' + (feature.properties['median_dndvi'] !== null ? autolinker.link(String(feature.properties['median_dndvi']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                            </tr>\
+                            <tr>\
+                                <td colspan="2">' + (feature.properties['min_dndvi'] !== null ? autolinker.link(String(feature.properties['min_dndvi']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                            </tr>\
+                            <tr>\
+                                <td colspan="2">' + (feature.properties['max_dndvi'] !== null ? autolinker.link(String(feature.properties['max_dndvi']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                            </tr>\
+                            <tr>\
+                                <td colspan="2">' + (feature.properties['area_ha'] !== null ? autolinker.link(String(feature.properties['area_ha']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                            </tr>\
+                        </table>';
+                    var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+                    layer.on('popupopen', function(e) {
+                        addClassToPopupIfMedia(content, e.popup);
+                    });
+                    layer.bindPopup(content, { maxHeight: 400 });
+                }
+
+                function style_burntareaBURNTAREA_S3_EFR_P1D_3_0() {
+                    return {
+                        pane: 'pane_burntareaBURNTAREA_S3_EFR_P1D_3',
+                        opacity: 1,
+                        color: 'rgba(195,17,37,1.0)',
+                        dashArray: '',
+                        lineCap: 'butt',
+                        lineJoin: 'miter',
+                        weight: 2.0, 
+                        fill: true,
+                        fillOpacity: 0.6,
+                        fillColor: 'rgba(219,30,42,1.0)',
+                        interactive: true,
+                        className: 'marker-blur',
+                    }
+                }
+                map.createPane('pane_burntareaBURNTAREA_S3_EFR_P1D_3');
+                map.getPane('pane_burntareaBURNTAREA_S3_EFR_P1D_3').style.zIndex = 403;
+                map.getPane('pane_burntareaBURNTAREA_S3_EFR_P1D_3').style['mix-blend-mode'] = 'normal';
+                layer_burntareaBURNTAREA_S3_EFR_P1D_3 = new L.geoJson(json_burntareaBURNTAREA_S3_EFR_P1D_3, {
+                    attribution: '',
+                    interactive: true,
+                    dataVar: 'json_burntareaBURNTAREA_S3_EFR_P1D_3',
+                    layerName: 'layer_burntareaBURNTAREA_S3_EFR_P1D_3',
+                    pane: 'pane_burntareaBURNTAREA_S3_EFR_P1D_3',
+                    onEachFeature: pop_burntareaBURNTAREA_S3_EFR_P1D_3,
+                    style: style_burntareaBURNTAREA_S3_EFR_P1D_3_0,
+                });
+                bounds_group.addLayer(layer_burntareaBURNTAREA_S3_EFR_P1D_3);
+                map.addLayer(layer_burntareaBURNTAREA_S3_EFR_P1D_3);
+                
+            });
+            // Ende burntareaBURNTAREA_S3_EFR_P1D_3
+        
+        // Start EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4
+
+        function pop_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">OBJECTID</th>\
+                        <td class="visible-with-data" id="OBJECTID">' + (feature.properties['OBJECTID'] !== null ? autolinker.link(String(feature.properties['OBJECTID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Coordinate Latitude</th>\
+                        <td class="visible-with-data" id="latitude">' + (feature.properties['latitude'] !== null ? autolinker.link(String(feature.properties['latitude']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Coordinate Longitude</th>\
+                        <td class="visible-with-data" id="longitude">' + (feature.properties['longitude'] !== null ? autolinker.link(String(feature.properties['longitude']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">VIIRS I-4 brightness temp (K)</th>\
+                        <td class="visible-with-data" id="bright_ti4">' + (feature.properties['bright_ti4'] !== null ? autolinker.link(String(feature.properties['bright_ti4']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Pixel Size along scan</th>\
+                        <td class="visible-with-data" id="scan">' + (feature.properties['scan'] !== null ? autolinker.link(String(feature.properties['scan']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Pixel Size along track</th>\
+                        <td class="visible-with-data" id="track">' + (feature.properties['track'] !== null ? autolinker.link(String(feature.properties['track']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Date VIIRS acquisition</th>\
+                        <td class="visible-with-data" id="acq_date">' + (feature.properties['acq_date'] !== null ? autolinker.link(String(feature.properties['acq_date']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Date and Time of VIIRS acquisition (stored in UTC)</th>\
+                        <td class="visible-with-data" id="acq_time">' + (feature.properties['acq_time'] !== null ? autolinker.link(String(feature.properties['acq_time']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Satellite acquired from</th>\
+                        <td class="visible-with-data" id="satellite">' + (feature.properties['satellite'] !== null ? autolinker.link(String(feature.properties['satellite']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Initial data quality assessment</th>\
+                        <td class="visible-with-data" id="confidence">' + (feature.properties['confidence'] !== null ? autolinker.link(String(feature.properties['confidence']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Collection and Source Version</th>\
+                        <td class="visible-with-data" id="version">' + (feature.properties['version'] !== null ? autolinker.link(String(feature.properties['version']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">VIIRS I-5 brightness temp (K)</th>\
+                        <td class="visible-with-data" id="bright_ti5">' + (feature.properties['bright_ti5'] !== null ? autolinker.link(String(feature.properties['bright_ti5']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Fire Radiative Power (MW)</th>\
+                        <td class="visible-with-data" id="frp">' + (feature.properties['frp'] !== null ? autolinker.link(String(feature.properties['frp']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Daytime or Nighttime</th>\
+                        <td class="visible-with-data" id="daynight">' + (feature.properties['daynight'] !== null ? autolinker.link(String(feature.properties['daynight']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">PST or PDT for Date and Time of VIIRS acquisition (stored in Pacific Time Zone)</th>\
+                        <td class="visible-with-data" id="esritimeutc">' + (feature.properties['esritimeutc'] !== null ? autolinker.link(String(feature.properties['esritimeutc']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Hours since Acquisition Date/Time</th>\
+                        <td class="visible-with-data" id="hours_old">' + (feature.properties['hours_old'] !== null ? autolinker.link(String(feature.properties['hours_old']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_0(feature) {
+            if (feature.properties['frp'] >= 110.030000 && feature.properties['frp'] <= 160.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 160.030000 && feature.properties['frp'] <= 210.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 4.88888,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 210.030000 && feature.properties['frp'] <= 260.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 5.77778,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 260.030000 && feature.properties['frp'] <= 310.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 6.66666,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 310.030000 && feature.properties['frp'] <= 360.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 7.55556,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 360.030000 && feature.properties['frp'] <= 410.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 8.44444,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 410.030000 && feature.properties['frp'] <= 460.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 9.33334,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 460.030000 && feature.properties['frp'] <= 510.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 10.22222,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 510.030000 && feature.properties['frp'] <= 560.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 11.11112,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 560.030000 && feature.properties['frp'] <= 610.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 12.0,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 610.030000 && feature.properties['frp'] <= 660.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 12.88888,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 660.030000 && feature.properties['frp'] <= 710.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 13.77778,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 710.030000 && feature.properties['frp'] <= 760.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 14.66666,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 760.030000 && feature.properties['frp'] <= 810.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 15.55556,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 810.030000 && feature.properties['frp'] <= 860.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 16.44444,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 860.030000 && feature.properties['frp'] <= 910.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 17.33334,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 910.030000 && feature.properties['frp'] <= 960.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 18.22222,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 960.030000 && feature.properties['frp'] <= 1010.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 19.11112,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 1010.030000 && feature.properties['frp'] <= 1060.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 20.0,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 1060.030000 && feature.properties['frp'] <= 1110.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 20.8888,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 1110.030000 && feature.properties['frp'] <= 1160.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 21.7778,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 1160.030000 && feature.properties['frp'] <= 1210.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 22.6666,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 1210.030000 && feature.properties['frp'] <= 1260.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 23.5556,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 1260.030000 && feature.properties['frp'] <= 1310.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 24.4444,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 1310.030000 && feature.properties['frp'] <= 1360.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 25.3334,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 1360.030000 && feature.properties['frp'] <= 1410.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 26.2222,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 1410.030000 && feature.properties['frp'] <= 1460.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 27.1112,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['frp'] >= 1460.030000 && feature.properties['frp'] <= 1510.030000 ) {
+                return {
+                pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+                radius: 28.0,
+                opacity: 1,
+                color: 'rgba(235,211,31,0.9529411764705882)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4');
+        map.getPane('pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4').style.zIndex = 404;
+        map.getPane('pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4').style['mix-blend-mode'] = 'normal';
+        var layer_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4 = new L.geoJson(json_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+            layerName: 'layer_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+            pane: 'pane_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4',
+            onEachFeature: pop_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4);
+        map.addLayer(layer_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4);
+
+        // Ende EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4
+
+
+        var overlaysTree = [
+        {label: '<b>VIIRS</b>',  selectAllCheckbox: true, children: [
+            {label: 'Europa Satellite (VIIRS) Thermal Hotspots and Fire Activity<br /><table><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_1101600.png" /></td><td>110 - 160</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_1602101.png" /></td><td>160 - 210</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_2102602.png" /></td><td>210 - 260</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_2603103.png" /></td><td>260 - 310</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_3103604.png" /></td><td>310 - 360</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_3604105.png" /></td><td>360 - 410</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_4104606.png" /></td><td>410 - 460</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_4605107.png" /></td><td>460 - 510</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_5105608.png" /></td><td>510 - 560</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_5606109.png" /></td><td>560 - 610</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_61066010.png" /></td><td>610 - 660</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_66071011.png" /></td><td>660 - 710</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_71076012.png" /></td><td>710 - 760</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_76081013.png" /></td><td>760 - 810</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_81086014.png" /></td><td>810 - 860</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_86091015.png" /></td><td>860 - 910</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_91096016.png" /></td><td>910 - 960</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_960101017.png" /></td><td>960 - 1010</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_1010106018.png" /></td><td>1010 - 1060</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_1060111019.png" /></td><td>1060 - 1110</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_1110116020.png" /></td><td>1110 - 1160</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_1160121021.png" /></td><td>1160 - 1210</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_1210126022.png" /></td><td>1210 - 1260</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_1260131023.png" /></td><td>1260 - 1310</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_1310136024.png" /></td><td>1310 - 1360</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_1360141025.png" /></td><td>1360 - 1410</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_1410146026.png" /></td><td>1410 - 1460</td></tr><tr><td style="text-align: center;"><img src="legend/EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4_1460151027.png" /></td><td>1460 - 1510</td></tr></table>', layer: layer_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4},]},
+        {label: '<b>geojson</b>',  selectAllCheckbox: true, children: [
+            {label: '<img src="legend/burntareaBURNTAREA_S3_EFR_P1D_3.png" /> burntarea:BURNTAREA_S3_EFR_P1D', layer: layer_burntareaBURNTAREA_S3_EFR_P1D_3},]},
+            {label: "ESRI World Canvas Light", layer: layer_ESRIWorldCanvasLight_2, radioGroup: 'bm' },
+            {label: "Esri Imagery", layer: layer_EsriImagery_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        map.addControl(new L.Control.Search({
+            layer: layer_EuropaSatelliteVIIRSThermalHotspotsandFireActivity_4,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'OBJECTID'}));
+        if (typeof url === 'undefined') {
+            document.getElementsByClassName('search-button')[0].className += ' fa fa-binoculars';
+        } else {
+            document.getElementsByClassName('search-button')[1].className += ' fa fa-binoculars';
+        }
+        </script>        
+    </body>
+</html>
