@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MapLibre – Standort + KML</title>
   <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+  <!--script src="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.js" crossorigin="anonymous"></script-->
   <style>
     html, body, #map { height: 100%; margin: 0; }
     .toolbar {
@@ -28,8 +30,7 @@
   </div>
   <input type="file" id="kml-file" accept=".kml" style="display:none" />
 
-  <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js" crossorigin="anonymous"></script>
-  <!--script src="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.js" crossorigin="anonymous"></script-->
+  
   <script>
     // ── Karte ──────────────────────────────────────────────
     const map = new maplibregl.Map({
