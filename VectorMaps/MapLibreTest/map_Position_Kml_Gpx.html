@@ -90,12 +90,16 @@
     }
 
     function fitToFeatures(features) {
-      const bounds = new maplibregl.LngLatBounds();
-      features.forEach(f => {
-        const b = new maplibregl.LngLatBounds(f.geometry.coordinates);
-        bounds.extend(b);
-      });
-      if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 50 });
+      try {
+        const bounds = new maplibregl.LngLatBounds();
+        features.forEach(f => {
+            const b = new maplibregl.LngLatBounds(f.geometry.coordinates);
+            bounds.extend(b);
+        });
+        if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 50 });
+      } catch (error) {
+        console.error('Fehler beim Berechnen der Bounds:', error);
+      }
     }
 
     // ── KML laden ──────────────────────────────────────────
