@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MapLibre – Standort + KML/GPX</title>
   <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.js" crossorigin="anonymous"></script>
   <style>
     html, body, #map { height: 100%; margin: 0; }
     .toolbar {
@@ -33,7 +34,6 @@
   <input type="file" id="kml-file" accept=".kml" style="display:none" />
   <input type="file" id="gpx-file" accept=".gpx" style="display:none" />
 
-  <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
   <script>
     // Example: Scaling text size based on device pixel ratio
     const dpr = window.devicePixelRatio || 1;
