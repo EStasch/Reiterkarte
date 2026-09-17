@@ -57,6 +57,14 @@
 
       //map.showTileBoundaries = true;
 
+      map.addControl(
+         new maplibregl.GeolocateControl({
+         positionOptions: { enableHighAccuracy: true },
+         trackUserLocation: true,
+         showUserHeading: true
+         })
+      );
+
       // Beispiel: Aktualisieren eines HTML-Elements mit der ID 'zoom-display'
       map.on('zoom', () => {
             document.getElementById('zoom-display').textContent = map.getZoom().toFixed(2);

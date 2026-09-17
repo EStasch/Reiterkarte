@@ -108,3 +108,48 @@ const naechsterIndex = messwerte.length;
 const prognose = trend.slope * naechsterIndex + trend.intercept;
 console.log(`Prognose nächster Wert: ${prognose.toFixed(2)}`);   
 */
+
+
+/**
+ * Berechnet die lineare Regression (Trendlinie) für ein Daten-Array.
+ * Gibt die Steigung (Slope) zurück.
+ * @param {number[]} yValues - Array der Messwerte
+ * @returns {object} { slope: number, intercept: number, rSquared: number }
+ */
+function calculateLinearTrend(yValues) {
+    const n = yValues.length;
+    if (n < 2) return { slope: 0, intercept: yValues[0] || 0, rSquared: 0 };
+
+    let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+    
+    // X ist hier der Index (0, 1, 2, ...)
+    for (let i = 0; i < n; i++) {
+        const x = i;
+        const y = yValues[i];
+        sumX += x;
+        sumY += y;
+        sumXY += (x * y);
+        sumXX += (x * x);
+    }
+
+    const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+    const intercept = (sumY - slope * sumX) / n;
+
+    // Optional: Bestimmtheitsmaß (R²) zur Güte der Anpassung
+    const meanY = sumY / n;
+    let ssTot = 0, ssRes = 0;
+    for (let i = 0; i < n; i++) {
+        const yPred = slope * i + intercept;
+        ssTot += (yValues[i] - meanY) ** 2;
+        ssRes += (yValues[i] - yPred) ** 2;
+    }
+    const rSquared = 1 - (ssRes / ssTot);
+
+    return { slope, intercept, rSquared };
+}
+
+// Beispiel
+//const daten = [10, 12, 11, 13, 15, 14, 16, 18];
+//const trend = calculateLinearTrend(daten);
+//console.log(`Steigung: ${trend.slope.toFixed(3)}`); 
+// Positive Steigung = Aufwärtstrend   

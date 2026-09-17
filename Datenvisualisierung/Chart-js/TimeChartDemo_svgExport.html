@@ -18,8 +18,8 @@
     </section>
 
     <!-- 1. Chart.js Core Bibliothek -->
-    //<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-    //<script src="js/libs/chart.umd.min-exportSvg.js"></script>
+    <!--script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script-->
+    <!--script src="js/libs/chart.umd.min-exportSvg.js"></script-->
     <!--  modified file is removed e.resetTransform() for chartjs version 4.4.1 -->
     <script src="https://reinventatuweb.cl/otros/chart-4-4-1-m.min.js"></script>
     
@@ -29,6 +29,11 @@
     <!-- 3. Chart.js Adapter für date-fns (Zwingend erforderlich!) -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
+    <!-- Export Chart to svg and png -->   
+    <script src="https://gliffy.github.io/canvas2svg/canvas2svg.js"></script>
+    
+    <!-- 5. Eigene Skripte -->
+    <script src="js/export_svg.js"></script>
 
     <script>
         // Daten vorbereiten: Array von Objekten mit 'x' (Zeit) und 'y' (Wert)
@@ -45,7 +50,18 @@
             { x: new Date('07.01.2023'), y: 28 }
         ];
 
+        
+
         const ctx = document.getElementById('timeChart').getContext('2d');
+
+        // Evtl. noch breite und höhe setzen (evtl auch auslesen)
+        // Configuración del gráfico y exportación a SVG
+        
+        //var ctx = document.getElementById('canvas');
+        ctx.width = 1144;
+        ctx.height = 400;
+        
+
 
         var chart = new Chart(ctx, {
             type: 'line',
@@ -62,8 +78,10 @@
                 }]
             },
             options: {
-                responsive: true,
+                //responsive: true,
+                responsive: false, //set for svgExport
                 maintainAspectRatio: false,
+                animation:{duration:0}, //set for svgExport
                 scales: {
                     x: {
                         type: 'time', // WICHTIG: Achsentyp auf 'time' setzen
@@ -96,6 +114,10 @@
                 }
             }
         });
+        
+
+        // Svg export
+        createSvgLink('chart.svg', 'Download SVG', chart, "Chart");
 
     </script>
 </body>
