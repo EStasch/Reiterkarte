@@ -109,7 +109,7 @@
       map.addSource('kml-data', { type:'geojson', data:{ type:'FeatureCollection', features } });
 
       map.addLayer({ id:'kml-fill',  type:'fill',   source:'kml-data', filter:['==','$type','Polygon'],    paint:{'fill-color':'#27ae60','fill-opacity':0.3},'minzoom': 5,'maxzoom': 20, });
-      map.addLayer({ id:'kml-line',  type:'line',   source:'kml-data', filter:['==','$type','LineString'], paint:{'line-color':'#2980b9','line-width':3},'minzoom': 5,'maxzoom': 20, });
+      map.addLayer({ id:'kml-line',  type:'line',   source:'kml-data', filter:['==','$type','LineString'], paint:{'line-color':'#2980b9','line-width':4},'minzoom': 5,'maxzoom': 20, });
       map.addLayer({ id:'kml-point', type:'circle', source:'kml-data', filter:['==','$type','Point'],      paint:{'circle-radius':6,'circle-color':'#e74c3c'},'minzoom': 5,'maxzoom': 20, });
 
       // Auf Daten zoomen
