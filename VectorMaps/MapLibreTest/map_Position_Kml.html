@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MapLibre – Standort + KML</title>
+  <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet" />
+  <style>
+    html, body, #map { height: 100%; margin: 0; }
+    .toolbar {
+      position: absolute; top: 10px; left: 10px; z-index: 10;
+      display: flex; gap: 8px;
+    }
+    .toolbar button {
+      padding: 8px 14px; border: none; border-radius: 6px;
+      background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.2);
+      cursor: pointer; font-size: 14px;
+    }
+    .toolbar button:hover { background: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="toolbar">
+    <button id="btn-locate">📍 Standort</button>
+    <button id="btn-kml">📂 KML laden</button>
+  </div>
+  <input type="file" id="kml-file" accept=".kml" style="display:none" />
+
+  <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
+  <script>
+    // ── Karte ──────────────────────────────────────────────
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://tiles.openfreemap.org/styles/bright',
+      center: [10, 51],
+      zoom: 5
+    });
+
+    // ── Geolocate Control ──────────────────────────────────
+    const geolocate = new maplibregl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: true },
+      trackUserLocation: true,
+      showUserHeading: true
+    });
+    map.addControl(geolocate);
+
+    document.getElementById('btn-locate').addEventListener('click', () => {
+      geolocate.trigger();
+    });
+
+    // ── KML laden ──────────────────────────────────────────
+    document.getElementById('btn-kml').addEventListener('click', () => {
+      document.getElementById('kml-file').click();
+    });
+
+    document.getElementById('kml-file').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const text = await file.text();
+      const xml = new DOMParser().parseFromString(text, 'application/xml');
+      const placemarks = xml.querySelectorAll('Placemark');
+      const features = [];
+
+      placemarks.forEach(pm => {
+        const name = pm.querySelector('name')?.textContent || '';
+
+        const point = pm.querySelector('Point > coordinates');
+        const line  = pm.querySelector('LineString > coordinates');
+        const poly  = pm.querySelector('Polygon > outerBoundaryIs > LinearRing > coordinates');
+
+        if (point) {
+          const [lng, lat] = point.textContent.trim().split(',').map(Number);
+          features.push({ type:'Feature', properties:{name}, geometry:{ type:'Point', coordinates:[lng,lat] } });
+        }
+        if (line) {
+          const coords = line.textContent.trim().split(' ').map(c => c.split(',').map(Number));
+          features.push({ type:'Feature', properties:{name}, geometry:{ type:'LineString', coordinates:coords } });
+        }
+        if (poly) {
+          const coords = poly.textContent.trim().split(' ').map(c => c.split(',').map(Number));
+          features.push({ type:'Feature', properties:{name}, geometry:{ type:'Polygon', coordinates:[coords] } });
+        }
+      });
+
+      if (features.length === 0) {
+        alert('Keine Placemarks gefunden. KML-Struktur prüfen.');
+        return;
+      }
+
+      // Alte Daten entfernen
+      ['kml-fill','kml-line','kml-point'].forEach(id => {
+        if (map.getLayer(id)) map.removeLayer(id);
+      });
+      if (map.getSource('kml-data')) map.removeSource('kml-data');
+
+      map.addSource('kml-data', { type:'geojson', data:{ type:'FeatureCollection', features } });
+
+      map.addLayer({ id:'kml-fill',  type:'fill',   source:'kml-data', filter:['==','$type','Polygon'],    paint:{'fill-color':'#27ae60','fill-opacity':0.3} });
+      map.addLayer({ id:'kml-line',  type:'line',   source:'kml-data', filter:['==','$type','LineString'], paint:{'line-color':'#2980b9','line-width':3} });
+      map.addLayer({ id:'kml-point', type:'circle', source:'kml-data', filter:['==','$type','Point'],      paint:{'circle-radius':6,'circle-color':'#e74c3c'} });
+
+      // Auf Daten zoomen
+      const bounds = new maplibregl.LngLatBounds();
+      features.forEach(f => {
+        const b = new maplibregl.LngLatBounds(f.geometry.coordinates);
+        bounds.extend(b);
+      });
+      if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 50 });
+
+      // Popup bei Klick auf Punkte
+      map.on('click', 'kml-point', (e) => {
+        const name = e.features[0].properties.name;
+        new maplibregl.Popup().setLngLat(e.lngLat).setText(name).addTo(map);
+      });
+      map.on('mouseenter', 'kml-point', () => map.getCanvas().style.cursor = 'pointer');
+      map.on('mouseleave', 'kml-point', () => map.getCanvas().style.cursor = '');
+    });
+  </script>
+</body>
+</html>   
