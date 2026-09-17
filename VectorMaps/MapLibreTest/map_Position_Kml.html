@@ -28,7 +28,8 @@
   </div>
   <input type="file" id="kml-file" accept=".kml" style="display:none" />
 
-  <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
+  <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+  <!--script src="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.js" crossorigin="anonymous"></script-->
   <script>
     // ── Karte ──────────────────────────────────────────────
     const map = new maplibregl.Map({
