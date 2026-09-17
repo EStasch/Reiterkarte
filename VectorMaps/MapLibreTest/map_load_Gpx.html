@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MapLibre – GPX laden</title>
+  <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet" />
+  <style>
+    html, body, #map { height: 100%; margin: 0; }
+    .toolbar {
+      position: absolute; top: 10px; left: 10px; z-index: 10;
+      display: flex; gap: 8px;
+    }
+    .toolbar button {
+      padding: 8px 14px; border: none; border-radius: 6px;
+      background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.2);
+      cursor: pointer; font-size: 14px;
+    }
+    .toolbar button:hover { background: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="toolbar">
+    <button id="btn-gpx">📂 GPX laden</button>
+    <button id="btn-clear">✕ Leeren</button>
+  </div>
+  <input type="file" id="gpx-file" accept=".gpx" style="display:none" />
+
+  <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
+  <script>
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://tiles.openfreemap.org/styles/bright',
+      center: [10, 51],
+      zoom: 5
+    });
+
+    // ── Layer-Cleanup ──────────────────────────────────────
+    function clearLayers() {
+      ['gpx-fill', 'gpx-line', 'gpx-point'].forEach(id => {
+        if (map.getLayer(id)) map.removeLayer(id);
+      });
+      if (map.getSource('gpx-data')) map.removeSource('gpx-data');
+    }
+
+    document.getElementById('btn-clear').addEventListener('click', clearLayers);
+
+    // ── Layer hinzufügen ───────────────────────────────────
+    function addLayers() {
+      map.addSource('gpx-data', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+
+      map.addLayer({ id: 'gpx-fill',  type: 'fill',   source: 'gpx-data', filter: ['==', '$type', 'Polygon'],    paint: { 'fill-color': '#27ae60', 'fill-opacity': 0.3 } });
+      map.addLayer({ id: 'gpx-line',  type: 'line',   source: 'gpx-data', filter: ['==', '$type', 'LineString'], paint: { 'line-color': '#2980b9', 'line-width': 3 } });
+      map.addLayer({ id: 'gpx-point', type: 'circle', source: 'gpx-data', filter: ['==', '$type', 'Point'],      paint: { 'circle-radius': 6, 'circle-color': '#e74c3c' } });
+
+      map.on('click', 'gpx-point', (e) => {
+        const name = e.features[0].properties.name || '';
+        new maplibregl.Popup().setLngLat(e.lngLat).setText(name).addTo(map);
+      });
+      map.on('mouseenter', 'gpx-point', () => map.getCanvas().style.cursor = 'pointer');
+      map.on('mouseleave', 'gpx-point', () => map.getCanvas().style.cursor = '');
+    }
+
+    function fitToFeatures(features) {
+      const bounds = new maplibregl.LngLatBounds();
+      features.forEach(f => {
+        const b = new maplibregl.LngLatBounds(f.geometry.coordinates);
+        bounds.extend(b);
+      });
+      if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 50 });
+    }
+
+    // ── GPX laden ──────────────────────────────────────────
+    document.getElementById('btn-gpx').addEventListener('click', () => {
+      document.getElementById('gpx-file').click();
+    });
+
+    document.getElementById('gpx-file').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      clearLayers();
+
+      const text = await file.text();
+      const xml = new DOMParser().parseFromString(text, 'application/xml');
+      const features = [];
+
+      // Waypoints
+      xml.querySelectorAll('wpt').forEach(wpt => {
+        const lat = parseFloat(wpt.getAttribute('lat'));
+        const lon = parseFloat(wpt.getAttribute('lon'));
+        const name = wpt.querySelector('name')?.textContent || '';
+        if (!isNaN(lat) && !isNaN(lon)) {
+          features.push({ type: 'Feature', properties: { name }, geometry: { type: 'Point', coordinates: [lon, lat] } });
+        }
+      });
+
+      // Tracks
+      xml.querySelectorAll('trk').forEach(trk => {
+        const name = trk.querySelector('name')?.textContent || 'Track';
+        trk.querySelectorAll('trkseg').forEach(seg => {
+          const coords = [];
+          seg.querySelectorAll('trkpt').forEach(pt => {
+            const lat = parseFloat(pt.getAttribute('lat'));
+            const lon = parseFloat(pt.getAttribute('lon'));
+            if (!isNaN(lat) && !isNaN(lon)) coords.push([lon, lat]);
+          });
+          if (coords.length >= 2) {
+            features.push({ type: 'Feature', properties: { name }, geometry: { type: 'LineString', coordinates: coords } });
+          }
+        });
+      });
+
+      // Routes
+      xml.querySelectorAll('rte').forEach(rte => {
+        const name = rte.querySelector('name')?.textContent || 'Route';
+        const coords = [];
+        rte.querySelectorAll('rtept').forEach(pt => {
+          const lat = parseFloat(pt.getAttribute('lat'));
+          const lon = parseFloat(pt.getAttribute('lon'));
+          if (!isNaN(lat) && !isNaN(lon)) coords.push([lon, lat]);
+        });
+        if (coords.length >= 2) {
+          features.push({ type: 'Feature', properties: { name }, geometry: { type: 'LineString', coordinates: coords } });
+        }
+      });
+
+      if (!features.length) { alert('Keine GPX-Elemente gefunden.'); return; }
+
+      map.addSource('gpx-data', { type: 'geojson', data: { type: 'FeatureCollection', features } });
+      addLayers();
+      fitToFeatures(features);
+      e.target.value = '';
+    });
+  </script>
+</body>
+</html>   
