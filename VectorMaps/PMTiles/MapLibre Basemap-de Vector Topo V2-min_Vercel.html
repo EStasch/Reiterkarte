@@ -33,6 +33,8 @@
          cursor: pointer; font-size: 14px;
       }
       .toolbar button:hover { background: #f0f0f0; }
+      .toolbar button.dpr-1 { font-size: 14px; }
+      .toolbar button.dpr-2 { font-size: 18px; }
    </style>
 </head>
 
@@ -63,6 +65,8 @@
       //const dpr = 2; // for testing purposes, set a fixed DPR value
       document.getElementById('dpr').textContent = dpr;
       
+      document.getElementById('btn-locate').classList.add("dpr-" + dpr); // Add DPR class to the button
+      document.getElementById('btn-kml').classList.add("dpr-" + dpr); // Add DPR class to the button
 
       var map = new maplibregl.Map({
          container: 'map',
@@ -84,12 +88,15 @@
       document.getElementById('btn-locate').addEventListener('click', () => {
          geolocate.trigger();
       });
+
+
       // ── Geolocate Control ──────────────────────────────────
 
       // ── KML laden ──────────────────────────────────────────
       document.getElementById('btn-kml').addEventListener('click', () => {
          document.getElementById('kml-file').click();
       });
+
 
       document.getElementById('kml-file').addEventListener('change', async (e) => {
          const file = e.target.files[0];
