@@ -96,22 +96,19 @@
     // ── Fit to features ────────────────────────────────────
     function fitToFeatures(features) {
     const bounds = new maplibregl.LngLatBounds();
-    features.forEach(f => {
-        const { type, coordinates } = f.geometry;
-        if (type === 'Point') {
-        bounds.extend(coordinates);          // [lng, lat]
-        } else if (type === 'LineString') {
-        bounds.extend(coordinates);          // [[lng,lat], ...]
-        } else if (type === 'Polygon') {
-        bounds.extend(coordinates[0]);       // outer ring: [[lng,lat], ...]
-        } else if (type === 'MultiPolygon') {
-        bounds.extend(coordinates[0][0]);    // first polygon, outer ring
-        } else if (type === 'MultiLineString') {
-        bounds.extend(coordinates.flat());   // alle Punkte
-        } else if (type === 'MultiPoint') {
-        bounds.extend(coordinates);          // [[lng,lat], ...]
+
+    function extendBounds(coords) {
+        if (typeof coords[0] === 'number') {
+        // Einzelner Punkt: [lng, lat]
+        bounds.extend(coords);
+        } else {
+        // Array von Punkten → rekursiv
+        coords.forEach(c => extendBounds(c));
         }
-    });
+    }
+
+    features.forEach(f => extendBounds(f.geometry.coordinates));
+
     if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 50 });
     }   
 
