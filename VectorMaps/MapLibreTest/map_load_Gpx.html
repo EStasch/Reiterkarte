@@ -121,11 +121,20 @@
 
       // Auf Daten zoomen
       const bounds = new maplibregl.LngLatBounds();
-      features.forEach(f => {
-        const b = new maplibregl.LngLatBounds(f.geometry.coordinates);
-        bounds.extend(b);
-      });
-      if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 50 });
+
+        function extendBounds(coords) {
+            if (typeof coords[0] === 'number') {
+            // Einzelner Punkt: [lng, lat]
+            bounds.extend(coords);
+            } else {
+            // Array von Punkten → rekursiv
+            coords.forEach(c => extendBounds(c));
+            }
+        }
+
+        features.forEach(f => extendBounds(f.geometry.coordinates));
+
+        if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 50 });
 
       e.target.value = '';
     });
