@@ -34,7 +34,7 @@
       }
       .toolbar button:hover { background: #f0f0f0; }
       .toolbar button.dpr-1 { font-size: 14px; }
-      .toolbar button.dpr-2 { font-size: 18px; }
+      .toolbar button.dpr-2 { font-size: 24px; }
    </style>
 </head>
 
@@ -102,12 +102,12 @@
 
          // KML Layer
          map.addLayer({ id: 'kml-fill',  type: 'fill',   source: 'kml-data', filter: ['==', '$type', 'Polygon'],    paint: { 'fill-color': '#27ae60', 'fill-opacity': 0.3 } });
-         map.addLayer({ id: 'kml-line',  type: 'line',   source: 'kml-data', filter: ['==', '$type', 'LineString'], paint: { 'line-color': '#aa29b9', 'line-width': 3 } });
+         map.addLayer({ id: 'kml-line',  type: 'line',   source: 'kml-data', filter: ['==', '$type', 'LineString'], paint: { 'line-color': '#2980b9BF', 'line-width': (3 * dpr) } });
          map.addLayer({ id: 'kml-point', type: 'circle', source: 'kml-data', filter: ['==', '$type', 'Point'],      paint: { 'circle-radius': 6, 'circle-color': '#e74c3c' } });
 
          // GPX Layer
          map.addLayer({ id: 'gpx-fill',  type: 'fill',   source: 'gpx-data', filter: ['==', '$type', 'Polygon'],    paint: { 'fill-color': '#8e44ad', 'fill-opacity': 0.3 } });
-         map.addLayer({ id: 'gpx-line',  type: 'line',   source: 'gpx-data', filter: ['==', '$type', 'LineString'], paint: { 'line-color': '#2980b9', 'line-width': 3 } });
+         map.addLayer({ id: 'gpx-line',  type: 'line',   source: 'gpx-data', filter: ['==', '$type', 'LineString'], paint: { 'line-color': '#aa29b9BF', 'line-width': (3 * dpr) } });
          map.addLayer({ id: 'gpx-point', type: 'circle', source: 'gpx-data', filter: ['==', '$type', 'Point'],      paint: { 'circle-radius': 6, 'circle-color': '#16a085' } });
 
          // Popups
