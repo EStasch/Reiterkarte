@@ -48,6 +48,7 @@
     <button class="btn" id="trackBtn">▶ Tracking starten</button>
     <button class="btn" id="btn-gpx">📂 GPX laden</button>
   </div>
+  <div class="hud" id="zoom-display" style="right:12px; left:auto; top:12px; bottom:auto;">Zoom: 14.00</div>
   <input type="file" id="gpx-file" accept=".gpx" style="display:none" />
   <div class="hud" id="hud">Bereit…</div>
 
@@ -385,7 +386,12 @@ trackBtn.addEventListener('click', startTracking);
 
  map.on('zoom', () => {
             actualZoom = map.getZoom();
-            document.getElementById('zoom-display').textContent = actualZoom.toFixed(2);
+            /*
+            const zoomDisplay = document.getElementById('zoom-display');
+            if (zoomDisplay) {
+              zoomDisplay.textContent = `Zoom: ${actualZoom.toFixed(2)}`;
+            }
+            */
       });
 </script>
 </body>
