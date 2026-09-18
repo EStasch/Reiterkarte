@@ -46,6 +46,7 @@
     <button id="btn-kml">📂 KML laden</button>
     <button id="btn-gpx">📂 GPX laden</button>
     <button id="btn-clear">✕ Leeren</button>
+    <button id="toggleNav">🧭 Navigation ein/aus</button>
   </div>
   <input type="file" id="kml-file" accept=".kml" style="display:none" />
   <input type="file" id="gpx-file" accept=".gpx" style="display:none" />
@@ -73,6 +74,7 @@
       document.getElementById('btn-locate').classList.add("dpr-" + dpr); // Add DPR class to the button
       document.getElementById('btn-kml').classList.add("dpr-" + dpr); // Add DPR class to the button
       document.getElementById('btn-gpx').classList.add("dpr-" + dpr); // Add DPR class to the button
+      document.getElementById('toggleNav').classList.add("dpr-" + dpr); // Add DPR class to the button
 
 
       // ── Karte ──────────────────────────────────────────────
@@ -92,6 +94,23 @@
          showZoom: true,
          showCompass: true
       }));
+
+      // ─── NavigationControl ────────────────────────────────────────────────────────
+   //map.addControl(new maplibregl.NavigationControl(), 'top-left');
+
+   const nav = new maplibregl.NavigationControl();
+   map.addControl(nav, 'top-right');
+
+   let navVisible = true;
+
+   document.getElementById('toggleNav').addEventListener('click', () => {
+   if (navVisible) {
+      map.removeControl(nav);
+   } else {
+      map.addControl(nav, 'top-left');
+   }
+   navVisible = !navVisible;
+   });
 
       // ── Geolocate ──────────────────────────────────────────
       const geolocate = new maplibregl.GeolocateControl({
