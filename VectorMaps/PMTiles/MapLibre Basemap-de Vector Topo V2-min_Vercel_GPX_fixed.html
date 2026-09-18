@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <title>basemap.de Web Vektor - MapLibre GL JS Demo</title>
+   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.css" crossorigin="anonymous">
+   <script src="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+   <script src="https://unpkg.com/pmtiles@4.4.1/dist/pmtiles.js"></script>
+   <script src="../Javascript/scaleTextOnLayersforHD.js"></script>
+   <style>
+      body {
+         margin: 0;
+         padding: 0;
+      }
+
+      #map {
+         position: absolute;
+         top: 0;
+         bottom: 0;
+         width: 100%;
+      }
+
+      .maplibregl-ctrl-group button {
+         width: calc(5 * var(--dpr))vw;
+         width: calc(clamp(2.1094rem, 1.9176rem + 0.767vi, 2.5313rem) * var(--dpr));
+         height: calc(5 * var(--dpr))vw;;
+         height: calc(clamp(2.1094rem, 1.9176rem + 0.767vi, 2.5313rem) * var(--dpr));
+      }
+      .maplibregl-ctrl button .maplibregl-ctrl-icon {
+         background-size: cover;
+      }
+
+      #zoom-display{
+                font-size: 1em;
+      }
+
+      .toolbar {
+         position: absolute; top: 10px; left: 10px; z-index: 20;
+         display: flex; gap: 8px;
+         flex-direction: column;
+      }
+      .toolbar button {
+         padding: 8px 14px; border: none; border-radius: 6px;
+         background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.2);
+         cursor: pointer; font-size: 14px;
+      }
+      .toolbar button:hover { background: #f0f0f0; }
+      .toolbar button.dpr-1 { font-size: 14px; }
+      .toolbar button{ 
+         font-size: 58px; 
+         font-size: calc(3vw * var(--dpr));
+         font-size: calc(clamp(1.4063rem, 1.2784rem + 0.5114vi, 1.6875rem) * var(--dpr));
+      }
+      
+
+      /*Toggle toolbar fly out*/
+      .toolbar-flyout {
+      position: relative;
+      margin: 10px;
+      }
+
+      #toolbar-toggle {
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      }
+      #toolbar-toggle.dpr-1 { font-size: 1.2rem; }
+      #toolbar-toggle
+      { 
+         font-size: calc(4rem* var(--dpr)); 
+         font-size: calc(3.5vw * var(--dpr));
+         font-size: calc(clamp(1.4063rem, 1.2784rem + 0.5114vi, 1.6875rem)* var(--dpr));
+      }
+      
+
+      #toolbar-toggle:hover {
+      background: #555;
+      }
+
+      .toolbar {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 6px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+      flex-direction: column;
+      min-width: 180px;
+      z-index: 1000;
+      }
+
+      /* Geöffneter Zustand */
+      .toolbar.open {
+         display: flex;
+         gap: 8px;
+         flex-direction: column;
+      }
+   </style>
+</head>
+
+<body>
+   <div id="map" class="map"></div>
+
+   <div class="toolbar-flyout">
+   <button id="toolbar-toggle" aria-expanded="false">☰</button>
+      <div class="toolbar" id="toolbar-menu">
+         <button id="btn-locate">📍 Standort</button>
+         <button id="btn-kml">📂 KML laden</button>
+         <button id="btn-gpx">📂 GPX laden</button>
+         <button id="btn-clear">✕ Leeren</button>
+         <button id="toggleNav">🧭 Navigation ein/aus</button>
+      </div>
+   </div>
+  <input type="file" id="kml-file" accept=".kml" style="display:none" />
+  <input type="file" id="gpx-file" accept=".gpx" style="display:none" />
+
+   <div id="zoom-container" style="background-color: rgba(250, 246, 246, 0.875);position: absolute;top: 50px;right: 50px;">
+            <span>Zoom: </span>
+            <span id="zoom-display">13</span><br>
+            <span>DPR: </span><span id="dpr"></span><br>
+            <div id="dimenstions"></div>
+        </div>
+   <script>
+      let protocol = new pmtiles.Protocol({metadata: true});
+      maplibregl.addProtocol("pmtiles", protocol.tile);
+
+      let actualZoom = 13;
+
+      const dpr = window.devicePixelRatio || 1;
+      const root = document.documentElement;
+      root.style.setProperty('--dpr', dpr);
+
+      document.getElementById('dpr').textContent = dpr;
+      
+      document.getElementById('btn-locate').classList.add("dpr-" + dpr);
+      document.getElementById('btn-kml').classList.add("dpr-" + dpr);
+      document.getElementById('btn-gpx').classList.add("dpr-" + dpr);
+      document.getElementById('btn-clear').classList.add("dpr-" + dpr);
+      document.getElementById('toggleNav').classList.add("dpr-" + dpr);
+      document.getElementById('toolbar-toggle').classList.add("dpr-" + dpr);
+
+      var map = new maplibregl.Map({
+         container: 'map',
+         style: 'https://estasch.github.io/Reiterkarte/VectorMaps/PMTiles/bm_web_topandosm_wege_poi_01(8)_PMTiles_min_Vercel.json',
+         center: [9.375844,48.498550],
+         zoom: 13,
+      });
+
+      const nav = new maplibregl.NavigationControl({
+         visualizePitch: true,
+         visualizeRoll: true,
+         showZoom: true,
+         showCompass: true
+      });
+      map.addControl(nav, 'top-right');
+
+      let navVisible = true;
+
+      document.getElementById('toggleNav').addEventListener('click', () => {
+      if (navVisible) {
+         map.removeControl(nav);
+      } else {
+         map.addControl(nav, 'top-right');
+      }
+      navVisible = !navVisible;
+      });
+
+      const geolocate = new maplibregl.GeolocateControl({
+         positionOptions: { enableHighAccuracy: true },
+         trackUserLocation: true,
+         showUserHeading: true
+      });
+      map.addControl(geolocate);
+
+      document.getElementById('btn-locate').addEventListener('click', () => geolocate.trigger());
+
+      map.on('load', () => {
+         map.addSource('kml-data', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+         map.addSource('gpx-data', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+
+         map.addLayer({ id: 'kml-fill',  type: 'fill',   source: 'kml-data', filter: ['==', '$type', 'Polygon'],    paint: { 'fill-color': '#27ae60', 'fill-opacity': 0.3 } });
+         map.addLayer({ id: 'kml-line',  type: 'line',   source: 'kml-data', filter: ['==', '$type', 'LineString'], paint: { 'line-color': '#2980b9BF', 'line-width': (3 * dpr * (actualZoom/9)) } });
+         map.addLayer({ id: 'kml-point', type: 'circle', source: 'kml-data', filter: ['==', '$type', 'Point'],      paint: { 'circle-radius': 6, 'circle-color': '#e74c3c' } });
+
+         map.addLayer({ id: 'gpx-fill',  type: 'fill',   source: 'gpx-data', filter: ['==', '$type', 'Polygon'],    paint: { 'fill-color': '#8e44ad', 'fill-opacity': 0.3 } });
+         map.addLayer({ id: 'gpx-line',  type: 'line',   source: 'gpx-data', filter: ['==', '$type', 'LineString'], paint: { 'line-color': '#aa29b9BF', 'line-width': (3 * dpr * (actualZoom/9)) } });  
+         map.addLayer({ id: 'gpx-point', type: 'circle', source: 'gpx-data', filter: ['==', '$type', 'Point'],      paint: { 'circle-radius': 6, 'circle-color': '#16a085' } });
+
+         [['kml-point', 'kml-data'], ['gpx-point', 'gpx-data']].forEach(([layerId, sourceId]) => {
+         map.on('click', layerId, (e) => {
+            const name = e.features[0].properties.name || '';
+            new maplibregl.Popup().setLngLat(e.lngLat).setText(name).addTo(map);
+         });
+         map.on('mouseenter', layerId, () => map.getCanvas().style.cursor = 'pointer');
+         map.on('mouseleave', layerId, () => map.getCanvas().style.cursor = '');
+         });
+      });
+
+      document.getElementById('btn-clear').addEventListener('click', () => {
+         map.getSource('kml-data')?.setData({ type: 'FeatureCollection', features: [] });
+         map.getSource('gpx-data')?.setData({ type: 'FeatureCollection', features: [] });
+      });
+
+      function getGpxElements(root, tagName) {
+        const matches = [];
+        const allNodes = root.getElementsByTagName('*');
+
+        for (const node of allNodes) {
+          const localName = node.localName || node.nodeName.split(':').pop();
+          if (localName === tagName) matches.push(node);
+        }
+
+        return matches;
+      }
+
+      function getLocalText(node, tagName) {
+        const found = getGpxElements(node, tagName)[0];
+        return found ? (found.textContent || '').trim() : '';
+      }
+
+      function readGpxPoint(node) {
+        const lat = parseFloat(node.getAttribute('lat'));
+        const lon = parseFloat(node.getAttribute('lon'));
+        if (Number.isNaN(lat) || Number.isNaN(lon)) return null;
+        return [lon, lat];
+      }
+
+      function fitToFeatures(features) {
+        const bounds = new maplibregl.LngLatBounds();
+
+        function extendBounds(coords) {
+            if (!coords || coords.length === 0) return;
+            if (Array.isArray(coords[0]) || Array.isArray(coords[0]?.[0])) {
+               coords.forEach(c => extendBounds(c));
+               return;
+            }
+            if (typeof coords[0] === 'number' && Number.isFinite(coords[0]) && Number.isFinite(coords[1])) {
+               bounds.extend(coords);
+            }
+        }
+
+        features.forEach(f => {
+          if (!f || !f.geometry || !f.geometry.coordinates) return;
+          extendBounds(f.geometry.coordinates);
+        });
+
+        if (!bounds.isEmpty()) {
+          map.fitBounds(bounds, { padding: 50, maxZoom: 18 });
+        }
+      }
+
+      document.getElementById('btn-kml').addEventListener('click', () => {
+         document.getElementById('kml-file').click();
+      });
+
+      document.getElementById('kml-file').addEventListener('change', async (e) => {
+         const file = e.target.files[0];
+         if (!file) return;
+
+         const text = await file.text();
+         const xml = new DOMParser().parseFromString(text, 'application/xml');
+         const features = [];
+
+         xml.querySelectorAll('Placemark').forEach(pm => {
+         const name = pm.querySelector('name')?.textContent || '';
+         const point = pm.querySelector('Point > coordinates');
+         const line  = pm.querySelector('LineString > coordinates');
+         const poly  = pm.querySelector('Polygon > outerBoundaryIs > LinearRing > coordinates');
+
+         if (point) {
+            const [lng, lat] = point.textContent.trim().split(',').map(Number);
+            features.push({ type: 'Feature', properties: { name }, geometry: { type: 'Point', coordinates: [lng, lat] } });
+         }
+         if (line) {
+            const coords = line.textContent.trim().split(' ').map(c => c.split(',').map(Number));
+            features.push({ type: 'Feature', properties: { name }, geometry: { type: 'LineString', coordinates: coords } });
+         }
+         if (poly) {
+            const coords = poly.textContent.trim().split(' ').map(c => c.split(',').map(Number));
+            features.push({ type: 'Feature', properties: { name }, geometry: { type: 'Polygon', coordinates: [coords] } });
+         }
+         });
+
+         if (!features.length) { alert('Keine Placemarks im KML gefunden.'); return; }
+         map.getSource('kml-data').setData({ type: 'FeatureCollection', features });
+         fitToFeatures(features);
+         e.target.value = '';
+      });
+
+      document.getElementById('btn-gpx').addEventListener('click', () => {
+         document.getElementById('gpx-file').click();
+      });
+
+      document.getElementById('gpx-file').addEventListener('change', async (e) => {
+         const file = e.target.files[0];
+         if (!file) return;
+
+         try {
+           const text = await file.text();
+           const xml = new DOMParser().parseFromString(text, 'application/xml');
+           const parserError = xml.querySelector('parsererror');
+           if (parserError) throw new Error('Die GPX-Datei konnte nicht gelesen werden.');
+
+           const features = [];
+
+           getGpxElements(xml, 'wpt').forEach(wpt => {
+             const point = readGpxPoint(wpt);
+             if (!point) return;
+             const name = getLocalText(wpt, 'name');
+             features.push({
+               type: 'Feature',
+               properties: { name },
+               geometry: { type: 'Point', coordinates: point }
+             });
+           });
+
+           getGpxElements(xml, 'trk').forEach(trk => {
+             const name = getLocalText(trk, 'name') || 'Track';
+             getGpxElements(trk, 'trkseg').forEach(seg => {
+               const coords = [];
+               getGpxElements(seg, 'trkpt').forEach(pt => {
+                 const point = readGpxPoint(pt);
+                 if (point) coords.push(point);
+               });
+               if (coords.length >= 2) {
+                 features.push({ type: 'Feature', properties: { name }, geometry: { type: 'LineString', coordinates: coords } });
+               }
+             });
+           });
+
+           getGpxElements(xml, 'rte').forEach(rte => {
+             const name = getLocalText(rte, 'name') || 'Route';
+             const coords = [];
+             getGpxElements(rte, 'rtept').forEach(pt => {
+               const point = readGpxPoint(pt);
+               if (point) coords.push(point);
+             });
+             if (coords.length >= 2) {
+               features.push({ type: 'Feature', properties: { name }, geometry: { type: 'LineString', coordinates: coords } });
+             }
+           });
+
+           if (!features.length) {
+             alert('Keine GPX-Elemente gefunden.');
+             return;
+           }
+
+           map.getSource('gpx-data').setData({ type: 'FeatureCollection', features });
+           fitToFeatures(features);
+         } catch (err) {
+           console.error(err);
+           alert(err.message || 'Die GPX-Datei konnte nicht geladen werden.');
+         } finally {
+           e.target.value = '';
+         }
+      });
+
+      map.on('zoom', () => {
+            actualZoom = map.getZoom();
+            document.getElementById('zoom-display').textContent = actualZoom.toFixed(2);
+      });
+
+      map.on('style.load', () => {
+        const layerSearchString = "poi_|text_|Name_";
+        scaleTextOnLayersforHD(map,layerSearchString,dpr);      
+      });
+
+      if (isMobileDevice()) {
+         console.log("Mobiles Ger�t erkannt");
+      }
+
+      function getScreenDimentions() {
+         document.getElementById("dimenstions").innerHTML = 
+         "Mobil Device: " + isMobileDevice() +"<br/>"+
+         "Display Width : " + screen.width +"<br/> Display Height : " + screen.height;
+      }
+      
+      function isMobileDevice() {
+      if (navigator.userAgentData) {
+         console.log(navigator.userAgentData)
+         return navigator.userAgentData.mobile;
+      }
+      
+      console.log(navigator.userAgent)
+      return /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      }
+
+      const toggle = document.getElementById('toolbar-toggle');
+      const menu = document.getElementById('toolbar-menu');
+
+      toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = menu.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', isOpen);
+      });
+
+      document.addEventListener('click', (e) => {
+      if (!menu.contains(e.target) && e.target !== toggle) {
+         menu.classList.remove('open');
+         toggle.setAttribute('aria-expanded', 'false');
+      }
+      });   
+   </script>
+</body>
+
+</html>

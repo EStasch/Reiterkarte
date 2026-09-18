@@ -236,12 +236,14 @@ map.on('load', async () => {
              }
            });
 
-           if (!features.length) {
+                if (!features.length) {
              alert('Keine GPX-Elemente gefunden.');
              return;
            }
 
+           followGPS = false;
            map.getSource('gpx-data').setData({ type: 'FeatureCollection', features });
+           map.once('idle', () => fitToFeatures(features));
            fitToFeatures(features);
          } catch (err) {
            console.error(err);
@@ -312,6 +314,7 @@ function bearingBetween(lat1, lon1, lat2, lon2) {
 // ─── Position Tracking ────────────────────────────────────────────────
 let watchId = null;
 let prevPos = null;
+let followGPS = false;
 let hud = document.getElementById('hud');
 let trackBtn = document.getElementById('trackBtn');
 
@@ -353,12 +356,15 @@ function onPosition(pos) {
                   `<b>Heading:</b> ${h.toFixed(0)}° ${heading != null ? '(native)' : '(fallback)'}<br>` +
                   `<b>Accuracy:</b> ±${Math.round(accuracy)} m`;
 
-  // Karte sanft nachziehen (optional)
-  map.panTo([lon, lat], { duration: 500 });
+  // Karte sanft nachziehen (optional), nur wenn GPS-Follow aktiv ist
+  if (followGPS) {
+    map.panTo([lon, lat], { duration: 500 });
+  }
 }
 
 function startTracking() {
   if (watchId !== null) { stopTracking(); return; }
+  followGPS = true;
   watchId = navigator.geolocation.watchPosition(onPosition, err => {
     hud.innerHTML = `<b style="color:#f66">Fehler:</b> ${err.message}`;
   }, { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 });
@@ -371,6 +377,7 @@ function stopTracking() {
     navigator.geolocation.clearWatch(watchId);
     watchId = null;
   }
+  followGPS = false;
   trackBtn.textContent = '▶ Tracking starten';
 }
 
