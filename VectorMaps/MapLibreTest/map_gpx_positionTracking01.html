@@ -82,6 +82,7 @@ const map = new maplibregl.Map({
   center: [13.405, 52.52],
   zoom: 14
 });
+window.map = map;
 
 
 // ─── NavigationControl ────────────────────────────────────────────────────────
@@ -91,6 +92,30 @@ const nav = new maplibregl.NavigationControl();
 map.addControl(nav, 'top-left');
 
 let navVisible = true;
+
+function getGpxElements(root, tagName) {
+  const matches = [];
+  const allNodes = root.getElementsByTagName('*');
+
+  for (const node of allNodes) {
+    const localName = node.localName || node.nodeName.split(':').pop();
+    if (localName === tagName) matches.push(node);
+  }
+
+  return matches;
+}
+
+function getLocalText(node, tagName) {
+  const found = getGpxElements(node, tagName)[0];
+  return found ? (found.textContent || '').trim() : '';
+}
+
+function readGpxPoint(node) {
+  const lat = parseFloat(node.getAttribute('lat'));
+  const lon = parseFloat(node.getAttribute('lon'));
+  if (Number.isNaN(lat) || Number.isNaN(lon)) return null;
+  return [lon, lat];
+}
 
 document.getElementById('toggleNav').addEventListener('click', () => {
   if (navVisible) {
@@ -125,6 +150,7 @@ map.on('load', async () => {
         const bounds = new maplibregl.LngLatBounds();
 
         function extendBounds(coords) {
+            if (!coords || coords.length === 0) return;
             if (typeof coords[0] === 'number') {
             // Einzelner Punkt: [lng, lat]
             bounds.extend(coords);
@@ -134,9 +160,14 @@ map.on('load', async () => {
             }
         }
 
-        features.forEach(f => extendBounds(f.geometry.coordinates));
+        features.forEach(f => {
+          if (!f || !f.geometry || !f.geometry.coordinates) return;
+          extendBounds(f.geometry.coordinates);
+        });
 
-        if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 50 });
+        if (!bounds.isEmpty()) {
+          map.fitBounds(bounds, { padding: 50, maxZoom: 18 });
+        }
       } 
       //GPX Source & Layer
       map.addSource('gpx-data', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } }); 
@@ -155,54 +186,69 @@ map.on('load', async () => {
          const file = e.target.files[0];
          if (!file) return;
 
-         const text = await file.text();
-         const xml = new DOMParser().parseFromString(text, 'application/xml');
-         const features = [];
+         try {
+           const text = await file.text();
+           const xml = new DOMParser().parseFromString(text, 'application/xml');
+           const parserError = xml.querySelector('parsererror');
+           if (parserError) {
+             throw new Error('Die GPX-Datei konnte nicht gelesen werden.');
+           }
 
-         // Waypoints
-         xml.querySelectorAll('wpt').forEach(wpt => {
-         const lat = parseFloat(wpt.getAttribute('lat'));
-         const lon = parseFloat(wpt.getAttribute('lon'));
-         const name = wpt.querySelector('name')?.textContent || '';
-         if (!isNaN(lat) && !isNaN(lon)) {
-            features.push({ type: 'Feature', properties: { name }, geometry: { type: 'Point', coordinates: [lon, lat] } });
-         }
-         });
+           const features = [];
 
-         // Tracks
-         xml.querySelectorAll('trk').forEach(trk => {
-         const name = trk.querySelector('name')?.textContent || 'Track';
-         trk.querySelectorAll('trkseg').forEach(seg => {
-            const coords = [];
-            seg.querySelectorAll('trkpt').forEach(pt => {
-               const lat = parseFloat(pt.getAttribute('lat'));
-               const lon = parseFloat(pt.getAttribute('lon'));
-               if (!isNaN(lat) && !isNaN(lon)) coords.push([lon, lat]);
-            });
-            if (coords.length >= 2) {
+           // Waypoints
+           getGpxElements(xml, 'wpt').forEach(wpt => {
+             const point = readGpxPoint(wpt);
+             if (!point) return;
+             const name = getLocalText(wpt, 'name');
+             features.push({
+               type: 'Feature',
+               properties: { name },
+               geometry: { type: 'Point', coordinates: point }
+             });
+           });
+
+           // Tracks
+           getGpxElements(xml, 'trk').forEach(trk => {
+             const name = getLocalText(trk, 'name') || 'Track';
+             getGpxElements(trk, 'trkseg').forEach(seg => {
+               const coords = [];
+               getGpxElements(seg, 'trkpt').forEach(pt => {
+                 const point = readGpxPoint(pt);
+                 if (point) coords.push(point);
+               });
+               if (coords.length >= 2) {
+                 features.push({ type: 'Feature', properties: { name }, geometry: { type: 'LineString', coordinates: coords } });
+               }
+             });
+           });
+
+           // Routes
+           getGpxElements(xml, 'rte').forEach(rte => {
+             const name = getLocalText(rte, 'name') || 'Route';
+             const coords = [];
+             getGpxElements(rte, 'rtept').forEach(pt => {
+               const point = readGpxPoint(pt);
+               if (point) coords.push(point);
+             });
+             if (coords.length >= 2) {
                features.push({ type: 'Feature', properties: { name }, geometry: { type: 'LineString', coordinates: coords } });
-            }
-         });
-         });
+             }
+           });
 
-         // Routes
-         xml.querySelectorAll('rte').forEach(rte => {
-         const name = rte.querySelector('name')?.textContent || 'Route';
-         const coords = [];
-         rte.querySelectorAll('rtept').forEach(pt => {
-            const lat = parseFloat(pt.getAttribute('lat'));
-            const lon = parseFloat(pt.getAttribute('lon'));
-            if (!isNaN(lat) && !isNaN(lon)) coords.push([lon, lat]);
-         });
-         if (coords.length >= 2) {
-            features.push({ type: 'Feature', properties: { name }, geometry: { type: 'LineString', coordinates: coords } });
+           if (!features.length) {
+             alert('Keine GPX-Elemente gefunden.');
+             return;
+           }
+
+           map.getSource('gpx-data').setData({ type: 'FeatureCollection', features });
+           fitToFeatures(features);
+         } catch (err) {
+           console.error(err);
+           alert(err.message || 'Die GPX-Datei konnte nicht geladen werden.');
+         } finally {
+           e.target.value = '';
          }
-         });
-
-         if (!features.length) { alert('Keine GPX-Elemente gefunden.'); return; }
-         map.getSource('gpx-data').setData({ type: 'FeatureCollection', features });
-         fitToFeatures(features);
-         e.target.value = '';
       });
       // ── GPX laden ──────────────────────────────────────────
 
