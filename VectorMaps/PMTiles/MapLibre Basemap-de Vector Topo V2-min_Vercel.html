@@ -24,8 +24,9 @@
       }
 
       .toolbar {
-      position: absolute; top: 10px; left: 10px; z-index: 20;
-      display: flex; gap: 8px;
+         position: absolute; top: 10px; left: 10px; z-index: 20;
+         display: flex; gap: 8px;
+         flex-direction: column;
       }
       .toolbar button {
          padding: 8px 14px; border: none; border-radius: 6px;
@@ -35,19 +36,80 @@
       .toolbar button:hover { background: #f0f0f0; }
       .toolbar button.dpr-1 { font-size: 14px; }
       .toolbar button.dpr-2 { font-size: 44px; }
+
+      /*Toggle toolbar fly out*/
+      .toolbar-flyout {
+      position: relative;
+      }
+
+      #toolbar-toggle {
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      }
+
+      #toolbar-toggle:hover {
+      background: #555;
+      }
+
+      .toolbar {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 6px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+      flex-direction: column;
+      min-width: 180px;
+      z-index: 1000;
+      }
+
+      /* Geöffneter Zustand */
+      .toolbar.open {
+         display: flex;
+         gap: 8px;
+         flex-direction: column;
+      }
+
+      /*
+      .toolbar button {
+      padding: 10px 14px;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background 0.15s;
+      }
+
+      .toolbar button:hover {
+      background: #f0f0f0;
+      } 
+      */  
    </style>
 </head>
 
 <body>
    <div id="map" class="map"></div>
 
-   <div class="toolbar">
-    <button id="btn-locate">📍 Standort</button>
-    <button id="btn-kml">📂 KML laden</button>
-    <button id="btn-gpx">📂 GPX laden</button>
-    <button id="btn-clear">✕ Leeren</button>
-    <button id="toggleNav">🧭 Navigation ein/aus</button>
-  </div>
+   <div class="toolbar-flyout">
+   <button id="toolbar-toggle" aria-expanded="false">☰</button>
+      <div class="toolbar" id="toolbar-menu">
+         <button id="btn-locate">📍 Standort</button>
+         <button id="btn-kml">📂 KML laden</button>
+         <button id="btn-gpx">📂 GPX laden</button>
+         <button id="btn-clear">✕ Leeren</button>
+         <button id="toggleNav">🧭 Navigation ein/aus</button>
+      </div>
+   </div>
   <input type="file" id="kml-file" accept=".kml" style="display:none" />
   <input type="file" id="gpx-file" accept=".gpx" style="display:none" />
 
@@ -313,6 +375,24 @@
       console.log(navigator.userAgent)
       return /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       }
+
+      //Toggle toolbar fly out
+      const toggle = document.getElementById('toolbar-toggle');
+      const menu = document.getElementById('toolbar-menu');
+
+      toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = menu.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', isOpen);
+      });
+
+      // Schließen bei Klick außerhalb
+      document.addEventListener('click', (e) => {
+      if (!menu.contains(e.target) && e.target !== toggle) {
+         menu.classList.remove('open');
+         toggle.setAttribute('aria-expanded', 'false');
+      }
+      });   
 
       
    </script>
