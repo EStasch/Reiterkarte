@@ -85,6 +85,14 @@
 
       //map.showTileBoundaries = true;
 
+      // Add zoom and rotation controls to the map.
+      map.addControl(new maplibregl.NavigationControl({
+         visualizePitch: true,
+         visualizeRoll: true,
+         showZoom: true,
+         showCompass: true
+      }));
+
       // ── Geolocate ──────────────────────────────────────────
       const geolocate = new maplibregl.GeolocateControl({
          positionOptions: { enableHighAccuracy: true },
@@ -126,6 +134,9 @@
          map.getSource('kml-data')?.setData({ type: 'FeatureCollection', features: [] });
          map.getSource('gpx-data')?.setData({ type: 'FeatureCollection', features: [] });
       });
+      // ── Layer Control ─────────────────────────────────────────────
+      map.addControl(kml-line, 'top-left');      
+      map.addControl(gpx-line, 'top-left');
 
       // ── Fit to features ────────────────────────────────────
       function fitToFeatures(features) {
