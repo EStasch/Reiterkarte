@@ -46,8 +46,7 @@
       }
       .toolbar button:hover { background: #f0f0f0; }
       .toolbar button.dpr-1 { font-size: 14px; }
-      .toolbar button.dpr-2,
-      .toolbar button.dpr-3 { 
+      .toolbar button{ 
          font-size: 58px; 
          font-size: calc(3vw * var(--dpr));
          font-size: calc(clamp(1.4063rem, 1.2784rem + 0.5114vi, 1.6875rem) * var(--dpr));
@@ -71,8 +70,8 @@
       transition: background 0.2s;
       }
       #toolbar-toggle.dpr-1 { font-size: 1.2rem; }
-      #toolbar-toggle.dpr-2,
-      #toolbar-toggle.dpr-3 { 
+      #toolbar-toggle
+      { 
          font-size: calc(4rem* var(--dpr)); 
          font-size: calc(3.5vw * var(--dpr));
          font-size: calc(clamp(1.4063rem, 1.2784rem + 0.5114vi, 1.6875rem)* var(--dpr));
