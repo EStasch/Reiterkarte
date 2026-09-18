@@ -380,6 +380,7 @@
       }
 
       //Toggle toolbar fly out
+      map.on('load', () => {
       const toggle = document.getElementById('toolbar-toggle');
       const menu = document.getElementById('toolbar-menu');
 
@@ -396,6 +397,7 @@
          toggle.setAttribute('aria-expanded', 'false');
       }
       });   
+   });
 
       
    </script>
