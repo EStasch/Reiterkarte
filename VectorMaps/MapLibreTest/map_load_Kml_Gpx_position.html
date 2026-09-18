@@ -95,17 +95,25 @@
 
     // ── Fit to features ────────────────────────────────────
     function fitToFeatures(features) {
-      try {
-        const bounds = new maplibregl.LngLatBounds();
-        features.forEach(f => {
-            const b = new maplibregl.LngLatBounds(f.geometry.coordinates);
-            bounds.extend(b);
-        });
-        if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 50 });
-      } catch (error) {
-        console.error('Error fitting to features:', error);
-      }
-    }
+    const bounds = new maplibregl.LngLatBounds();
+    features.forEach(f => {
+        const { type, coordinates } = f.geometry;
+        if (type === 'Point') {
+        bounds.extend(coordinates);          // [lng, lat]
+        } else if (type === 'LineString') {
+        bounds.extend(coordinates);          // [[lng,lat], ...]
+        } else if (type === 'Polygon') {
+        bounds.extend(coordinates[0]);       // outer ring: [[lng,lat], ...]
+        } else if (type === 'MultiPolygon') {
+        bounds.extend(coordinates[0][0]);    // first polygon, outer ring
+        } else if (type === 'MultiLineString') {
+        bounds.extend(coordinates.flat());   // alle Punkte
+        } else if (type === 'MultiPoint') {
+        bounds.extend(coordinates);          // [[lng,lat], ...]
+        }
+    });
+    if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 50 });
+    }   
 
     // ── KML laden ──────────────────────────────────────────
     document.getElementById('btn-kml').addEventListener('click', () => {
