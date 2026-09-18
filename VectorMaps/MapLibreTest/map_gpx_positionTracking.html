@@ -27,14 +27,24 @@
       border-radius: 8px; cursor: pointer; font-size: 14px;
     }
     .btn:active { background: #005bcc; }
+    .toolbar button.dpr-1 { font-size: 14px; }
+    .toolbar button.dpr-2 { font-size: 33px; }
   </style>
 </head>
 <body>
   <div id="map"></div>
+  <button class="btn" id="toggleNav">🧭 Navigation ein/aus</button>
   <button class="btn" id="trackBtn">▶ Tracking starten</button>
   <div class="hud" id="hud">Bereit…</div>
 
 <script>
+// Example: Scaling text size based on device pixel ratio
+    const dpr = window.devicePixelRatio || 1;
+
+    document.getElementById('toggleNav').classList.add("dpr-" + dpr); // Add DPR class to the button
+    document.getElementById('trackBtn').classList.add("dpr-" + dpr); // Add DPR class to the button
+
+
 // ─── Karte ────────────────────────────────────────────────────────────
 const map = new maplibregl.Map({
   container: 'map',
@@ -54,7 +64,23 @@ const map = new maplibregl.Map({
   zoom: 14
 });
 
-map.addControl(new maplibregl.NavigationControl(), 'top-left');
+
+// ─── NavigationControl ────────────────────────────────────────────────────────
+//map.addControl(new maplibregl.NavigationControl(), 'top-left');
+
+const nav = new maplibregl.NavigationControl();
+map.addControl(nav, 'top-left');
+
+let navVisible = true;
+
+document.getElementById('toggleNav').addEventListener('click', () => {
+  if (navVisible) {
+    map.removeControl(nav);
+  } else {
+    map.addControl(nav, 'top-left');
+  }
+  navVisible = !navVisible;
+});
 
 // ─── GPX laden ────────────────────────────────────────────────────────
 const GPX_URL = 'https://raw.githubusercontent.com/GISIntern/gpx-examples/master/gpx/1.gpx';
