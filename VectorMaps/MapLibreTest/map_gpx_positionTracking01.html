@@ -43,19 +43,79 @@
       font-size: calc(1.7vw * var(--dpr));
       /*font-size: calc(clamp(0.9375rem, 0.8523rem + 0.3409vi, 1.125rem) * var(--dpr));*/
     }
+
+    /*Toggle toolbar fly out*/
+      .toolbar-flyout {
+      position: relative;
+      margin: 10px;
+      position: absolute;
+      right: 0px;
+      width: 13vw;
+      text-align: right;
+      }
+
+      #toolbar-toggle {
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      }
+      #toolbar-toggle.dpr-1 { font-size: 1.2rem; }
+      #toolbar-toggle
+      { 
+         font-size: calc(4rem* var(--dpr)); 
+         font-size: calc(3.5vw * var(--dpr));
+         font-size: calc(clamp(1.4063rem, 1.2784rem + 0.5114vi, 1.6875rem)* var(--dpr));
+      }
+      
+
+      #toolbar-toggle:hover {
+      background: #555;
+      }
+
+      .toolbar {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 6px;
+      background: #0909092b;
+      border: 1px solid #dddddd5e;
+      border-radius: 8px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+      flex-direction: column;
+      min-width: 180px;
+      z-index: 1000;
+      padding: 15px;
+      right: 0px;
+      }
+
+      /* Geöffneter Zustand */
+      .toolbar.open {
+         display: flex;
+         gap: 8px;
+         flex-direction: column;
+      }
     
   </style>
 </head>
 <body>
   <div id="map"></div>
-  <div class="toolbar" id="toolbar-menu">
-    <button class="btn" id="toggleNav">🧭 Navigation ein/aus</button>
-    <button class="btn" id="btn-locate">📍 Standort</button>
-    <button class="btn" id="trackBtn">▶ Tracking starten</button>
-    <button class="btn" id="btn-gpx">📂 GPX laden</button>
-    <div class="hud" id="zoom-display">Zoom: 14.00</div>
+  <div class="toolbar-flyout">
+    <button id="toolbar-toggle" aria-expanded="false">☰</button>
+    <div class="toolbar" id="toolbar-menu">
+      <button class="btn" id="toggleNav">🧭 Navigation ein/aus</button>
+      <button class="btn" id="btn-locate">📍 Standort</button>
+      <button class="btn" id="trackBtn">▶ Tracking starten</button>
+      <button class="btn" id="btn-gpx">📂 GPX laden</button>
+      <div class="hud" id="zoom-display">Zoom: 14.00</div>
+    </div>
   </div>
-  
+
   <input type="file" id="gpx-file" accept=".gpx" style="display:none" />
   <div class="hud" id="hud">Bereit…</div>
 
@@ -155,7 +215,7 @@ const geolocate = new maplibregl.GeolocateControl({
          trackUserLocation: true,
          showUserHeading: true
       });
-      map.addControl(geolocate);
+      map.addControl(geolocate, 'top-left' );
 
 document.getElementById('btn-locate').addEventListener('click', () => geolocate.trigger());
 
@@ -417,14 +477,31 @@ function stopTracking() {
 trackBtn.addEventListener('click', startTracking);
 
  map.on('zoom', () => {
-            actualZoom = map.getZoom();
-            
-            const zoomDisplay = document.getElementById('zoom-display');
-            if (zoomDisplay) {
-              zoomDisplay.textContent = `Zoom: ${actualZoom.toFixed(2)}`;
-            }
-            
-      });
+      actualZoom = map.getZoom();
+      
+      const zoomDisplay = document.getElementById('zoom-display');
+      if (zoomDisplay) {
+        zoomDisplay.textContent = `Zoom: ${actualZoom.toFixed(2)}`;
+      }
+      
+});
+
+// ─── Toolbar Flyout Toggle ─────────────────────────────────────────────
+const toggle = document.getElementById('toolbar-toggle');
+const menu = document.getElementById('toolbar-menu');
+
+toggle.addEventListener('click', (e) => {
+e.stopPropagation();
+const isOpen = menu.classList.toggle('open');
+toggle.setAttribute('aria-expanded', isOpen);
+});
+
+document.addEventListener('click', (e) => {
+if (!menu.contains(e.target) && e.target !== toggle) {
+    menu.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+}
+});
 </script>
 </body>
 </html>   
