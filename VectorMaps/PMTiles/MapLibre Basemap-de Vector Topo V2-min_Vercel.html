@@ -71,9 +71,9 @@
       }
       #toolbar-toggle.dpr-1 { font-size: 1.2rem; }
       #toolbar-toggle.dpr-2 { 
-         font-size: 4rem; 
-         font-size: 7vw;
-         font-size: clamp(1.4063rem, 1.2784rem + 0.5114vi, 1.6875rem);
+         font-size: calc(4rem* var(--dpr)); 
+         font-size: calc(3.55vw * var(--dpr));
+         font-size: calc(clamp(1.4063rem, 1.2784rem + 0.5114vi, 1.6875rem)* var(--dpr));
       }
       .toolbar button.dpr-3 { 
          font-size: 88px; 
