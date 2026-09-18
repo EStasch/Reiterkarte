@@ -21,34 +21,40 @@
       border-radius: 8px; font-size: 13px; line-height: 1.6;
     }
     .hud b { color: #7ec8f0; }
-    .btn {
+    .toolbar {
       position: absolute; top: 12px; right: 12px; z-index: 10;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .btn {
+      /*position: absolute; top: 12px; right: 12px; z-index: 10;*/
       background: #0077ff; color: #fff; border: none; padding: 10px 16px;
       border-radius: 8px; cursor: pointer; font-size: 14px;
     }
     .btn:active { background: #005bcc; }
     .toolbar button.dpr-1 { font-size: 14px; }
-    .toolbar button.dpr-2 { 
+    .toolbar button.dpr-2,
+    .toolbar button.dpr-3{ 
       font-size: 48px; 
-      font-size: 5vw;
-      font-size: clamp(1.4063rem, 1.2784rem + 0.5114vi, 1.6875rem);
+      font-size: calc(5vw * var(--dpr));
+      font-size: calc(clamp(1.4063rem, 1.2784rem + 0.5114vi, 1.6875rem) * var(--dpr));
     }
-    .toolbar button.dpr-3 { 
-         font-size: 88px; 
-         font-size: 6vw; 
-         font-size: clamp(2.1094rem, 1.9176rem + 0.767vi, 2.5313rem);
-    }
+    
   </style>
 </head>
 <body>
   <div id="map"></div>
-  <button class="btn" id="toggleNav">🧭 Navigation ein/aus</button>
-  <button class="btn" id="trackBtn">▶ Tracking starten</button>
+  <div class="toolbar" id="toolbar-menu">
+    <button class="btn" id="toggleNav">🧭 Navigation ein/aus</button>
+    <button class="btn" id="trackBtn">▶ Tracking starten</button>
+  </div>
   <div class="hud" id="hud">Bereit…</div>
 
 <script>
 // Example: Scaling text size based on device pixel ratio
     const dpr = window.devicePixelRatio || 1;
+    // Set a numeric variable for use in calc()
+    const root = document.documentElement;
+    root.style.setProperty('--dpr', dpr);
 
     document.getElementById('toggleNav').classList.add("dpr-" + dpr); // Add DPR class to the button
     document.getElementById('trackBtn').classList.add("dpr-" + dpr); // Add DPR class to the button
