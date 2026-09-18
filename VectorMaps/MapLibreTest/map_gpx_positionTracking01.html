@@ -52,6 +52,8 @@
   <div class="hud" id="hud">Bereit…</div>
 
 <script>
+let actualZoom = 13;
+
 // Example: Scaling text size based on device pixel ratio
     const dpr = window.devicePixelRatio || 1;
     // Set a numeric variable for use in calc()
@@ -327,6 +329,11 @@ function stopTracking() {
 }
 
 trackBtn.addEventListener('click', startTracking);
+
+ map.on('zoom', () => {
+            actualZoom = map.getZoom();
+            document.getElementById('zoom-display').textContent = actualZoom.toFixed(2);
+      });
 </script>
 </body>
 </html>   
