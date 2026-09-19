@@ -256,7 +256,8 @@ const PMTILES_ARCHIVE_URLS = [
   { key: PMTILES_KEY_POI, url: PMTILES_ARCHIVE_URL_POI }
 ];
 const VIEW_KEY = 'gpx-map-view-v1';
-const CACHE_META_KEY = 'reiterkarte-pmtiles-cache-meta-v1';
+
+
 
 const dpr = window.devicePixelRatio || 1;
 const root = document.documentElement;
@@ -354,20 +355,6 @@ function saveMapViewToIndexedDB() {
   return idbPut(VIEW_KEY, view).catch(() => false);
 }
 
-function saveCacheMetadata() {
-  const metadata = {
-    coverage: 'all-zoom-levels',
-    format: 'pmtiles-archive',
-    sourceKeys: PMTILES_ARCHIVE_KEYS.slice(),
-    savedAt: Date.now()
-  };
-  return idbPut(CACHE_META_KEY, metadata).catch(() => false);
-}
-
-function readCacheMetadata() {
-  return idbGet(CACHE_META_KEY).then((value) => value || null).catch(() => null);
-}
-
 function readMapViewFromIndexedDB() {
   return idbGet(VIEW_KEY).then((value) => value || null).catch(() => null);
 }
@@ -413,8 +400,7 @@ function saveCurrentMapToCache() {
   )
     .then(async () => {
       await saveMapViewToIndexedDB();
-      await saveCacheMetadata();
-      setMode('cache', 'Cache aktiv – alle Zoomstufen');
+      setMode('cache', 'Offline: PMTiles archiviert');
     })
     .catch((error) => {
       console.error(error);
@@ -426,8 +412,7 @@ function deleteOfflineArchive() {
   Promise.all([
     idbDelete(PMTILES_KEY),
     idbDelete(PMTILES_KEY_POI),
-    idbDelete(VIEW_KEY),
-    idbDelete(CACHE_META_KEY)
+    idbDelete(VIEW_KEY)
   ])
     .then(() => {
       setMode('offline', 'Offline: Archiv gelöscht');
@@ -579,26 +564,12 @@ function restoreFromCache() {
             pmtilesProtocol.add(archiveInstance);
           });
 
-          readCacheMetadata().then((meta) => {
-            const cacheCoverageText = meta && meta.coverage === 'all-zoom-levels'
-              ? 'Cache aktiv – alle Zoomstufen'
-              : 'Cache aktiv';
-
-            buildOfflineStyleFromArchive().then((style) => {
-              createMap(style, view.center, view.zoom);
-              setMode('cache', cacheCoverageText);
-            }).catch((error) => {
-              console.error(error);
-              setMode('offline', 'Offline: Style konnte nicht geladen werden');
-            });
-          }).catch(() => {
-            buildOfflineStyleFromArchive().then((style) => {
-              createMap(style, view.center, view.zoom);
-              setMode('cache', 'Cache aktiv');
-            }).catch((error) => {
-              console.error(error);
-              setMode('offline', 'Offline: Style konnte nicht geladen werden');
-            });
+          buildOfflineStyleFromArchive().then((style) => {
+            createMap(style, view.center, view.zoom);
+            setMode('cache', 'Cache aktiv');
+          }).catch((error) => {
+            console.error(error);
+            setMode('offline', 'Offline: Style konnte nicht geladen werden');
           });
         } catch (error) {
           console.error(error);
@@ -1011,21 +982,10 @@ readMapViewFromIndexedDB()
             pmtilesProtocol.add(archiveInstance);
           });
 
-          readCacheMetadata().then((meta) => {
-            const cacheCoverageText = meta && meta.coverage === 'all-zoom-levels'
-              ? 'Cache aktiv – alle Zoomstufen'
-              : 'Cache aktiv';
-
-            buildOfflineStyleFromArchive().then((style) => {
-              createMap(style, view.center, view.zoom);
-              setMode('cache', cacheCoverageText);
-            }).catch(() => initMap());
-          }).catch(() => {
-            buildOfflineStyleFromArchive().then((style) => {
-              createMap(style, view.center, view.zoom);
-              setMode('cache', 'Cache aktiv');
-            }).catch(() => initMap());
-          });
+          buildOfflineStyleFromArchive().then((style) => {
+            createMap(style, view.center, view.zoom);
+            setMode('cache', 'Cache aktiv');
+          }).catch(() => initMap());
         } catch (error) {
           console.error(error);
           initMap();
