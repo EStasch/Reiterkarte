@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MapLibre Track Recorder – KML Export</title>
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.css" crossorigin="anonymous">
+    <script src="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body, #map { height: 100%; }
+
+        .controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.85; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .btn-start { background: #22c55e; color: #fff; }
+        .btn-stop  { background: #ef4444; color: #fff; }
+        .btn-save  { background: #3b82f6; color: #fff; }
+
+        .status {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: rgba(0,0,0,0.75);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <div class="controls">
+        <button class="btn btn-start" id="btnStart">▶ Track starten</button>
+        <button class="btn btn-stop" id="btnStop" disabled>⏹ Track stoppen</button>
+        <button class="btn btn-save" id="btnSave" disabled>💾 KML speichern</button>
+    </div>
+
+    <div class="status" id="status">Bereit – Punkte: 0</div>
+
+    <script>
+        // MapLibre-Karte initialisieren
+                const map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://tiles.openfreemap.org/styles/bright',
+            center: [10.45, 51.16],
+            zoom: 5
+        });
+        
+        
+        /*
+        const map = new maplibregl.Map({
+        container: 'map',
+        style: {
+            version: 8,
+            sources: {
+            'osm': {
+                type: 'raster',
+                tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                tileSize: 256,
+                attribution: '© OpenStreetMap'
+            }
+            },
+            layers: [{ id: 'osm', type: 'raster', source: 'osm' }]
+        },
+        center: [13.405, 52.52],
+        zoom: 14
+        });
+        //window.map = map;
+        */
+
+        const emptyTrack = {
+            type: 'Feature',
+            geometry: { type: 'LineString', coordinates: [] },
+            properties: {}
+        };
+
+        map.on('load', () => {
+            // Track-Linie
+            map.addSource('track-source', { type: 'geojson', data: emptyTrack });
+            map.addLayer({
+                id: 'track-line',
+                type: 'line',
+                source: 'track-source',
+                paint: { 'line-color': '#3b82f6', 'line-width': 4, 'line-opacity': 0.8 }
+            });
+
+            // Track-Punkte
+            map.addSource('track-points', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+            map.addLayer({
+                id: 'track-point',
+                type: 'circle',
+                source: 'track-points',
+                paint: { 'circle-radius': 4, 'circle-color': '#3b82f6' }
+            });
+
+            // GeolocateControl
+            const geolocate = new maplibregl.GeolocateControl({
+                positionOptions: { enableHighAccuracy: true },
+                trackUserLocation: true,
+                showUserHeading: true
+            });
+            map.addControl(geolocate, 'top-left');
+
+            // --- Tracking-Logik ---
+            let tracking = false;
+            let coordinates = [];
+            let features = [];
+
+            const btnStart = document.getElementById('btnStart');
+            const btnStop  = document.getElementById('btnStop');
+            const btnSave  = document.getElementById('btnSave');
+            const status   = document.getElementById('status');
+
+            geolocate.on('geolocate', (e) => {
+                if (!tracking) return;
+
+                const { longitude: lng, latitude: lat } = e.coords;
+                const last = coordinates[coordinates.length - 1];
+
+                if (last && Math.hypot(lng - last[0], lat - last[1]) < 0.00001) return;
+
+                coordinates.push([lng, lat]);
+                features.push({
+                    type: 'Feature',
+                    geometry: { type: 'Point', coordinates: [lng, lat] },
+                    properties: { time: new Date().toISOString() }
+                });
+
+                map.getSource('track-source').setData({
+                    type: 'Feature',
+                    geometry: { type: 'LineString', coordinates },
+                    properties: {}
+                });
+                map.getSource('track-points').setData({ type: 'FeatureCollection', features });
+
+                status.textContent = `Tracking aktiv – Punkte: ${coordinates.length}`;
+                btnSave.disabled = false;
+            });
+
+            geolocate.on('error', (e) => {
+                status.textContent = `Fehler: ${e.message}`;
+            });
+
+            // Start
+            btnStart.addEventListener('click', () => {
+                tracking = true;
+                coordinates = [];
+                features = [];
+                map.getSource('track-source').setData(emptyTrack);
+                map.getSource('track-points').setData({ type: 'FeatureCollection', features: [] });
+                btnStart.disabled = true;
+                btnStop.disabled = false;
+                btnSave.disabled = true;
+                status.textContent = 'Tracking aktiv – Punkte: 0';
+                geolocate.trigger();
+            });
+
+            // Stop
+            btnStop.addEventListener('click', () => {
+                tracking = false;
+                btnStart.disabled = false;
+                btnStop.disabled = true;
+                status.textContent = `Gestoppt – Punkte: ${coordinates.length}`;
+            });
+
+            // --- KML Export ---
+            btnSave.addEventListener('click', () => {
+                const coordsStr = coordinates
+                    .map(([lng, lat]) => `${lng},${lat},0`)
+                    .join(' ');
+
+                const kml = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Track</name>
+    <Placemark>
+      <name>Track</name>
+      <styleUrl>#track-style</styleUrl>
+      <LineString>
+        <tessellate>1</tessellate>
+        <coordinates>
+${coordsStr}
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Style id="track-style">
+      <LineStyle>
+        <color>ff00aaff</color>
+        <width>4</width>
+      </LineStyle>
+    </Style>
+  </Document>
+</kml>`;
+
+                const blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `track_${Date.now()}.kml`;
+                a.click();
+                URL.revokeObjectURL(url);
+                status.textContent = 'KML gespeichert!';
+            });
+        });
+    </script>
+</body>
+</html>   
