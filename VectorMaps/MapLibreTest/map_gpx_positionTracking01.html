@@ -22,6 +22,7 @@
       border-radius: 8px; font-size: 13px; line-height: 1.6;
     }
     .hud b { color: #7ec8f0; }
+    .hud.hidden { display: none; }
     .toolbar .hud {
       position: relative; bottom: auto; left: auto;
       text-align: center; 
@@ -40,8 +41,12 @@
     .toolbar button.dpr-2,
     .toolbar button.dpr-3{ 
       font-size: 48px; 
-      font-size: calc(1.7vw * var(--dpr));
+      font-size: calc(1.5vw * var(--dpr));
       /*font-size: calc(clamp(0.9375rem, 0.8523rem + 0.3409vi, 1.125rem) * var(--dpr));*/
+    }
+    .btn.inactive {
+      background: #afafaf;
+      color: #464646;
     }
 
     /*Toggle toolbar fly out*/
@@ -110,9 +115,11 @@
     <button id="toolbar-toggle" aria-expanded="false">☰</button>
     <div class="toolbar" id="toolbar-menu">
       <button class="btn" id="toggleNav">🧭 Navigation ein/aus</button>
-      <button class="btn" id="btn-locate">📍 Standort</button>
+      <button class="btn" id="btn-trackInfo">📂 Track Info ein/aus</button>
+      <!--button class="btn" id="btn-locate">📍 Standort</button-->
       <button class="btn" id="trackBtn">▶ Tracking starten</button>
       <button class="btn" id="btn-gpx">📂 GPX laden</button>
+      
       <div class="hud" id="zoom-display">Zoom: 14.00</div>
     </div>
   </div>
@@ -129,9 +136,6 @@ let actualZoom = 13;
     const root = document.documentElement;
     root.style.setProperty('--dpr', dpr);
 
-    document.getElementById('toggleNav').classList.add("dpr-" + dpr); // Add DPR class to the button
-    document.getElementById('trackBtn').classList.add("dpr-" + dpr); // Add DPR class to the button
-    document.getElementById('btn-locate').classList.add("dpr-" + dpr); // Add DPR class to the button
 
 
 // ─── Karte ────────────────────────────────────────────────────────────
@@ -204,12 +208,15 @@ function readGpxPoint(node) {
 document.getElementById('toggleNav').addEventListener('click', () => {
   if (navVisible) {
     map.removeControl(nav);
+    document.getElementById('toggleNav').classList.add('inactive');
   } else {
     map.addControl(nav, 'top-left');
+    document.getElementById('toggleNav').classList.remove('inactive');
   }
   navVisible = !navVisible;
 });
 
+/*
 // GeolocateControl
 const geolocate = new maplibregl.GeolocateControl({
          positionOptions: { enableHighAccuracy: true },
@@ -219,7 +226,7 @@ const geolocate = new maplibregl.GeolocateControl({
       map.addControl(geolocate, 'top-left' );
 
 document.getElementById('btn-locate').addEventListener('click', () => geolocate.trigger());
-
+*/
 
 map.on('load', async () => {
   // SVG-Pfeil auf Canvas zeichnen → ImageData
@@ -490,6 +497,7 @@ trackBtn.addEventListener('click', startTracking);
 // ─── Toolbar Flyout Toggle ─────────────────────────────────────────────
 const toggle = document.getElementById('toolbar-toggle');
 const menu = document.getElementById('toolbar-menu');
+const trackInfoBtn = document.getElementById('btn-trackInfo');
 
 toggle.addEventListener('click', (e) => {
 e.stopPropagation();
@@ -503,6 +511,12 @@ if (!menu.contains(e.target) && e.target !== toggle) {
     toggle.setAttribute('aria-expanded', 'false');
 }
 });
+
+trackInfoBtn.addEventListener('click', () => {
+  hud.classList.toggle('hidden');
+  trackInfoBtn.classList.toggle('inactive');
+  });
+
 </script>
 </body>
 </html>   
