@@ -275,11 +275,6 @@ function setMode(mode, text) {
   if (label) label.textContent = text;
   statusEl.dataset.mode = mode;
 
-  if (mode === 'cache' && text && text.includes('Cache')) {
-    const hud = document.getElementById('hud');
-    if (hud) hud.textContent = 'Cache wiederhergestellt – Karte aktiv';
-  }
-
   const onlineBtn = document.getElementById('btn-online');
   const loadBtn = document.getElementById('btn-load-cache');
   const saveBtn = document.getElementById('btn-save-offline');
@@ -912,11 +907,6 @@ function loadGpxFileFromInput(event) {
 
       if (!bounds.isEmpty()) {
         map.fitBounds(bounds, { padding: 50, maxZoom: 18 });
-      }
-
-      const hud = document.getElementById('hud');
-      if (hud) {
-        hud.innerHTML = '<b>GPX:</b> Track geladen und in die Ansicht gesetzt';
       }
     })
     .catch((error) => {
