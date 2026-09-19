@@ -372,6 +372,24 @@ function readMapViewFromIndexedDB() {
   return idbGet(VIEW_KEY).then((value) => value || null).catch(() => null);
 }
 
+function normalizePmtilesSourceUrl(pmtilesUrl) {
+  if (typeof pmtilesUrl !== 'string' || !pmtilesUrl.startsWith('pmtiles://')) {
+    return pmtilesUrl;
+  }
+
+  const withoutProtocol = pmtilesUrl.replace(/^pmtiles:\/\//, '');
+  const isRemoteUrl = /^[a-z]+:\/\//i.test(withoutProtocol);
+  const archiveRef = isRemoteUrl
+    ? decodeURIComponent(withoutProtocol.split('/').pop() || withoutProtocol)
+    : decodeURIComponent(withoutProtocol.replace(/\/{z}\/\{x}\/\{y\}$/i, '').replace(/\/{z}\/\{x}\/\{y\}.*$/, '').split('/')[0] || withoutProtocol);
+
+  if (!archiveRef || !archiveRef.includes('.pmtiles')) {
+    return pmtilesUrl;
+  }
+
+  return `pmtiles://${archiveRef}`;
+}
+
 function getPmtilesArchiveEntriesFromStyle(style) {
   const entries = [];
   const seen = new Set();
@@ -379,11 +397,11 @@ function getPmtilesArchiveEntriesFromStyle(style) {
   for (const [sourceName, source] of Object.entries(style.sources || {})) {
     if (!source || source.type !== 'vector') continue;
 
-    const pmtilesUrl = source.url || (Array.isArray(source.tiles) ? source.tiles[0] : null);
-    if (typeof pmtilesUrl !== 'string' || !pmtilesUrl.startsWith('pmtiles://')) continue;
+    const rawPmtilesUrl = source.url || (Array.isArray(source.tiles) ? source.tiles[0] : null);
+    if (typeof rawPmtilesUrl !== 'string' || !rawPmtilesUrl.startsWith('pmtiles://')) continue;
 
-    const rawArchiveUrl = pmtilesUrl.replace(/^pmtiles:\/\//, '');
-    const archiveKey = decodeURIComponent(rawArchiveUrl.split('/').pop() || rawArchiveUrl);
+    const pmtilesUrl = normalizePmtilesSourceUrl(rawPmtilesUrl);
+    const archiveKey = decodeURIComponent(pmtilesUrl.replace(/^pmtiles:\/\//, '').split('/')[0] || pmtilesUrl.replace(/^pmtiles:\/\//, ''));
     if (!archiveKey || seen.has(archiveKey)) continue;
 
     seen.add(archiveKey);
@@ -449,8 +467,9 @@ function buildOfflineStyleFromArchive() {
         const source = style.sources[sourceName];
         if (!source) return;
 
-        source.url = url;
-        source.tiles = [url + '/{z}/{x}/{y}'];
+        const normalizedUrl = normalizePmtilesSourceUrl(url);
+        source.url = normalizedUrl;
+        source.tiles = [`${normalizedUrl}/{z}/{x}/{y}`];
       });
 
       return style;
