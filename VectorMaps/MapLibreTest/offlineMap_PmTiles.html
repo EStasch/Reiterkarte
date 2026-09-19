@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MapLibre GL + PMTiles Offline Demo</title>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; overflow: hidden; }
+    #map { position: absolute; inset: 0; }
+
+    .panel {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      z-index: 10;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      padding: 16px;
+      width: 320px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+    }
+    .panel h2 { font-size: 15px; margin-bottom: 12px; }
+    .panel button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 8px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-download { background: #2563eb; color: #fff; }
+    .btn-clear { background: #ef4444; color: #fff; }
+    .status { font-size: 12px; color: #666; margin-top: 8px; }
+    .status.ok { color: #10b981; }
+    .status.err { color: #ef4444; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="panel">
+    <h2>🗺️ PMTiles Offline</h2>
+    <button class="btn-download" id="btn-download">⬇️ PMTiles herunterladen</button>
+    <button class="btn-clear" id="btn-clear">🗑️ Gelöschtes PMTiles entfernen</button>
+    <div class="status" id="status">Bereit.</div>
+  </div>
+
+  <script type="module">
+    import * as maplibregl from 'https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.mjs';
+    import { PMTiles, Protocol } from 'https://unpkg.com/pmtiles@3/dist/index.mjs';
+    import { IndexedDBSource } from 'https://unpkg.com/pmtiles-offline@1/dist/index.mjs';
+
+    // ─── Konfiguration ──────────────────────────────────────────────
+    // Öffentliche Demo-Datei (Florenz, Protomaps, ~50 MB)
+    const PMTILES_URL = 'https://pmtiles.io/protomaps(vector)ODbL_firenze.pmtiles';
+    const DB_NAME = 'offline-pmtiles';
+    const TABLE_NAME = 'offline-pmtiles';
+    const FILE_KEY = 'firenze.pmtiles';
+
+    // ─── PMTiles-Protokoll registrieren ─────────────────────────────
+    const protocol = new Protocol();
+    maplibregl.addProtocol('pmtiles', protocol.tile);
+
+    // ─── Status-Helper ──────────────────────────────────────────────
+    const statusEl = document.getElementById('status');
+    function setStatus(msg, cls = '') {
+      statusEl.textContent = msg;
+      statusEl.className = 'status ' + cls;
+    }
+
+    // ─── Map initialisieren (leer, wird nach PMTiles-Load befüllt) ─
+    let map = null;
+
+    function createMap() {
+      if (map) { map.remove(); map = null; }
+      map = new maplibregl.Map({
+        container: 'map',
+        zoom: 12,
+        center: [12.496, 43.769], // Florenz
+        style: {
+          version: 8,
+          sources: {
+            offline_map: {
+              type: 'vector',
+              url: `pmtiles://${FILE_KEY}`,
+              attribution: '© <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>'
+            }
+          },
+          layers: [
+            { id: 'water', source: 'offline_map', 'source-layer': 'water',
+              type: 'fill', paint: { 'fill-color': '#a8d0e6' } },
+            { id: 'landuse', source: 'offline_map', 'source-layer': 'landuse',
+              type: 'fill', paint: { 'fill-color': '#e8e4d8' } },
+            { id: 'roads', source: 'offline_map', 'source-layer': 'roads',
+              type: 'line', paint: { 'line-color': '#fc8d62', 'line-width': 1.5 } },
+            { id: 'buildings', source: 'offline_map', 'source-layer': 'buildings',
+              type: 'fill', paint: { 'fill-color': '#d9d9d9', 'fill-opacity': 0.8 } },
+            { id: 'place-labels', source: 'offline_map', 'source-layer': 'place',
+              type: 'symbol',
+              layout: { 'text-field': ['get', 'name'], 'text-font': ['Noto Sans Regular'], 'text-size': 12 },
+              paint: { 'text-color': '#333' }
+            }
+          ]
+        }
+      });
+      map.addControl(new maplibregl.NavigationControl(), 'top-left');
+      map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-right');
+    }
+
+    // ─── PMTiles laden (aus IndexedDB oder neu herunterladen) ───────
+    async function loadPMTiles() {
+      const db = await IndexedDBSource.openDb(DB_NAME, TABLE_NAME);
+      const offlineSource = new IndexedDBSource(db, FILE_KEY, TABLE_NAME);
+
+      // Prüfen, ob die Datei bereits gespeichert ist
+      const existing = await offlineSource.getSource();
+      if (!existing) {
+        setStatus('PMTiles nicht gefunden – bitte herunterladen.');
+        return;
+      }
+
+      const pmtiles = new PMTiles(offlineSource);
+      protocol.add(pmtiles);
+      createMap();
+      setStatus('✅ Karte offline geladen.', 'ok');
+    }
+
+    // ─── UI-Buttons ─────────────────────────────────────────────────
+    document.getElementById('btn-download').addEventListener('click', async () => {
+      setStatus('Lade PMTiles-Datei… (kann dauern)');
+      try {
+        const db = await IndexedDBSource.openDb(DB_NAME, TABLE_NAME);
+        const offlineSource = new IndexedDBSource(db, FILE_KEY, TABLE_NAME);
+
+        const response = await fetch(PMTILES_URL);
+        const buffer = await response.arrayBuffer();
+        const blob = new Blob([buffer], { type: 'application/octet-stream' });
+
+        await offlineSource.setSource({ filename: FILE_KEY, blob });
+        setStatus('✅ Gespeichert! Lade Karte…', 'ok');
+        await loadPMTiles();
+      } catch (err) {
+        setStatus(`❌ Fehler: ${err.message}`, 'err');
+        console.error(err);
+      }
+    });
+
+    document.getElementById('btn-clear').addEventListener('click', async () => {
+      if (!confirm('PMTiles-Datei aus IndexedDB löschen?')) return;
+      try {
+        const db = await IndexedDBSource.openDb(DB_NAME, TABLE_NAME);
+        const offlineSource = new IndexedDBSource(db, FILE_KEY, TABLE_NAME);
+        await offlineSource.removeSource(FILE_KEY);
+        if (map) { map.remove(); map = null; }
+        setStatus('🗑️ Gelöscht.');
+      } catch (err) {
+        setStatus(`❌ Fehler: ${err.message}`, 'err');
+      }
+    });
+
+    // ─── Beim Laden: PMTiles automatisch öffnen, falls vorhanden ────
+    loadPMTiles();
+  </script>
+</body>
+</html>   

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MapLibre GL + map-gl-offline Demo</title>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css" />
+  <link rel="stylesheet" href="https://unpkg.com/map-gl-offline/dist/style.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; overflow: hidden; }
+    #map { position: absolute; inset: 0; }
+
+    .panel {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      padding: 16px;
+      width: 320px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+    }
+    .panel h2 { font-size: 15px; margin-bottom: 12px; color: #333; }
+    .panel button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 8px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .panel button:hover { opacity: 0.85; }
+    .btn-download { background: #2563eb; color: #fff; }
+    .btn-list { background: #10b981; color: #fff; }
+    .btn-clear { background: #ef4444; color: #fff; }
+
+    .progress-bar {
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
+      margin: 8px 0;
+      overflow: hidden;
+      display: none;
+    }
+    .progress-bar.active { display: block; }
+    .progress-bar .fill {
+      height: 100%;
+      background: #2563eb;
+      border-radius: 3px;
+      transition: width 0.3s;
+      width: 0%;
+    }
+    .progress-text { font-size: 12px; color: #666; margin-bottom: 8px; }
+
+    #regions-list {
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    #regions-list .region-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      background: #f3f4f6;
+      border-radius: 6px;
+      margin-bottom: 4px;
+    }
+    #regions-list .region-item span { color: #333; font-weight: 500; }
+    #regions-list .region-item button {
+      width: auto;
+      margin: 0;
+      padding: 3px 8px;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="panel">
+    <h2>🗺️ Offline Regionen</h2>
+
+    <button class="btn-download" id="btn-download">⬇️ Region herunterladen</button>
+    <div class="progress-bar" id="progress-bar"><div class="fill" id="progress-fill"></div></div>
+    <div class="progress-text" id="progress-text"></div>
+
+    <button class="btn-list" id="btn-list">📋 Speicherte Regionen anzeigen</button>
+    <button class="btn-clear" id="btn-clear">🗑️ Alle Regionen löschen</button>
+
+    <div id="regions-list"></div>
+  </div>
+
+  <script type="module">
+    import maplibregl from 'https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js';
+    import { OfflineMapManager, OfflineManagerControl } from 'https://unpkg.com/map-gl-offline/dist/map-gl-offline.mjs';
+
+    // ─── Konfiguration ───────────────────────────────────────────────
+    // Kostenloser Vektor-Tile-Service (kein API-Key nötig)
+    const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
+
+    // Beispiel-Region: Berlin-Mitte
+    const DEMO_REGION = {
+      id: 'berlin-mitte',
+      name: 'Berlin Mitte',
+      bounds: [
+        [13.33, 52.50],  // Südwesten [lng, lat]
+        [13.42, 52.54],  // Nordosten [lng, lat]
+      ],
+      minZoom: 12,
+      maxZoom: 16,
+      styleUrl: STYLE_URL,
+    };
+
+    // ─── Map-Initialisierung ─────────────────────────────────────────
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: STYLE_URL,
+      center: [13.38, 52.52],
+      zoom: 12,
+    });
+
+    map.addControl(new maplibregl.NavigationControl(), 'top-left');
+    map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-right');
+
+    // ─── Offline Manager ─────────────────────────────────────────────
+    const offlineManager = new OfflineMapManager();
+
+    // UI-Control hinzufügen (Polygon-Zeichnen, Fortschritt, Regionen-Verwaltung)
+    map.on('load', () => {
+      const control = new OfflineManagerControl(offlineManager, {
+        styleUrl: STYLE_URL,
+        mapLib: maplibregl,
+      });
+      map.addControl(control, 'top-right');
+    });
+
+    // ─── UI-Interaktionen ────────────────────────────────────────────
+    const progressBar = document.getElementById('progress-bar');
+    const progressFill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
+    const regionsList = document.getElementById('regions-list');
+
+    // Region herunterladen
+    document.getElementById('btn-download').addEventListener('click', async () => {
+      progressBar.classList.add('active');
+      progressFill.style.width = '0%';
+      progressText.textContent = 'Starte Download…';
+
+      try {
+        await offlineManager.downloadRegion(
+          { ...DEMO_REGION },
+          {
+            onProgress: ({ phase, percentage, message }) => {
+              progressFill.style.width = `${percentage}%`;
+              progressText.textContent = `[${phase}] ${percentage.toFixed(1)}% ${message ?? ''}`;
+            },
+          }
+        );
+        progressText.textContent = '✅ Fertig! Region gespeichert.';
+        await refreshRegionList();
+      } catch (err) {
+        progressText.textContent = `❌ Fehler: ${err.message}`;
+        console.error(err);
+      }
+    });
+
+    // Regionen auflisten
+    document.getElementById('btn-list').addEventListener('click', refreshRegionList);
+
+    // Alle löschen
+    document.getElementById('btn-clear').addEventListener('click', async () => {
+      if (!confirm('Wirklich alle Offline-Regionen löschen?')) return;
+      const regions = await offlineManager.listStoredRegions();
+      for (const r of regions) {
+        await offlineManager.deleteRegion(r.id);
+      }
+      regionsList.innerHTML = '';
+      progressText.textContent = 'Alle Regionen gelöscht.';
+    });
+
+    async function refreshRegionList() {
+      const regions = await offlineManager.listStoredRegions();
+      regionsList.innerHTML = regions.length
+        ? regions.map(r => `
+          <div class="region-item">
+            <span>${r.name || r.id}</span>
+            <button class="btn-download" onclick="loadRegion('${r.id}')">Laden</button>
+          </div>
+        `).join('')
+        : '<em style="color:#999">Keine Regionen gespeichert.</em>';
+    }
+
+    // Gespeicherte Region laden
+    window.loadRegion = async (id) => {
+      const region = await offlineManager.getStoredRegion(id);
+      if (region?.offlineStyle) {
+        map.setStyle(region.offlineStyle);
+        if (region.bounds) {
+          map.fitBounds(region.bounds, { padding: 40 });
+        }
+        progressText.textContent = `Region "${region.name || id}" geladen.`;
+      }
+    };
+
+    // Initiale Liste laden
+    refreshRegionList();
+  </script>
+</body>
+</html>   
