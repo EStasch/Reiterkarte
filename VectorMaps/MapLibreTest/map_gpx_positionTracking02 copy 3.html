@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MapLibre – GPX + Tracking + Heading</title>
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+  <!--
+  <script src="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.css" rel="stylesheet" />
+  -->
+  <script src="https://unpkg.com/pmtiles@4.4.1/dist/pmtiles.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    .hud {
+      position: absolute; bottom: 12px; left: 12px; z-index: 10;
+      background: rgba(0,0,0,.7); color: #fff; padding: 10px 14px;
+      border-radius: 8px; font-size: 13px; line-height: 1.6;
+    }
+    .hud b { color: #7ec8f0; }
+    .hud.hidden { display: none; }
+    .toolbar .hud {
+      position: relative; bottom: auto; left: auto;
+      text-align: center; 
+    }
+    .toolbar {
+      position: absolute; top: 12px; right: 12px; z-index: 10;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .btn {
+      /*position: absolute; top: 12px; right: 12px; z-index: 10;*/
+      background: #0077ff; color: #fff; border: none; padding: 10px 16px;
+      border-radius: 8px; cursor: pointer; font-size: 14px;
+    }
+    .btn:active { background: #005bcc; }
+    .toolbar button.dpr-1 { font-size: 14px; }
+    .toolbar button.dpr-2,
+    .toolbar button.dpr-3{ 
+      font-size: 48px; 
+      font-size: calc(1.5vw * var(--dpr));
+      /*font-size: calc(clamp(0.9375rem, 0.8523rem + 0.3409vi, 1.125rem) * var(--dpr));*/
+    }
+    .btn.inactive {
+      background: #afafaf;
+      color: #464646;
+    }
+
+    /*Toggle toolbar fly out*/
+      .toolbar-flyout {
+      position: relative;
+      margin: 10px;
+      position: absolute;
+      right: 0px;
+      width: 13vw;
+      min-width: 180px;
+      text-align: right;
+      }
+
+      #toolbar-toggle {
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      }
+      #toolbar-toggle.dpr-1 { font-size: 1.2rem; }
+      #toolbar-toggle
+      { 
+         font-size: calc(4rem* var(--dpr)); 
+         font-size: calc(3.5vw * var(--dpr));
+         font-size: calc(clamp(1.4063rem, 1.2784rem + 0.5114vi, 1.6875rem)* var(--dpr));
+      }
+      
+
+      #toolbar-toggle:hover {
+      background: #555;
+      }
+
+      .toolbar {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 6px;
+      background: #0909092b;
+      border: 1px solid #dddddd5e;
+      border-radius: 8px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+      flex-direction: column;
+      min-width: 180px;
+      z-index: 1000;
+      padding: 15px;
+      right: 0px;
+      }
+
+      /* Geöffneter Zustand */
+      .toolbar.open {
+         display: flex;
+         gap: 8px;
+         flex-direction: column;
+      }
+    
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="toolbar-flyout">
+    <button id="toolbar-toggle" aria-expanded="false">☰</button>
+    <div class="toolbar" id="toolbar-menu">
+      <button class="btn" id="toggleNav">🧭 Navigation ein/aus</button>
+      <button class="btn" id="btn-trackInfo">📂 Track Info ein/aus</button>
+      <button class="btn" id="trackBtn">▶ Tracking starten</button>
+      <button class="btn" id="btn-gpx">📂 GPX laden</button>
+      <button class="btn" id="btn-online">🌐 Online</button>
+      <button class="btn" id="btn-save-offline">💾 Speichern</button>
+      <button class="btn" id="btn-load-cache">📦 Cache laden</button>
+      <button class="btn" id="btn-delete-offline">🗑 Offline löschen</button>
+      <div class="hud" id="zoom-display">Zoom: 14.00</div>
+      <div class="hud" id="map-status">Online</div>
+    </div>
+  </div>
+
+  <input type="file" id="gpx-file" accept=".gpx" style="display:none" />
+  <div class="hud" id="hud">Bereit…</div>
+
+<script>
+let actualZoom = 13;
+let map = null;
+let navControl = null;
+
+
+let protocol = new pmtiles.Protocol({metadata: true});
+      maplibregl.addProtocol("pmtiles", protocol.tile);
+
+const STYLE_URL = 'https://estasch.github.io/Reiterkarte/VectorMaps/PMTiles/bm_web_topandosm_wege_poi_01(8)_PMTiles_min_Vercel.json';
+const PMTILES_ARCHIVE_URL = 'https://reiterkarte.vercel.app/OsmMaptiles/ALB_Wege_min.pmtiles';
+const PMTILES_DB_NAME = 'reiterkarte-pmtiles-offline';
+const PMTILES_STORE_NAME = 'pmtiles';
+const PMTILES_KEY = 'ALB_Wege_min.pmtiles';
+const VIEW_KEY = 'gpx-map-view-v1';
+
+const dpr = window.devicePixelRatio || 1;
+const root = document.documentElement;
+root.style.setProperty('--dpr', dpr);
+
+function setMode(mode, text) {
+  const statusEl = document.getElementById('map-status');
+  if (!statusEl) return;
+  statusEl.textContent = text;
+  statusEl.dataset.mode = mode;
+  statusEl.style.background = mode === 'online' ? '#0f766e' : mode === 'cache' ? '#1d4ed8' : '#b45309';
+}
+
+function openOfflineArchiveDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(PMTILES_DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(PMTILES_STORE_NAME)) {
+        db.createObjectStore(PMTILES_STORE_NAME);
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error('IndexedDB konnte nicht geöffnet werden.'));
+  });
+}
+
+function idbPut(key, value) {
+  return openOfflineArchiveDB().then((db) => new Promise((resolve, reject) => {
+    const tx = db.transaction(PMTILES_STORE_NAME, 'readwrite');
+    tx.objectStore(PMTILES_STORE_NAME).put(value, key);
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error || new Error('IndexedDB write failed.'));
+  }));
+}
+
+function idbGet(key) {
+  return openOfflineArchiveDB().then((db) => new Promise((resolve, reject) => {
+    const request = db.transaction(PMTILES_STORE_NAME, 'readonly')
+      .objectStore(PMTILES_STORE_NAME)
+      .get(key);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error('IndexedDB read failed.'));
+  }));
+}
+
+function idbDelete(key) {
+  return openOfflineArchiveDB().then((db) => new Promise((resolve, reject) => {
+    const tx = db.transaction(PMTILES_STORE_NAME, 'readwrite');
+    tx.objectStore(PMTILES_STORE_NAME).delete(key);
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error || new Error('IndexedDB delete failed.'));
+  }));
+}
+
+function getCurrentMapView() {
+  if (!map) {
+    return { center: [9.375844, 48.498550], zoom: 13 };
+  }
+
+  const center = map.getCenter();
+  return {
+    center: [center.lng, center.lat],
+    zoom: map.getZoom()
+  };
+}
+
+function saveMapViewToIndexedDB() {
+  const view = getCurrentMapView();
+  return idbPut(VIEW_KEY, view).catch(() => false);
+}
+
+function readMapViewFromIndexedDB() {
+  return idbGet(VIEW_KEY).then((value) => value || null).catch(() => null);
+}
+
+function saveCurrentMapToCache() {
+  if (!map) {
+    setMode('offline', 'Offline: keine Karte zum Speichern');
+    return;
+  }
+
+  setMode('cache', 'Offline: PMTiles wird gespeichert…');
+
+  fetch(PMTILES_ARCHIVE_URL)
+    .then((response) => {
+      if (!response.ok) throw new Error(`PMTiles-Download fehlgeschlagen (${response.status})`);
+      return response.arrayBuffer();
+    })
+    .then(async (archiveBuffer) => {
+      await idbPut(PMTILES_KEY, archiveBuffer);
+      await saveMapViewToIndexedDB();
+      setMode('cache', 'Offline: PMTiles archiviert');
+    })
+    .catch((error) => {
+      console.error(error);
+      setMode('offline', 'Offline: Speichern fehlgeschlagen');
+    });
+}
+
+function deleteOfflineArchive() {
+  Promise.all([idbDelete(PMTILES_KEY), idbDelete(VIEW_KEY)])
+    .then(() => {
+      setMode('offline', 'Offline: Archiv gelöscht');
+      initMap();
+    })
+    .catch((error) => {
+      console.error(error);
+      setMode('offline', 'Offline: Löschen fehlgeschlagen');
+    });
+}
+
+function buildOfflineStyleFromArchive(archiveKey) {
+  return fetch(STYLE_URL)
+    .then((response) => response.json())
+    .then((style) => {
+      for (const sourceName of Object.keys(style.sources || {})) {
+        const source = style.sources[sourceName];
+        if (source && source.type === 'vector') {
+          source.url = 'pmtiles://' + archiveKey;
+        }
+        if (source && Array.isArray(source.tiles)) {
+          source.tiles = ['pmtiles://' + archiveKey];
+        }
+      }
+      return style;
+    });
+}
+
+function createMap(style, center, zoom) {
+  if (map) {
+    map.remove();
+    map = null;
+  }
+
+  map = new maplibregl.Map({
+    container: 'map',
+    style: style,
+    center: center,
+    zoom: zoom,
+    attributionControl: true,
+  });
+
+  window.map = map;
+  navControl = new maplibregl.NavigationControl();
+  map.addControl(navControl, 'top-left');
+
+  map.on('load', async () => {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+      <polygon points="16,2 28,28 16,22 4,28" fill="#0077ff" stroke="#fff" stroke-width="2"/>
+    </svg>`;
+
+    const img = new Image();
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    await img.decode();
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 32;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, 32, 32);
+
+    map.addImage('arrow', ctx.getImageData(0, 0, 32, 32));
+
+    function fitToFeatures(features) {
+      const bounds = new maplibregl.LngLatBounds();
+      function extendBounds(coords) {
+        if (!coords || coords.length === 0) return;
+        if (typeof coords[0] === 'number') {
+          bounds.extend(coords);
+        } else {
+          coords.forEach((coord) => extendBounds(coord));
+        }
+      }
+
+      features.forEach((feature) => {
+        if (!feature || !feature.geometry || !feature.geometry.coordinates) return;
+        extendBounds(feature.geometry.coordinates);
+      });
+
+      if (!bounds.isEmpty()) {
+        map.fitBounds(bounds, { padding: 50, maxZoom: 18 });
+      }
+    }
+
+    map.addSource('gpx-data', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    map.addLayer({ id: 'gpx-fill', type: 'fill', source: 'gpx-data', filter: ['==', '$type', 'Polygon'], paint: { 'fill-color': '#8e44ad', 'fill-opacity': 0.3 } });
+    map.addLayer({ id: 'gpx-line', type: 'line', source: 'gpx-data', filter: ['==', '$type', 'LineString'], paint: { 'line-color': '#aa29b9BF', 'line-width': (3 * dpr * (actualZoom / 5)) } });
+    map.addLayer({ id: 'gpx-point', type: 'circle', source: 'gpx-data', filter: ['==', '$type', 'Point'], paint: { 'circle-radius': 6, 'circle-color': '#16a085' } });
+
+    map.addSource('position', {
+      type: 'geojson',
+      data: { type: 'Feature', properties: { heading: 0 }, geometry: { type: 'Point', coordinates: [13.405, 52.52] } }
+    });
+
+    map.addLayer({
+      id: 'position-halo',
+      type: 'circle',
+      source: 'position',
+      paint: {
+        'circle-radius': 12,
+        'circle-color': '#0077ff',
+        'circle-opacity': 0.25
+      }
+    });
+
+    map.addLayer({
+      id: 'position-arrow',
+      type: 'symbol',
+      source: 'position',
+      layout: {
+        'icon-image': 'arrow',
+        'icon-size': 0.7,
+        'icon-rotate': ['get', 'heading'],
+        'icon-rotation-alignment': 'map',
+        'icon-keep-upright': false
+      }
+    });
+
+    document.getElementById('btn-gpx').addEventListener('click', () => {
+      document.getElementById('gpx-file').click();
+    });
+
+    document.getElementById('gpx-file').addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const xml = new DOMParser().parseFromString(text, 'application/xml');
+        const parserError = xml.querySelector('parsererror');
+        if (parserError) throw new Error('Die GPX-Datei konnte nicht gelesen werden.');
+
+        const features = [];
+
+        getGpxElements(xml, 'wpt').forEach((wpt) => {
+          const point = readGpxPoint(wpt);
+          if (!point) return;
+          features.push({
+            type: 'Feature',
+            properties: { name: getLocalText(wpt, 'name') },
+            geometry: { type: 'Point', coordinates: point }
+          });
+        });
+
+        getGpxElements(xml, 'trk').forEach((trk) => {
+          const name = getLocalText(trk, 'name') || 'Track';
+          getGpxElements(trk, 'trkseg').forEach((seg) => {
+            const coords = [];
+            getGpxElements(seg, 'trkpt').forEach((pt) => {
+              const point = readGpxPoint(pt);
+              if (point) coords.push(point);
+            });
+            if (coords.length >= 2) {
+              features.push({ type: 'Feature', properties: { name }, geometry: { type: 'LineString', coordinates: coords } });
+            }
+          });
+        });
+
+        getGpxElements(xml, 'rte').forEach((rte) => {
+          const name = getLocalText(rte, 'name') || 'Route';
+          const coords = [];
+          getGpxElements(rte, 'rtept').forEach((pt) => {
+            const point = readGpxPoint(pt);
+            if (point) coords.push(point);
+          });
+          if (coords.length >= 2) {
+            features.push({ type: 'Feature', properties: { name }, geometry: { type: 'LineString', coordinates: coords } });
+          }
+        });
+
+        if (!features.length) {
+          alert('Keine GPX-Elemente gefunden.');
+          return;
+        }
+
+        followGPS = false;
+        map.getSource('gpx-data').setData({ type: 'FeatureCollection', features });
+        map.once('idle', () => fitToFeatures(features));
+        fitToFeatures(features);
+      } catch (error) {
+        console.error(error);
+        alert(error.message || 'Die GPX-Datei konnte nicht geladen werden.');
+      } finally {
+        event.target.value = '';
+      }
+    });
+  });
+
+  map.on('zoom', () => {
+    actualZoom = map.getZoom();
+    const zoomDisplay = document.getElementById('zoom-display');
+    if (zoomDisplay) {
+      zoomDisplay.textContent = `Zoom: ${actualZoom.toFixed(2)}`;
+    }
+  });
+}
+
+function loadOnlineMap() {
+  setMode('online', 'Online: Karte aktiv');
+  createMap(STYLE_URL, [9.375844, 48.498550], 13);
+}
+
+function restoreFromCache() {
+  readMapViewFromIndexedDB().then((view) => {
+    if (!view || !Array.isArray(view.center) || typeof view.zoom !== 'number') {
+      setMode('offline', 'Offline: kein gespeichertes Archiv');
+      return;
+    }
+
+    idbGet(PMTILES_KEY)
+      .then((archiveBuffer) => {
+        if (!archiveBuffer) {
+          setMode('offline', 'Offline: kein gespeichertes Archiv');
+          return;
+        }
+
+        if (!pmtiles || !pmtiles.PMTiles || !pmtiles.Protocol) {
+          setMode('offline', 'Offline: PMTiles-Library fehlt');
+          return;
+        }
+
+        const protocol = new pmtiles.Protocol();
+        const pmTiles = new pmtiles.PMTiles(archiveBuffer);
+        protocol.add(pmTiles);
+        maplibregl.addProtocol('pmtiles', protocol.tile);
+
+        buildOfflineStyleFromArchive(PMTILES_KEY).then((style) => {
+          createMap(style, view.center, view.zoom);
+          setMode('cache', 'Cache aktiv');
+        }).catch((error) => {
+          console.error(error);
+          setMode('offline', 'Offline: Style konnte nicht geladen werden');
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        setMode('offline', 'Offline: Archiv konnte nicht geladen werden');
+      });
+  });
+}
+
+function initMap(center = [9.375844, 48.498550], zoom = 13) {
+  createMap(STYLE_URL, center, zoom);
+  setMode('online', 'Online: Karte aktiv');
+}
+
+let navVisible = true;
+
+function getGpxElements(root, tagName) {
+  const matches = [];
+  const allNodes = root.getElementsByTagName('*');
+
+  for (const node of allNodes) {
+    const localName = node.localName || node.nodeName.split(':').pop();
+    if (localName === tagName) matches.push(node);
+  }
+
+  return matches;
+}
+
+function getLocalText(node, tagName) {
+  const found = getGpxElements(node, tagName)[0];
+  return found ? (found.textContent || '').trim() : '';
+}
+
+function readGpxPoint(node) {
+  const lat = parseFloat(node.getAttribute('lat'));
+  const lon = parseFloat(node.getAttribute('lon'));
+  if (Number.isNaN(lat) || Number.isNaN(lon)) return null;
+  return [lon, lat];
+}
+
+document.getElementById('toggleNav').addEventListener('click', () => {
+  if (!map) return;
+
+  if (navVisible) {
+    if (navControl) {
+      map.removeControl(navControl);
+    }
+    document.getElementById('toggleNav').classList.add('inactive');
+  } else if (navControl) {
+    map.addControl(navControl, 'top-left');
+    document.getElementById('toggleNav').classList.remove('inactive');
+  }
+  navVisible = !navVisible;
+});
+
+function gpxToGeoJSON(xml) {
+  const doc = new DOMParser().parseFromString(xml, 'application/xml');
+  const trkpts = doc.querySelectorAll('trkpt');
+  if (trkpts.length === 0) return { type: 'Feature', geometry: { type: 'LineString', coordinates: [] } };
+
+  const coords = [];
+  trkpts.forEach((pointNode) => {
+    const lat = parseFloat(pointNode.getAttribute('lat'));
+    const lon = parseFloat(pointNode.getAttribute('lon'));
+    if (!isNaN(lat) && !isNaN(lon)) coords.push([lon, lat]);
+  });
+  return { type: 'Feature', geometry: { type: 'LineString', coordinates: coords } };
+}
+
+function bearingBetween(lat1, lon1, lat2, lon2) {
+  const toRad = (degree) => degree * Math.PI / 180;
+  const toDeg = (radian) => radian * 180 / Math.PI;
+  const dLon = toRad(lon2 - lon1);
+  const y = Math.sin(dLon) * Math.cos(toRad(lat2));
+  const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2))
+    - Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
+let watchId = null;
+let prevPos = null;
+let followGPS = false;
+let hud = document.getElementById('hud');
+let trackBtn = document.getElementById('trackBtn');
+
+function onPosition(pos) {
+  const { latitude: lat, longitude: lon, heading, accuracy } = pos.coords;
+  let h = heading;
+
+  if (h == null && prevPos) {
+    const R = 6371e3;
+    const dLat = (lat - prevPos.lat) * Math.PI / 180;
+    const dLon = (lon - prevPos.lon) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(prevPos.lat * Math.PI / 180) * Math.cos(lat * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+    const d = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    if (d > 1) {
+      h = bearingBetween(prevPos.lat, prevPos.lon, lat, lon);
+    }
+  }
+  if (h == null) h = 0;
+
+  prevPos = { lat, lon };
+
+  const src = map && map.getSource ? map.getSource('position') : null;
+  if (src) {
+    src.setData({
+      type: 'Feature',
+      properties: { heading: h },
+      geometry: { type: 'Point', coordinates: [lon, lat] }
+    });
+  }
+
+  hud.innerHTML = `<b>Pos:</b> ${lat.toFixed(5)}, ${lon.toFixed(5)}<br>` +
+                  `<b>Heading:</b> ${h.toFixed(0)}° ${heading != null ? '(native)' : '(fallback)'}<br>` +
+                  `<b>Accuracy:</b> ±${Math.round(accuracy)} m`;
+
+  if (followGPS && map) {
+    map.panTo([lon, lat], { duration: 500 });
+  }
+}
+
+function startTracking() {
+  if (watchId !== null) { stopTracking(); return; }
+  followGPS = true;
+  watchId = navigator.geolocation.watchPosition(onPosition, (error) => {
+    hud.innerHTML = `<b style="color:#f66">Fehler:</b> ${error.message}`;
+  }, { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 });
+  trackBtn.textContent = '⏹ Tracking stoppen';
+  hud.innerHTML = 'Tracking aktiv…';
+}
+
+function stopTracking() {
+  if (watchId !== null) {
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+  }
+  followGPS = false;
+  trackBtn.textContent = '▶ Tracking starten';
+}
+
+trackBtn.addEventListener('click', startTracking);
+
+const toggle = document.getElementById('toolbar-toggle');
+const menu = document.getElementById('toolbar-menu');
+const trackInfoBtn = document.getElementById('btn-trackInfo');
+const btnOnline = document.getElementById('btn-online');
+const btnSaveOffline = document.getElementById('btn-save-offline');
+const btnLoadCache = document.getElementById('btn-load-cache');
+const btnDeleteOffline = document.getElementById('btn-delete-offline');
+
+toggle.addEventListener('click', (event) => {
+  event.stopPropagation();
+  const isOpen = menu.classList.toggle('open');
+  toggle.setAttribute('aria-expanded', isOpen);
+});
+
+document.addEventListener('click', (event) => {
+  if (!menu.contains(event.target) && event.target !== toggle) {
+    menu.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+});
+
+trackInfoBtn.addEventListener('click', () => {
+  hud.classList.toggle('hidden');
+  trackInfoBtn.classList.toggle('inactive');
+});
+
+btnOnline.addEventListener('click', loadOnlineMap);
+btnSaveOffline.addEventListener('click', saveCurrentMapToCache);
+btnLoadCache.addEventListener('click', restoreFromCache);
+btnDeleteOffline.addEventListener('click', deleteOfflineArchive);
+
+readMapViewFromIndexedDB()
+  .then((view) => {
+    if (view && Array.isArray(view.center) && typeof view.zoom === 'number') {
+      setMode('cache', 'Cache: Wiederherstellung');
+      idbGet(PMTILES_KEY).then((archiveBuffer) => {
+        if (!archiveBuffer) {
+          initMap();
+          return;
+        }
+
+        const protocol = new pmtiles.Protocol();
+        protocol.add(new pmtiles.PMTiles(archiveBuffer));
+        maplibregl.addProtocol('pmtiles', protocol.tile);
+
+        buildOfflineStyleFromArchive(PMTILES_KEY).then((style) => {
+          createMap(style, view.center, view.zoom);
+          setMode('cache', 'Cache aktiv');
+        }).catch(() => initMap());
+      }).catch(() => initMap());
+    } else {
+      initMap();
+    }
+  })
+  .catch(() => initMap());
+
+</script>
+</body>
+</html>   

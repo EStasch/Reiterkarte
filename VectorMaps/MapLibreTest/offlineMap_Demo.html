@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Offline Map Demo</title>
+    <!--
+    <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" />
+    -->
+    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+
+    <script src="https://unpkg.com/map-gl-offline/dist/index.umd.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/map-gl-offline/style.css" />
+    
+        <style>
+      html, body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        font-family: Arial, sans-serif;
+        background: #eef3f7;
+      }
+
+      #map {
+        position: absolute;
+        inset: 0;
+      }
+
+      .map-overlay {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        border-radius: 10px;
+        padding: 12px 14px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+        font-size: 14px;
+        color: #1f2937;
+        min-width: 220px;
+      }
+
+      .map-status {
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .map-overlay[data-mode="online"] .map-status { color: #0f766e; }
+      .map-overlay[data-mode="offline"] .map-status { color: #b45309; }
+      .map-overlay[data-mode="cache"] .map-status { color: #1d4ed8; }
+
+      .map-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .map-button {
+        border: none;
+        border-radius: 6px;
+        background: #2563eb;
+        color: white;
+        padding: 7px 10px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      .map-button.secondary {
+        background: #475569;
+      }
+
+      .map-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div class="map-overlay" data-mode="online">
+      <div id="map-status" class="map-status">Online</div>
+      <div class="map-buttons">
+        <button id="btn-online" class="map-button">Online</button>
+        <button id="btn-save-offline" class="map-button secondary">Offline speichern</button>
+        <button id="btn-load-cache" class="map-button secondary">Cache laden</button>
+      </div>
+    </div>
+
+    <script>
+    // ── Karte ──────────────────────────────────────────────
+    //const STYLE_URL = 'https://tiles.openfreemap.org/styles/bright';
+    const STYLE_URL = 'https://estasch.github.io/Reiterkarte/VectorMaps/PMTiles/bm_web_topandosm_wege_poi_01(8)_PMTiles_min_Vercel.json';
+    const CACHE_KEY = 'ofm-map-demo-cache-v1';
+    const statusEl = document.getElementById('map-status');
+    const overlayEl = document.querySelector('.map-overlay');
+    const btnOnline = document.getElementById('btn-online');
+    const btnSaveOffline = document.getElementById('btn-save-offline');
+    const btnLoadCache = document.getElementById('btn-load-cache');
+
+    let map = null;
+
+    function setMode(mode, text) {
+      overlayEl.dataset.mode = mode;
+      statusEl.textContent = text;
+    }
+
+    function readCache() {
+      try {
+        const data = localStorage.getItem(CACHE_KEY);
+        return data ? JSON.parse(data) : null;
+      } catch (err) {
+        console.warn('Cache lesen fehlgeschlagen:', err);
+        return null;
+      }
+    }
+
+    function writeCache(payload) {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
+        return true;
+      } catch (err) {
+        console.error('Cache schreiben fehlgeschlagen:', err);
+        return false;
+      }
+    }
+
+    function destroyMap() {
+      if (map) {
+        map.remove();
+        map = null;
+      }
+    }
+
+    function createMap(style, center, zoom, modeLabel) {
+      destroyMap();
+
+      map = new maplibregl.Map({
+        container: 'map',
+        style: style,
+        center: center,
+        zoom: zoom,
+        attributionControl: true,
+      });
+
+      map.addControl(new maplibregl.NavigationControl(), 'top-left');
+      map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-right');
+
+      map.on('load', () => {
+        setMode(modeLabel, modeLabel + ': Karte aktiv');
+      });
+
+      map.on('moveend', () => {
+        if (map) {
+          const view = {
+            center: map.getCenter().toArray(),
+            zoom: map.getZoom(),
+            styleUrl: STYLE_URL,
+            timestamp: Date.now()
+          };
+          writeCache(view);
+        }
+      });
+    }
+
+    async function loadOnlineMap() {
+      try {
+        setMode('online', 'Online: Lade Style…');
+
+        const response = await fetch(STYLE_URL, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status);
+        }
+
+        const style = await response.json();
+        if (!style || !style.version || !style.sources) {
+          throw new Error('Style-JSON ungültig');
+        }
+
+        createMap(STYLE_URL, [9.375844, 48.498550], 11, 'Online');
+      } catch (err) {
+        console.error('Open map failed:', err);
+        setMode('offline', 'Fehler: Online-Karte konnte nicht geladen werden');
+      }
+    }
+
+    function saveCurrentMapToCache() {
+      if (!map) {
+        setMode('cache', 'Cache: keine Karte zum Speichern');
+        return;
+      }
+
+      const snapshot = {
+        center: map.getCenter().toArray(),
+        zoom: map.getZoom(),
+        styleUrl: STYLE_URL,
+        timestamp: Date.now()
+      };
+
+      const ok = writeCache(snapshot);
+      setMode(ok ? 'cache' : 'offline', ok ? 'Cache: gespeicherte Ansicht aktiv' : 'Cache: Speichern fehlgeschlagen');
+    }
+
+    function restoreFromCache() {
+      const cache = readCache();
+      if (!cache || !cache.center || typeof cache.zoom !== 'number') {
+        setMode('offline', 'Cache: kein gespeicherter Stand vorhanden');
+        return;
+      }
+
+      createMap(STYLE_URL, cache.center, cache.zoom, 'Cache');
+      setMode('cache', 'Cache: aktiviert');
+    }
+
+    btnOnline.addEventListener('click', loadOnlineMap);
+    btnSaveOffline.addEventListener('click', saveCurrentMapToCache);
+    btnLoadCache.addEventListener('click', restoreFromCache);
+
+    // Automatischer Wiederaufbau beim Neustart
+    const cache = readCache();
+    if (cache && cache.center && typeof cache.zoom === 'number') {
+      setMode('cache', 'Cache: Wiederherstellung beim Start…');
+      createMap(STYLE_URL, cache.center, cache.zoom, 'Cache');
+      setTimeout(() => setMode('cache', 'Cache aktiv'), 500);
+    } else {
+      loadOnlineMap();
+    }
+    </script>
+  </body>
+</html>

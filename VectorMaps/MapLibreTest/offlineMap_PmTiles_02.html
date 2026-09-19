@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PMTiles Offline Demo (ohne Module)</title>
+
+  <!-- MapLibre GL JS v5 (UMD → globales `maplibregl`) -->
+  <link href="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.js"></script>
+
+  <!-- PMTiles (UMD → globales `pmtiles`) -->
+  <script src="https://unpkg.com/pmtiles@3.2.1/dist/pmtiles.js"></script>
+
+  <style>
+    html, body, #map { height: 100%; margin: 0; }
+    #controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+      background: rgba(255,255,255,.95);
+      border-radius: 8px;
+      padding: 12px 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
+    }
+    #controls h3 { margin: 0 0 8px; font-size: 15px; }
+    #controls button {
+      margin: 4px 4px 0 0;
+      padding: 6px 12px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      background: #1a73e8;
+      color: #fff;
+      font-size: 13px;
+    }
+    #controls button:disabled { background: #999; cursor: default; }
+    #status { margin-top: 8px; color: #555; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div id="controls">
+    <h3>PMTiles Offline</h3>
+    <button id="btnOnline">🌐 Online laden</button>
+    <button id="btnDownload">⬇ Download &amp; Speichern</button>
+    <button id="btnLoad" disabled>🗺 Offline Laden</button>
+    <button id="btnDelete">🗑 Löschen</button>
+    <div id="status"></div>
+  </div>
+
+  <script>
+    // ─── Konfiguration ────────────────────────────────────────────────
+    var ONLINE_STYLE_URL = 'https://tiles.openfreemap.org/styles/bright/';
+    var PMTILES_URL      = 'https://demotiles.maplibre.org/pmtiles/vector/world.pmtiles';
+    var DB_NAME          = 'pmtiles-offline-demo';
+    var STORE_NAME       = 'archives';
+    var SOURCE_KEY       = 'world';
+
+    var map = null;
+    var statusEl = document.getElementById('status');
+    var btnOnline = document.getElementById('btnOnline');
+    var btnDownload = document.getElementById('btnDownload');
+    var btnLoad     = document.getElementById('btnLoad');
+    var btnDelete   = document.getElementById('btnDelete');
+
+    // ─── IndexedDB-Helfer ─────────────────────────────────────────────
+    function openDB() {
+      return new Promise(function (resolve, reject) {
+        var req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = function () {
+          req.result.createObjectStore(STORE_NAME);
+        };
+        req.onsuccess = function () { resolve(req.result); };
+        req.onerror = function () { reject(req.error); };
+      });
+    }
+
+    function idbPut(key, value) {
+      return openDB().then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(STORE_NAME, 'readwrite');
+          tx.objectStore(STORE_NAME).put(value, key);
+          tx.oncomplete = resolve;
+          tx.onerror = function () { reject(tx.error); };
+        });
+      });
+    }
+
+    function idbGet(key) {
+      return openDB().then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var req = db.transaction(STORE_NAME, 'readonly')
+                       .objectStore(STORE_NAME).get(key);
+          req.onsuccess = function () { resolve(req.result); };
+          req.onerror = function () { reject(req.error); };
+        });
+      });
+    }
+
+    function idbDelete(key) {
+      return openDB().then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(STORE_NAME, 'readwrite');
+          tx.objectStore(STORE_NAME).delete(key);
+          tx.oncomplete = resolve;
+          tx.onerror = function () { reject(tx.error); };
+        });
+      });
+    }
+
+    function createOfflineStyle() {
+      return {
+        version: 8,
+        sources: {
+          world: {
+            type: 'vector',
+            url: 'pmtiles://' + SOURCE_KEY,
+            attribution: '© OpenStreetMap contributors'
+          }
+        },
+        layers: [
+          { id: 'water', type: 'fill', source: 'world', 'source-layer': 'water', paint: { 'fill-color': '#a8d0e6' } },
+          { id: 'landuse', type: 'fill', source: 'world', 'source-layer': 'landuse', paint: { 'fill-color': '#dfe7d5' } },
+          { id: 'roads', type: 'line', source: 'world', 'source-layer': 'roads', paint: { 'line-color': '#d8a86c', 'line-width': 1.5 } },
+          { id: 'buildings', type: 'fill', source: 'world', 'source-layer': 'buildings', paint: { 'fill-color': '#d9d9d9', 'fill-opacity': 0.85 } },
+          { id: 'labels', type: 'symbol', source: 'world', 'source-layer': 'place', layout: { 'text-field': ['get', 'name'], 'text-font': ['Noto Sans Regular'], 'text-size': 12 }, paint: { 'text-color': '#333' } }
+        ]
+      };
+    }
+
+    function loadOnlineMap() {
+      if (map) { map.remove(); map = null; }
+      statusEl.textContent = 'Lade normale Online-Vektorkarte …';
+
+      fetch(ONLINE_STYLE_URL)
+        .then(function (r) { return r.json(); })
+        .then(function (style) {
+          map = new maplibregl.Map({
+            container: 'map',
+            style: style,
+            center: [13.405, 52.52],
+            zoom: 11
+          });
+
+          map.on('load', function () {
+            map.addControl(new maplibregl.NavigationControl());
+            map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }));
+            statusEl.textContent = '🌐 Online-Vektorkarte geladen';
+          });
+        })
+        .catch(function (err) {
+          statusEl.textContent = '❌ Online-Fehler: ' + err.message;
+        });
+    }
+
+    // ─── Download & Speichern ─────────────────────────────────────────
+    btnDownload.addEventListener('click', function () {
+      btnDownload.disabled = true;
+      statusEl.textContent = 'Lade PMTiles-Archiv …';
+
+      fetch(PMTILES_URL)
+        .then(function (res) {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.arrayBuffer();
+        })
+        .then(function (buf) {
+          statusEl.textContent = 'Speichere in IndexedDB …';
+          return idbPut(SOURCE_KEY, buf);
+        })
+        .then(function () {
+          statusEl.textContent = '✅ Gespeichert! Jetzt offline nutzbar.';
+          btnLoad.disabled = false;
+        })
+        .catch(function (err) {
+          statusEl.textContent = '❌ Fehler: ' + err.message;
+        })
+        .finally(function () {
+          btnDownload.disabled = false;
+        });
+    });
+
+    // ─── Offline Laden ────────────────────────────────────────────────
+    btnLoad.addEventListener('click', function () {
+      statusEl.textContent = 'Lade aus IndexedDB …';
+
+      idbGet(SOURCE_KEY).then(function (buf) {
+        if (!buf) { statusEl.textContent = '❌ Kein Archiv gefunden.'; return; }
+
+        if (map) { map.remove(); map = null; }
+
+        var protocol = new pmtiles.Protocol();
+        var pmtilesInstance = new pmtiles.PMTiles(buf);
+        protocol.add(pmtilesInstance);
+        maplibregl.addProtocol('pmtiles', protocol.tile);
+
+        map = new maplibregl.Map({
+          container: 'map',
+          style: createOfflineStyle(),
+          center: [13.405, 52.52],
+          zoom: 11
+        });
+
+        map.on('load', function () {
+          map.addControl(new maplibregl.NavigationControl());
+          map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }));
+          statusEl.textContent = '✅ Offline-Map geladen!';
+        });
+      }).catch(function (err) {
+        statusEl.textContent = '❌ ' + err.message;
+      });
+    });
+
+    // ─── Löschen ──────────────────────────────────────────────────────
+    btnOnline.addEventListener('click', loadOnlineMap);
+
+    btnDelete.addEventListener('click', function () {
+      idbDelete(SOURCE_KEY).then(function () {
+        statusEl.textContent = '🗑 Gelöscht. Online-Karte kann erneut geladen werden.';
+        btnLoad.disabled = true;
+        if (map) { map.remove(); map = null; }
+      });
+    });
+
+    // ─── Initial-Check: Archiv schon vorhanden? ───────────────────────
+    idbGet(SOURCE_KEY).then(function (buf) {
+      if (buf) btnLoad.disabled = false;
+    });
+
+    // Start: normale Online-Vektorkarte laden
+    loadOnlineMap();
+  </script>
+</body>
+</html>   

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MapLibre GL + PMTiles Offline (ohne Module)</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; overflow: hidden; }
+    #map { position: absolute; inset: 0; }
+
+    .panel {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      z-index: 10;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      padding: 16px;
+      width: 320px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+    }
+    .panel h2 { font-size: 15px; margin-bottom: 12px; }
+    .panel button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 8px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .panel button:hover { opacity: 0.85; }
+    .panel button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-download { background: #2563eb; color: #fff; }
+    .btn-clear { background: #ef4444; color: #fff; }
+
+    .progress-bar {
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
+      margin: 8px 0;
+      overflow: hidden;
+      display: none;
+    }
+    .progress-bar.active { display: block; }
+    .progress-bar .fill {
+      height: 100%;
+      background: #2563eb;
+      border-radius: 3px;
+      transition: width 0.3s;
+      width: 0%;
+    }
+    .status { font-size: 12px; color: #666; margin-top: 8px; }
+    .status.ok { color: #10b981; }
+    .status.err { color: #ef4444; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="panel">
+    <h2>🗺️ PMTiles Offline</h2>
+    <button class="btn-download" id="btn-download">⬇️ PMTiles herunterladen</button>
+    <div class="progress-bar" id="progress-bar"><div class="fill" id="progress-fill"></div></div>
+    <button class="btn-clear" id="btn-clear">🗑️ Gespeicherte Datei löschen</button>
+    <div class="status" id="status">Bereit.</div>
+  </div>
+
+  <!-- UMD-Builds – kein <script type="module"> nötig -->
+  <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pmtiles@4.3.0/dist/pmtiles.js"></script>
+
+  <script>
+    // ─── Konfiguration ──────────────────────────────────────────────────
+    const PMTILES_URL = 'https://pmtiles.io/protomaps(vector)ODbL_firenze.pmtiles';
+    const DB_NAME = 'offline-pmtiles-db';
+    const STORE_NAME = 'pmtiles-files';
+    const FILE_KEY = 'firenze.pmtiles';
+
+    // ─── IndexedDB-Helper ───────────────────────────────────────────────
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = () => req.result.createObjectStore(STORE_NAME);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function idbPut(db, key, value) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).put(value, key);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    function idbGet(db, key) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const req = tx.objectStore(STORE_NAME).get(key);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function idbDelete(db, key) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).delete(key);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    // ─── Status & UI ────────────────────────────────────────────────────
+    const statusEl = document.getElementById('status');
+    const progressEl = document.getElementById('progress-bar');
+    const fillEl = document.getElementById('progress-fill');
+
+    function setStatus(msg, cls) {
+      statusEl.textContent = msg;
+      statusEl.className = 'status' + (cls ? ' ' + cls : '');
+    }
+
+    // ─── Map & PMTiles-Protokoll ────────────────────────────────────────
+    let map = null;
+    const { PMTiles, Protocol } = pmtiles;
+    const protocol = new Protocol();
+    maplibregl.addProtocol('pmtiles', protocol.tile);
+
+    function createMap() {
+      if (map) { map.remove(); map = null; }
+
+      map = new maplibregl.Map({
+        container: 'map',
+        zoom: 12,
+        center: [12.496, 43.769], // Florenz
+        style: {
+          version: 8,
+          sources: {
+            offline_map: {
+              type: 'vector',
+              url: 'pmtiles://',
+              attribution: '© <a href="https://openstreetmap.org/copyright">OSM</a>'
+            }
+          },
+          layers: [
+            { id: 'landuse', source: 'offline_map', 'source-layer': 'landuse',
+              type: 'fill', paint: { 'fill-color': '#e8e4d8' } },
+            { id: 'water', source: 'offline_map', 'source-layer': 'water',
+              type: 'fill', paint: { 'fill-color': '#a8d0e6' } },
+            { id: 'buildings', source: 'offline_map', 'source-layer': 'buildings',
+              type: 'fill', paint: { 'fill-color': '#d9d9d9', 'fill-opacity': 0.8 } },
+            { id: 'roads', source: 'offline_map', 'source-layer': 'roads',
+              type: 'line', paint: { 'line-color': '#fc8d62', 'line-width': 1.5 } },
+            { id: 'places', source: 'offline_map', 'source-layer': 'place',
+              type: 'symbol',
+              layout: { 'text-field': ['get', 'name'], 'text-size': 12 },
+              paint: { 'text-color': '#333' } }
+          ]
+        }
+      });
+
+      map.addControl(new maplibregl.NavigationControl(), 'top-left');
+      map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-right');
+    }
+
+    // ─── PMTiles aus ArrayBuffer initialisieren ─────────────────────────
+    async function loadOffline() {
+      const db = await openDB();
+      const buffer = await idbGet(db, FILE_KEY);
+
+      if (!buffer) {
+        setStatus('Keine PMTiles-Datei gespeichert. Bitte herunterladen.');
+        return;
+      }
+
+      const pmtilesInstance = new PMTiles(buffer);
+      protocol.add(pmtilesInstance);
+      createMap();
+      setStatus('✅ Karte offline geladen (Florenz).', 'ok');
+    }
+
+    // ─── Download mit Fortschritt ───────────────────────────────────────
+    document.getElementById('btn-download').addEventListener('click', async () => {
+      const btn = document.getElementById('btn-download');
+      btn.disabled = true;
+      progressEl.classList.add('active');
+      fillEl.style.width = '0%';
+      setStatus('Lade PMTiles-Datei…');
+
+      try {
+        const response = await fetch(PMTILES_URL);
+
+        // Fortschritt anzeigen (wenn Content-Length verfügbar)
+        const total = parseInt(response.headers.get('Content-Length')) || 0;
+        const reader = response.body.getReader();
+        const chunks = [];
+        let received = 0;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          received += value.length;
+          if (total) {
+            fillEl.style.width = ((received / total) * 100).toFixed(1) + '%';
+          }
+        }
+
+        const buffer = new Uint8Array(received);
+        let offset = 0;
+        for (const chunk of chunks) {
+          buffer.set(chunk, offset);
+          offset += chunk.length;
+        }
+
+        // In IndexedDB speichern
+        const db = await openDB();
+        await idbPut(db, FILE_KEY, buffer.buffer);
+
+        progressEl.classList.remove('active');
+        setStatus('✅ Gespeichert! Lade Karte…', 'ok');
+        await loadOffline();
+
+      } catch (err) {
+        setStatus('❌ Fehler: ' + err.message, 'err');
+        console.error(err);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // ─── Löschen ────────────────────────────────────────────────────────
+    document.getElementById('btn-clear').addEventListener('click', async () => {
+      if (!confirm('PMTiles-Datei aus IndexedDB löschen?')) return;
+      try {
+        const db = await openDB();
+        await idbDelete(db, FILE_KEY);
+        if (map) { map.remove(); map = null; }
+        setStatus('🗑️ Gelöscht.');
+      } catch (err) {
+        setStatus('❌ Fehler: ' + err.message, 'err');
+      }
+    });
+
+    // ─── Beim Laden automatisch öffnen ──────────────────────────────────
+    loadOffline();
+  </script>
+</body>
+</html>   
